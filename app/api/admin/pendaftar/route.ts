@@ -28,8 +28,8 @@ export async function GET(request: Request) {
         return Response.json({ registrations }, { headers: { "Cache-Control": "private, no-store" } });
     } catch (error) {
         console.error("Failed to load Firebase registrations", error);
-        if (error instanceof Error && error.message.includes("FIREBASE_SERVICE_ACCOUNT_")) {
-            return Response.json({ error: "Akses data admin gagal membaca konfigurasi service account Firebase. Periksa FIREBASE_SERVICE_ACCOUNT_JSON atau FIREBASE_SERVICE_ACCOUNT_FILE." }, { status: 503 });
+        if (error instanceof Error && error.message.includes("Firebase service account is incomplete")) {
+            return Response.json({ error: "Akses data admin gagal membaca konfigurasi service account Firebase. Periksa Firebase service account is incompleteJSON atau Firebase service account is incompleteFILE." }, { status: 503 });
         }
         return Response.json({ error: "Data pendaftar belum dapat dimuat." }, { status: 500 });
     }
