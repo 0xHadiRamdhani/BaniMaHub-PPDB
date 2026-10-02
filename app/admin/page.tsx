@@ -201,7 +201,7 @@ export default function AdminPage() {
 
     const summaries = statuses.map((status) => [status, registrations.filter((item) => item.status === status).length] as const);
 
-    return <SubpageShell eyebrow="Administrasi PPDB" title="Data Pendaftar" intro="Daftar pendaftar yang tersimpan di Firebase." headerAction={<button type="button" onClick={() => void signOut()} className="inline-flex shrink-0 items-center gap-2 border-2 border-ink px-3 py-2 text-sm font-bold hover:bg-paper-soft"><LogOut size={16} aria-hidden="true" />Keluar</button>}>
+    return <SubpageShell eyebrow="Administrasi PPDB" title="Data Pendaftar" intro="Daftar pendaftar yang tersimpan di Firebase." hideHomeLink headerAction={<button type="button" onClick={() => void signOut()} className="inline-flex shrink-0 items-center gap-2 border-2 border-ink px-3 py-2 text-sm font-bold hover:bg-paper-soft"><LogOut size={16} aria-hidden="true" />Keluar</button>}>
         <section className="mx-auto max-w-7xl space-y-6 px-5 py-10 sm:px-8 sm:py-14">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Panel><p className="font-display text-4xl text-primary">{loading ? "..." : registrations.length}</p><p className="mt-1 text-sm font-bold">Total pendaftar</p></Panel>
