@@ -56,9 +56,6 @@ export default function Header() {
                         <a href="#jadwal" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Jadwal</a>
                         <a href="#syarat" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Syarat</a>
                     </nav>
-                    <Link href="/ppdb/daftar" onClick={() => setIsOpen(false)} className="comic-button text-center w-full border-[3px] border-primary bg-primary px-3 py-3 text-sm font-bold text-paper shadow-[4px_4px_0_var(--primary-strong)] mt-2">
-                        Daftar Sekarang
-                    </Link>
                 </div>
             )}
         </header>
