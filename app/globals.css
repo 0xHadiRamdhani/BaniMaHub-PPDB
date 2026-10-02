@@ -40,7 +40,7 @@ html[data-theme="dark"] {
   --color-primary: var(--primary);
   --color-primary-strong: var(--primary-strong);
   --color-primary-soft: var(--primary-soft);
-  --font-sans: var(--font-work-sans);
+  --font-sans: "Times New Roman", Times, serif;
 }
 
 * {
@@ -87,7 +87,7 @@ body {
     radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
     linear-gradient(180deg, var(--paper) 0%, var(--paper-soft) 100%);
   color: var(--ink);
-  font-family: var(--font-work-sans), sans-serif;
+  font-family: "Times New Roman", Times, serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -181,7 +181,7 @@ textarea::placeholder {
 }
 
 .font-display {
-  font-family: var(--font-bangers), cursive;
+  font-family: "Times New Roman", Times, serif;
   letter-spacing: 0.025em;
 }
 
