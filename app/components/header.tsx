@@ -1,0 +1,66 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+import { ThemeToggle } from "./theme-toggle";
+
+export default function Header() {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <header className="sticky top-0 z-40 border-b-[3px] border-primary bg-paper/95 backdrop-blur">
+            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-18.5 sm:px-8">
+                <Link href="/" className="flex items-center gap-3 no-underline">
+                    <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border-[3px] border-primary bg-primary-soft">
+                        <Image src="/logo.png" alt="Logo SMK Bani Masum" fill sizes="40px" className="object-cover" />
+                    </span>
+                    <span className="hidden font-display text-xl sm:block">SMK BANI MASUM</span>
+                </Link>
+                
+                <nav className="hidden items-center gap-6 text-sm font-bold lg:flex">
+                    <a href="#keunggulan" className="text-ink/80 transition-colors hover:text-primary">Kenapa Kami</a>
+                    <a href="#jurusan" className="text-ink/80 transition-colors hover:text-primary">Jurusan</a>
+                    <a href="#alur" className="text-ink/80 transition-colors hover:text-primary">Alur Daftar</a>
+                    <a href="#jadwal" className="text-ink/80 transition-colors hover:text-primary">Jadwal</a>
+                    <a href="#syarat" className="text-ink/80 transition-colors hover:text-primary">Syarat</a>
+                </nav>
+                
+                <div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <Link href="/ppdb/daftar" className="hidden lg:flex comic-button shrink-0 border-[3px] border-primary bg-primary px-3 py-2 text-xs font-bold text-paper shadow-[3px_3px_0_var(--primary-strong)] sm:px-4 sm:text-sm sm:shadow-[4px_4px_0_var(--primary-strong)]">
+                        Daftar Sekarang
+                    </Link>
+                    <button 
+                        className="lg:hidden flex h-10 w-10 items-center justify-center rounded border-[3px] border-primary bg-paper text-primary comic-shadow" 
+                        onClick={() => setIsOpen(!isOpen)}
+                        aria-label="Toggle Menu"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            {isOpen ? (
+                                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                            ) : (
+                                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={3} d="M4 6h16M4 12h16M4 18h16" />
+                            )}
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            {isOpen && (
+                <div className="lg:hidden border-t-[3px] border-primary bg-paper px-4 py-4 absolute w-full left-0 comic-shadow-lg flex flex-col gap-4">
+                    <nav className="flex flex-col gap-4 text-sm font-bold">
+                        <a href="#keunggulan" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Kenapa Kami</a>
+                        <a href="#jurusan" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Jurusan</a>
+                        <a href="#alur" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Alur Daftar</a>
+                        <a href="#jadwal" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Jadwal</a>
+                        <a href="#syarat" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Syarat</a>
+                    </nav>
+                    <Link href="/ppdb/daftar" onClick={() => setIsOpen(false)} className="comic-button text-center w-full border-[3px] border-primary bg-primary px-3 py-3 text-sm font-bold text-paper shadow-[4px_4px_0_var(--primary-strong)] mt-2">
+                        Daftar Sekarang
+                    </Link>
+                </div>
+            )}
+        </header>
+    );
+}

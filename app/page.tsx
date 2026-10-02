@@ -4,6 +4,7 @@ import { Float, Reveal, StaggerGroup, StaggerItem } from "@/app/components/motio
 import TechBackground from "@/app/components/tech-background";
 import { ThemeToggle } from "./components/theme-toggle";
 import MajorSelector from "./components/major-selector";
+import Header from "./components/header";
 
 const advantages = [
     ["01", "Guru Berpengalaman", "Diajar tenaga pendidik yang paham kebutuhan industri, bukan cuma teori di buku."],
@@ -39,13 +40,7 @@ function StudentArt() {
 
 export default function Home() {
     return <main>
-        <header className="sticky top-0 z-40 border-b-[3px] border-primary bg-paper/95 backdrop-blur">
-            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-18.5 sm:px-8">
-                <Link href="/" className="flex items-center gap-3 no-underline"><span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border-[3px] border-primary bg-primary-soft"><Image src="/logo.png" alt="Logo SMK Bani Masum" fill sizes="40px" className="object-cover" /></span><span className="hidden font-display text-xl sm:block">SMK BANI MASUM</span></Link>
-                <nav className="hidden items-center gap-6 text-sm font-bold lg:flex"><a href="#keunggulan" className="text-ink/80 transition-colors hover:text-primary">Kenapa Kami</a><a href="#jurusan" className="text-ink/80 transition-colors hover:text-primary">Jurusan</a><a href="#alur" className="text-ink/80 transition-colors hover:text-primary">Alur Daftar</a><a href="#jadwal" className="text-ink/80 transition-colors hover:text-primary">Jadwal</a><a href="#syarat" className="text-ink/80 transition-colors hover:text-primary">Syarat</a></nav>
-                <div className="flex items-center gap-2"><ThemeToggle /><Link href="/ppdb/daftar" className="comic-button shrink-0 border-[3px] border-primary bg-primary px-3 py-2 text-xs font-bold text-paper shadow-[3px_3px_0_var(--primary-strong)] sm:px-4 sm:text-sm sm:shadow-[4px_4px_0_var(--primary-strong)]">Daftar Sekarang</Link></div>
-            </div>
-        </header>
+        <Header />
 
         <section className="relative overflow-hidden border-b-[3px] border-primary/70 py-10 sm:py-16 lg:py-20"><TechBackground /><div className="relative z-10 mx-auto grid max-w-7xl items-center gap-8 px-4 sm:gap-10 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
             <Reveal><div className="lg:max-w-2xl"><h1 className="font-display text-4xl leading-[.98] sm:text-7xl">Wujudkan Masa Depanmu Mulai dari SMK Bani Masum!</h1><p className="mt-5 max-w-xl text-base leading-7 text-ink/80 sm:text-lg sm:leading-8">Belajar keahlian yang benar-benar dipakai di dunia kerja, dari praktik nyata sampai bimbingan guru yang siap mendampingi kamu sampai lulus.</p><div className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:gap-4"><Link href="/ppdb/daftar" className="comic-button border-[3px] border-primary bg-primary px-6 py-3 text-center font-bold text-paper comic-shadow shadow-[5px_5px_0_var(--primary-strong)]">Daftar Sekarang</Link><a href="#jurusan" className="comic-button border-[3px] border-primary bg-paper px-6 py-3 text-center font-bold text-primary comic-shadow">Lihat Jurusan</a></div></div></Reveal>
