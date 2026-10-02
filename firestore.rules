@@ -1,0 +1,119 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Validasi URL dokumen (seperti dari imgbb) — pastikan URL https yang wajar
+    function isImgbbUrl(url) {
+      return url is string
+        && url.size() > 10
+        && url.size() <= 512
+        && url.matches('^https://.+');
+    }
+
+    // Validasi dokumen registration_status saat create (harus atomik dengan registrations)
+    function validStatus(registrationId) {
+      let data = request.resource.data;
+      let registration = getAfter(
+        /databases/$(database)/documents/registrations/$(registrationId)
+      ).data;
+      return request.auth == null
+        && registrationId.matches('^BM26-[A-F0-9]{16}$')
+        && data.keys().hasOnly(['registration_number', 'name', 'status'])
+        && data.keys().hasAll(['registration_number', 'name', 'status'])
+        && data.registration_number is string
+        && data.registration_number == registrationId
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 120
+        && data.status == 'Menunggu verifikasi'
+        && registration.registration_number == registrationId
+        && registration.name == data.name
+        && registration.status == data.status;
+    }
+
+    // Validasi dokumen registrations saat create (harus atomik dengan registration_status)
+    function validRegistration(documentId) {
+      let data = request.resource.data;
+      let publicStatus = getAfter(
+        /databases/$(database)/documents/registration_status/$(documentId)
+      ).data;
+      return request.auth == null
+        && documentId.matches('^BM26-[A-F0-9]{16}$')
+
+        // Field wajib ada
+        && data.keys().hasAll([
+          'registration_number', 'name', 'nisn', 'birth_date', 'phone',
+          'parent_name', 'parent_phone', 'major', 'status', 'created_at',
+          'documents_pending'
+        ])
+
+        // Tidak boleh ada field lain di luar daftar ini
+        && data.keys().hasOnly([
+          'registration_number', 'name', 'nisn', 'birth_date', 'phone',
+          'parent_name', 'parent_phone', 'major', 'status', 'created_at',
+          'documents_pending',
+          'kk_path', 'ijazah_path', 'photo_path',
+          'kk_url',  'ijazah_url',  'photo_url'
+        ])
+
+        // Validasi nilai field
+        && data.registration_number is string
+        && data.registration_number == documentId
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 120
+        && data.nisn is string && data.nisn.size() > 0 && data.nisn.size() <= 20
+        && data.birth_date is string
+        && data.birth_date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && data.phone is string && data.phone.size() >= 8 && data.phone.size() <= 20
+        && data.parent_name is string && data.parent_name.size() > 0 && data.parent_name.size() <= 120
+        && data.parent_phone is string && data.parent_phone.size() >= 8 && data.parent_phone.size() <= 20
+        && data.major in ['RPL - Teknik Komputer', 'TBSM - Teknik Otomotif']
+        && data.status == 'Menunggu verifikasi'
+        && data.created_at is string
+        && data.created_at.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}T.*Z$')
+        && data.documents_pending is bool
+
+        // Field dokumen opsional — path (PDF di Firebase Storage) atau URL (gambar di imgbb)
+        && (!data.keys().hasAny(['kk_path'])
+          || (data.kk_path is string
+            && data.kk_path.matches('^BM26-[A-F0-9]{16}/kk-.+$')))
+        && (!data.keys().hasAny(['ijazah_path'])
+          || (data.ijazah_path is string
+            && data.ijazah_path.matches('^BM26-[A-F0-9]{16}/ijazah-.+$')))
+        && (!data.keys().hasAny(['photo_path'])
+          || (data.photo_path is string
+            && data.photo_path.matches('^BM26-[A-F0-9]{16}/photo-.+$')))
+        && (!data.keys().hasAny(['kk_url'])     || isImgbbUrl(data.kk_url))
+        && (!data.keys().hasAny(['ijazah_url']) || isImgbbUrl(data.ijazah_url))
+        && (!data.keys().hasAny(['photo_url'])  || isImgbbUrl(data.photo_url))
+
+        // Konsistensi atomik: registration_status harus ditulis bersamaan dan cocok
+        && publicStatus.registration_number == documentId
+        && publicStatus.name == data.name
+        && publicStatus.status == data.status;
+    }
+
+    // ── Koleksi: registrations ──────────────────────────────────────────────
+    // Publik: hanya boleh create (via atomic commit dari form pendaftaran).
+    // Read/update/delete: hanya via Service Account (bypass rules).
+    match /registrations/{registrationId} {
+      allow create: if validRegistration(registrationId);
+      allow read, update, delete: if false;
+    }
+
+    // ── Koleksi: registration_status ────────────────────────────────────────
+    // Publik: boleh get 1 dokumen (cek status nomor pendaftaran).
+    // Create: hanya boleh atomik bersamaan dengan registrations.
+    match /registration_status/{registrationId} {
+      allow get: if registrationId.matches('^BM26-[A-F0-9]{16}$')
+        && resource.data.registration_number == registrationId
+        && resource.data.keys().hasAll(['registration_number', 'name', 'status'])
+        && resource.data.keys().hasOnly(['registration_number', 'name', 'status']);
+      allow list: if false;
+      allow create: if validStatus(registrationId);
+      allow update, delete: if false;
+    }
+
+    // ── Catch-all: blokir semua akses lain ─────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
