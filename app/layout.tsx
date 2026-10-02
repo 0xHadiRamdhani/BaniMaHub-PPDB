@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   description: "Penerimaan Peserta Didik Baru SMK Bani Masum",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" className={`${workSans.variable} ${bangers.variable}`} suppressHydrationWarning>
       <head>
