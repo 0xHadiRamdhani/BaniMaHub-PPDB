@@ -1,23 +1,10 @@
 import "server-only";
 
-// Kredensial ini hanya digunakan oleh route handler di server.
-// Di Vercel, pastikan Anda menambahkan Environment Variables:
-// 1. FIREBASE_SERVICE_ACCOUNT (berisi seluruh teks JSON dari serviceAccountKey)
-// 2. IMGBB_API_KEY
-let parsedAccount = {
+// Kredensial Firebase di-_hardcode_ sesuai permintaan agar langsung berjalan di Vercel tanpa perlu pengaturan Environment Variables.
+export const firebaseServiceAccount = {
     project_id: "ppdb-smk-bani-masum-641ce",
     client_email: "firebase-adminsdk-fbsvc@ppdb-smk-bani-masum-641ce.iam.gserviceaccount.com",
-    private_key: "",
-};
+    private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDZbQ1BsdvcN51l\nyerUQZ4QR/VmO231ANGYgWWnerR7CSQzui4dH9R67msig0s5ltG9TJtOg9tgIEw6\n9yXWonG5QrwihMYkL9X2hgvd9zEdngQn2o2P6lA8Re2UHS/ox5dWPDDjszjinm9B\nxKptS0e0r5RHeup9OwmF4gRlPJ4rpAjNgQwrBRyoovaOS4x9CX6JvwDAExrHNs09\nt2d20mHBdk3fJ3TEdzpzSrIn8DSkNxBL2kzG0DHhYQ8l4xz5J1qmGbCZKIkqPfhE\nt2q48bgCsCi0JdnRc1ntj0+PSwksir7bPEz2g/qKEyA4CqO2SpHhKF4zkOig9BeS\neVIDRT4DAgMBAAECggEADWrhvDcfS+9mrYcQuyPdfusMkCWEu0TfVQZPNqRSNPGI\neWS46cqIEJoGpIJDsdHGhGRmL9SKmjEEDfN93fP3s/4T9sazejzgJa7PVqr62KAN\naO7feOJ11x0ISfFPKTyqmy4VukeExX9k0EM0XTrzDt8doGz2bDSozslMNM8mglIn\nmaF2dPng2DpdOKoMvhC50DKoRixDM4uGE+Dq5x6M3BsuifLxKP69RPz5ZLEOXeps\nYqtXJLIQ+3cnyEM9U3raTtoxaKPSYXVQWVxmWsBeXGfqrxRn3vGV+Z15FiL4NpNW\n43DgqYM2N36YYKLbvR3QhvHT8/gFbbCYw3VAb4TvkQKBgQD9AXqPGMq5aU+EwuNT\nk9VE9kIQHWgYWorpUz+KotQr5tFCgFUttbn8b4PLtDUwCfE9rimuqY49eFKcGuir\n8cotsC1/IK5jhTlDxft7/DWTdIo5wxbtaNzxoGrYqaiQ4uX13bfccTd2HM/BF/Uj\nMFKII8I4b2FhDBEMtaU1kC7UOwKBgQDb/8dE2wK3rkZgaCNT7p43HMCpGQtY3DMZ\nOtuHf9yfDoaUAJpV//8+6w3VZ1vgcJ1TBYRHRDx32PsARwapvabz7SJ3Nwh2NK7X\npXJK07AGSrJYP9aMfUHYibDQ49EJDxQpN8RHsIoqf5F9bj4drID0O838C2B/WZiC\n77DGtzyI2QKBgBREhA7mi4bi2s3l1tQhKZqGp7Amyun4htw+IP74IEsMCINtSGWL\nA0UnocU1wHUCtuKcCxbE2nIuK1/5/92WVv3l+R8P/ShXyciWGZlLEPepBFGwQSvv\nlJN+qFCG9sv0gTt68XmlUC4UDMiJJMgW3OWvB6YBtilSECOWgY+S5011AoGAHiee\nEbMPWUv6+4XqqbuAVj+LrOHw6zorit7Fbno5LFgaXDkE7prLSr1/ROwI7OeiuNl9\nuyMAQtEr/mq94BBNzQuI+NxDPaiU+pwD4XvImeQtM+l0KAeXOe4NnWRMp7g4ZDnv\nnn/1QEQCFjZBL2IQvulfn5eTn4ERZYkjKum802kCgYEAuSh8F8Q4KjI0/n9/DgKB\nivtxclH+r3RWpUURm+L3TZzW658DfMzjD8XmJrzp1G4n8xUeYsfr9gAvhH5tdwmm\nCWQNB/9epu1xC2NZUWAnEQYw+E2vldu7SgeYkcxDdrmMe7euodhrL+xPygyR9Ehg\nrKetStDyPRCRYFvxeH8gRgE=\n-----END PRIVATE KEY-----\n",
+} as const;
 
-try {
-    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-        parsedAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    }
-} catch (e) {
-    console.error("Gagal melakukan JSON.parse pada FIREBASE_SERVICE_ACCOUNT di Environment Variables", e);
-}
-
-export const firebaseServiceAccount = parsedAccount;
-
-export const imgbbApiKey = process.env.IMGBB_API_KEY || "";
+export const imgbbApiKey = "000e075ac02db8b4015347c23810383d";
