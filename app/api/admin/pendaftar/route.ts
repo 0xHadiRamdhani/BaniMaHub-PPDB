@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     } catch (error) {
         console.error("Failed to load Firebase registrations", error);
         if (error instanceof Error && error.message.includes("Firebase service account is incomplete")) {
-            return Response.json({ error: "Akses data admin gagal membaca konfigurasi service account Firebase. Periksa Firebase service account is incompleteJSON atau Firebase service account is incompleteFILE." }, { status: 503 });
+            return Response.json({ error: "Data pendaftar gagal dimuat karena FIREBASE_SERVICE_ACCOUNT di Environment Variables Vercel belum disetel dengan benar." }, { status: 503 });
         }
         return Response.json({ error: "Data pendaftar belum dapat dimuat." }, { status: 500 });
     }
