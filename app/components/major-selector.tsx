@@ -59,7 +59,7 @@ export default function MajorSelector() {
                             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-neutral-700">{selectedMajor.facilities.map((facility) => <li key={facility}>{facility}</li>)}</ul>
                         </section>
                     </div>
-                    <Link href="/ppdb/daftar" className="inline-flex border border-neutral-300 bg-primary px-5 py-3 font-bold text-white shadow-md rounded-xl">Daftar Sekarang</Link>
+                    <Link href="/ppdb/daftar" className="inline-flex border border-neutral-300 bg-primary px-5 py-3 font-bold text-[#ffffff] shadow-md rounded-xl">Daftar Sekarang</Link>
                 </div>
             </>}
         </dialog>

@@ -30,7 +30,7 @@ function RegistrationSuccess({ number, documentsPending }: { number: string; doc
                 <p className="leading-7">Gunakan nomor ini untuk cek status berkas atau membuka kartu pendaftaran.</p>
                 {documentsPending && <p role="status" className="mt-4 border-2 border-amber-700 bg-amber-50 p-3 text-sm font-bold text-amber-900">Data pendaftaran sudah tersimpan, tetapi sebagian dokumen belum berhasil diunggah. Hubungi panitia sekolah untuk mengirimkan dokumen.</p>}
                 <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                    <Link href={`/ppdb/kartu?number=${number}`} className="inline-flex border border-neutral-300 bg-primary px-5 py-3 font-bold text-white shadow-md rounded-xl">Cetak Kartu Pendaftaran</Link>
+                    <Link href={`/ppdb/kartu?number=${number}`} className="inline-flex border border-neutral-300 bg-primary px-5 py-3 font-bold text-[#ffffff] shadow-md rounded-xl">Cetak Kartu Pendaftaran</Link>
                     <Link href="/ppdb/cek-status" className="inline-flex border border-neutral-300 px-5 py-3 font-bold text-primary">Cek Status</Link>
                 </div>
             </Panel>
@@ -117,7 +117,7 @@ export default function RegisterPage() {
                     {formError && <p role="alert" className="border-2 border-red-700 bg-red-50 p-3 text-sm font-bold text-red-800">{formError}</p>}
                     <div className="flex justify-between gap-4 pt-4">
                         {step > 0 && <button type="button" onClick={() => setStep((current) => current - 1)} className="border border-neutral-300 bg-paper px-5 py-3 font-bold shadow-md rounded-xl">Kembali</button>}
-                        <button type="submit" disabled={submitting} className="ml-auto border border-neutral-300 bg-primary px-5 py-3 font-bold text-white shadow-md rounded-xl disabled:cursor-wait disabled:opacity-60">{submitting ? "Mengirim..." : step === steps.length - 1 ? "Kirim Pendaftaran" : "Lanjut"}</button>
+                        <button type="submit" disabled={submitting} className="ml-auto border border-neutral-300 bg-primary px-5 py-3 font-bold text-[#ffffff] shadow-md rounded-xl disabled:cursor-wait disabled:opacity-60">{submitting ? "Mengirim..." : step === steps.length - 1 ? "Kirim Pendaftaran" : "Lanjut"}</button>
                     </div>
                 </form>
             </Panel>

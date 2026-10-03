@@ -28,7 +28,7 @@ export default function Header() {
                 
                 <div className="flex items-center gap-2">
                     <ThemeToggle />
-                    <Link href="/ppdb/daftar" className="hidden lg:flex rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg shrink-0 bg-primary px-3 py-2 text-xs font-bold text-white sm:px-4 sm:text-sm">
+                    <Link href="/ppdb/daftar" className="hidden lg:flex rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg shrink-0 bg-primary px-3 py-2 text-xs font-bold text-[#ffffff] sm:px-4 sm:text-sm">
                         Daftar Sekarang
                     </Link>
                     <button 
