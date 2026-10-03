@@ -18,6 +18,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id" className={inter.variable} suppressHydrationWarning>
       <head>
         <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: `(() => { try { const theme = localStorage.getItem("ppdb:theme"); if (theme === "dark") { document.documentElement.dataset.theme = "dark"; document.documentElement.style.colorScheme = "dark"; } } catch {} })()` }} />
+      
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root { --btn-secondary-text: #216ba5; }
+          html[data-theme="dark"] { --btn-secondary-text: #ffffff !important; }
+          /* Emergency overrides to bypass stuck CSS cache */
+          html[data-theme="dark"] .text-primary { color: #ffffff !important; }
+        ` }} />
       </head>
       <body>{children}</body>
     </html>
