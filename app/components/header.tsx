@@ -32,7 +32,7 @@ export default function Header() {
                         Daftar Sekarang
                     </Link>
                     <button 
-                        className="lg:hidden flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-300 bg-paper text-primary shadow-sm hover:bg-paper-soft transition-colors" 
+                        className="lg:hidden flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-300 bg-paper text-primary shadow-sm hover:bg-paper-soft transition-colors" style={{ color: "#216ba5" }} 
                         onClick={() => setIsOpen(!isOpen)}
                         aria-label="Toggle Menu"
                     >
