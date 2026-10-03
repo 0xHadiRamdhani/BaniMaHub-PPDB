@@ -15,7 +15,7 @@ export default function Header() {
                     <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-neutral-300 bg-paper-soft">
                         <Image src="/logo.png" alt="Logo SMK Bani Masum" fill sizes="40px" className="object-cover" />
                     </span>
-                    <span className="hidden font-extrabold tracking-tight text-xl sm:block">SMK BANI MASUM</span>
+                    <span className="font-extrabold tracking-tight text-lg sm:text-xl truncate">SMK BANI MASUM</span>
                 </Link>
                 
                 <nav className="hidden items-center gap-6 text-sm font-bold lg:flex">
