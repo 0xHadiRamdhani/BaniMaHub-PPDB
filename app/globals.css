@@ -126,13 +126,27 @@ dialog::backdrop {
 .text-paper { color: var(--paper) !important; }
 .text-ink { color: var(--ink) !important; }
 .text-primary { color: var(--primary) !important; }
-.text-gray-900 { color: #111827 !important; }
+
+/* Map gray/neutral text to dark mode aware variables */
+.text-gray-900 { color: var(--ink) !important; }
+.text-gray-700, .text-gray-600, .text-neutral-700, .text-neutral-600 { color: var(--muted) !important; }
+.text-gray-500, .text-gray-400, .text-neutral-500, .text-neutral-400 { color: var(--muted-soft) !important; }
 
 .bg-primary { background-color: var(--primary) !important; }
 .bg-paper { background-color: var(--paper) !important; }
 .bg-ink { background-color: var(--ink) !important; }
-.bg-white { background-color: #ffffff !important; }
-.bg-gray-50 { background-color: #f9fafb !important; }
+
+/* Map white and light gray backgrounds to dark mode aware variables */
+.bg-white { background-color: var(--paper) !important; }
+.bg-gray-50 { background-color: var(--paper-soft) !important; }
+.bg-gray-100 { background-color: var(--paper-soft) !important; }
 
 .border-primary { border-color: var(--primary) !important; }
-.border-gray-200 { border-color: #e5e7eb !important; }
+.border-gray-200, .border-neutral-300 { border-color: var(--control-border) !important; }
+
+/* Fix shadow colors for dark mode */
+html[data-theme="dark"] .shadow-md,
+html[data-theme="dark"] .shadow-lg,
+html[data-theme="dark"] .shadow-xl {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
+}
