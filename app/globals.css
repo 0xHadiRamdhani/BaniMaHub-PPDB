@@ -59,18 +59,12 @@ select,
 textarea {
   font: inherit;
   color: inherit;
+  border-radius: 6px;
 }
 
 button,
 select {
   cursor: pointer;
-}
-
-input,
-select,
-textarea,
-button {
-  border-radius: 0;
 }
 
 img,
@@ -83,9 +77,7 @@ iframe {
 body {
   margin: 0;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
-    linear-gradient(180deg, var(--paper) 0%, var(--paper-soft) 100%);
+  background: var(--paper-soft);
   color: var(--ink);
   font-family: var(--font-inter), sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -106,56 +98,6 @@ a {
   color: inherit;
 }
 
-.text-paper {
-  color: var(--paper);
-}
-
-.text-ink {
-  color: var(--ink);
-}
-
-.bg-paper {
-  background-color: var(--paper);
-}
-
-.bg-ink {
-  background-color: var(--ink);
-}
-
-.bg-paper-soft {
-  background-color: var(--paper-soft);
-}
-
-.text-neutral-700,
-.text-neutral-600 {
-  color: var(--muted);
-}
-
-.text-neutral-500,
-.text-neutral-400 {
-  color: var(--muted-soft);
-}
-
-.border-neutral-300 {
-  border-color: var(--control-border);
-}
-
-.bg-red-50 {
-  background-color: var(--error-bg);
-}
-
-.text-red-800 {
-  color: var(--error-text);
-}
-
-.bg-green-50 {
-  background-color: var(--success-bg);
-}
-
-.text-green-800 {
-  color: var(--success-text);
-}
-
 input,
 select,
 textarea {
@@ -168,50 +110,6 @@ textarea::placeholder {
   color: var(--muted-soft);
 }
 
-.text-primary {
-  color: var(--primary);
-}
-
-.bg-primary {
-  background-color: var(--primary);
-}
-
-.border-primary {
-  border-color: var(--primary);
-}
-
-.font-display {
-  font-family: var(--font-inter), sans-serif;
-  letter-spacing: 0.025em;
-}
-
-.comic-shadow {
-  box-shadow: 6px 6px 0 var(--ink);
-}
-
-.theme-toggle:hover {
-  background-color: var(--primary);
-  color: var(--paper);
-}
-
-.comic-shadow-lg {
-  box-shadow: 8px 8px 0 var(--ink);
-}
-
-.comic-button {
-  transition: transform 120ms ease, box-shadow 120ms ease;
-}
-
-.comic-button:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 3px 3px 0 var(--ink);
-}
-
-.comic-button:active {
-  transform: translate(6px, 6px);
-  box-shadow: 0 0 0 var(--ink);
-}
-
 dialog {
   background-color: var(--paper);
   color: var(--ink);
@@ -221,69 +119,4 @@ dialog::backdrop {
   background: rgba(2, 6, 23, 0.68);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-}
-
-@media (max-width: 639px) {
-  .comic-shadow {
-    box-shadow: 4px 4px 0 var(--ink);
-  }
-
-  .comic-shadow-lg {
-    box-shadow: 5px 5px 0 var(--ink);
-  }
-
-  .comic-button:active {
-    transform: translate(3px, 3px);
-  }
-}
-
-
-/* Modern Professional Design Overrides (SPMB Jatim style) */
-.border-\[3px\] {
-  border-width: 1px !important;
-  border-color: var(--control-border) !important;
-}
-
-.border-ink {
-  border-color: var(--control-border) !important;
-}
-
-.comic-shadow, .comic-shadow-lg {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-  border-radius: 8px !important;
-  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
-}
-
-.comic-shadow:hover, .comic-shadow-lg:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-}
-
-.comic-button {
-  border-radius: 6px !important;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-  border: none !important;
-  font-weight: 600 !important;
-}
-
-.comic-button:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 6px -1px rgba(33, 107, 165, 0.3) !important;
-}
-
-.comic-button:active {
-  transform: translateY(0) !important;
-}
-
-body {
-  background: var(--paper-soft) !important;
-}
-
-.border-b-\[3px\], .border-r-\[3px\], .border-l-\[3px\], .border-t-\[3px\] {
-  border-width: 1px !important;
-  border-color: var(--control-border) !important;
-}
-
-/* Fix any primary borders to use the correct color if not overridden by the general one */
-.border-primary {
-  border-color: var(--primary) !important;
 }

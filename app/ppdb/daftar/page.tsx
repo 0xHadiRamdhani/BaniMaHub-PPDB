@@ -26,12 +26,12 @@ function RegistrationSuccess({ number, documentsPending }: { number: string; doc
         <section className="mx-auto max-w-2xl px-5 py-14 sm:px-8">
             <Panel>
                 <p className="text-neutral-700">Nomor pendaftaran kamu:</p>
-                <div className="my-5 border-[3px] border-primary bg-paper-soft p-5 text-center font-display text-4xl">{number}</div>
+                <div className="my-5 border border-gray-200 bg-gray-50 p-5 text-center font-extrabold tracking-tight text-4xl">{number}</div>
                 <p className="leading-7">Gunakan nomor ini untuk cek status berkas atau membuka kartu pendaftaran.</p>
                 {documentsPending && <p role="status" className="mt-4 border-2 border-amber-700 bg-amber-50 p-3 text-sm font-bold text-amber-900">Data pendaftaran sudah tersimpan, tetapi sebagian dokumen belum berhasil diunggah. Hubungi panitia sekolah untuk mengirimkan dokumen.</p>}
                 <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                    <Link href={`/ppdb/kartu?number=${number}`} className="inline-flex border-[3px] border-primary bg-primary px-5 py-3 font-bold text-paper comic-shadow">Cetak Kartu Pendaftaran</Link>
-                    <Link href="/ppdb/cek-status" className="inline-flex border-[3px] border-primary px-5 py-3 font-bold text-primary">Cek Status</Link>
+                    <Link href={`/ppdb/kartu?number=${number}`} className="inline-flex border border-gray-200 bg-primary px-5 py-3 font-bold text-white shadow-md rounded-xl">Cetak Kartu Pendaftaran</Link>
+                    <Link href="/ppdb/cek-status" className="inline-flex border border-gray-200 px-5 py-3 font-bold text-primary">Cek Status</Link>
                 </div>
             </Panel>
         </section>
@@ -104,7 +104,7 @@ export default function RegisterPage() {
                         <TextField name="parentPhone" label="No. HP orang tua" type="tel" />
                     </>}
                     {step === 2 && <label className="block text-sm font-bold">Pilihan jurusan
-                        <select required name="major" className="mt-2 block w-full border-[3px] border-ink bg-paper px-4 py-3 font-normal">
+                        <select required name="major" className="mt-2 block w-full border border-gray-200 bg-white px-4 py-3 font-normal">
                             <option value="">Pilih jurusan</option>
                             <option>RPL - Teknik Komputer</option>
                             <option>TBSM - Teknik Otomotif</option>
@@ -116,8 +116,8 @@ export default function RegisterPage() {
                     </div>}
                     {formError && <p role="alert" className="border-2 border-red-700 bg-red-50 p-3 text-sm font-bold text-red-800">{formError}</p>}
                     <div className="flex justify-between gap-4 pt-4">
-                        {step > 0 && <button type="button" onClick={() => setStep((current) => current - 1)} className="border-[3px] border-ink bg-paper px-5 py-3 font-bold comic-shadow">Kembali</button>}
-                        <button type="submit" disabled={submitting} className="ml-auto border-[3px] border-primary bg-primary px-5 py-3 font-bold text-paper comic-shadow disabled:cursor-wait disabled:opacity-60">{submitting ? "Mengirim..." : step === steps.length - 1 ? "Kirim Pendaftaran" : "Lanjut"}</button>
+                        {step > 0 && <button type="button" onClick={() => setStep((current) => current - 1)} className="border border-gray-200 bg-white px-5 py-3 font-bold shadow-md rounded-xl">Kembali</button>}
+                        <button type="submit" disabled={submitting} className="ml-auto border border-gray-200 bg-primary px-5 py-3 font-bold text-white shadow-md rounded-xl disabled:cursor-wait disabled:opacity-60">{submitting ? "Mengirim..." : step === steps.length - 1 ? "Kirim Pendaftaran" : "Lanjut"}</button>
                     </div>
                 </form>
             </Panel>

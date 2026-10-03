@@ -9,30 +9,30 @@ export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-40 border-b-[3px] border-primary bg-paper/95 backdrop-blur">
+        <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-18.5 sm:px-8">
                 <Link href="/" className="flex items-center gap-3 no-underline">
-                    <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border-[3px] border-primary bg-primary-soft">
+                    <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-50">
                         <Image src="/logo.png" alt="Logo SMK Bani Masum" fill sizes="40px" className="object-cover" />
                     </span>
-                    <span className="hidden font-display text-xl sm:block">SMK BANI MASUM</span>
+                    <span className="hidden font-extrabold tracking-tight text-xl sm:block">SMK BANI MASUM</span>
                 </Link>
                 
                 <nav className="hidden items-center gap-6 text-sm font-bold lg:flex">
-                    <a href="#keunggulan" className="text-ink/80 transition-colors hover:text-primary">Kenapa Kami</a>
-                    <a href="#jurusan" className="text-ink/80 transition-colors hover:text-primary">Jurusan</a>
-                    <a href="#alur" className="text-ink/80 transition-colors hover:text-primary">Alur Daftar</a>
-                    <a href="#jadwal" className="text-ink/80 transition-colors hover:text-primary">Jadwal</a>
-                    <a href="#syarat" className="text-ink/80 transition-colors hover:text-primary">Syarat</a>
+                    <a href="#keunggulan" className="text-gray-900/80 transition-colors hover:text-primary">Kenapa Kami</a>
+                    <a href="#jurusan" className="text-gray-900/80 transition-colors hover:text-primary">Jurusan</a>
+                    <a href="#alur" className="text-gray-900/80 transition-colors hover:text-primary">Alur Daftar</a>
+                    <a href="#jadwal" className="text-gray-900/80 transition-colors hover:text-primary">Jadwal</a>
+                    <a href="#syarat" className="text-gray-900/80 transition-colors hover:text-primary">Syarat</a>
                 </nav>
                 
                 <div className="flex items-center gap-2">
                     <ThemeToggle />
-                    <Link href="/ppdb/daftar" className="hidden lg:flex comic-button shrink-0 border-[3px] border-primary bg-primary px-3 py-2 text-xs font-bold text-paper shadow-[3px_3px_0_var(--primary-strong)] sm:px-4 sm:text-sm sm:shadow-[4px_4px_0_var(--primary-strong)]">
+                    <Link href="/ppdb/daftar" className="hidden lg:flex rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg shrink-0 bg-primary px-3 py-2 text-xs font-bold text-white sm:px-4 sm:text-sm">
                         Daftar Sekarang
                     </Link>
                     <button 
-                        className="lg:hidden flex h-10 w-10 items-center justify-center rounded border-[3px] border-primary bg-paper text-primary comic-shadow" 
+                        className="lg:hidden flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-primary shadow-sm hover:bg-gray-50 transition-colors" 
                         onClick={() => setIsOpen(!isOpen)}
                         aria-label="Toggle Menu"
                     >
@@ -48,13 +48,13 @@ export default function Header() {
             </div>
 
             {isOpen && (
-                <div className="lg:hidden border-t-[3px] border-primary bg-paper px-4 py-4 absolute w-full left-0 comic-shadow-lg flex flex-col gap-4">
+                <div className="lg:hidden border-t border-gray-200 bg-white px-4 py-4 absolute w-full left-0 shadow-lg flex flex-col gap-4">
                     <nav className="flex flex-col gap-4 text-sm font-bold">
-                        <a href="#keunggulan" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Kenapa Kami</a>
-                        <a href="#jurusan" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Jurusan</a>
-                        <a href="#alur" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Alur Daftar</a>
-                        <a href="#jadwal" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Jadwal</a>
-                        <a href="#syarat" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Syarat</a>
+                        <a href="#keunggulan" onClick={() => setIsOpen(false)} className="text-gray-900/80 transition-colors hover:text-primary">Kenapa Kami</a>
+                        <a href="#jurusan" onClick={() => setIsOpen(false)} className="text-gray-900/80 transition-colors hover:text-primary">Jurusan</a>
+                        <a href="#alur" onClick={() => setIsOpen(false)} className="text-gray-900/80 transition-colors hover:text-primary">Alur Daftar</a>
+                        <a href="#jadwal" onClick={() => setIsOpen(false)} className="text-gray-900/80 transition-colors hover:text-primary">Jadwal</a>
+                        <a href="#syarat" onClick={() => setIsOpen(false)} className="text-gray-900/80 transition-colors hover:text-primary">Syarat</a>
                     </nav>
                 </div>
             )}
