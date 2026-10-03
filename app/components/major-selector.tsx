@@ -19,7 +19,7 @@ export default function MajorSelector() {
     return <>
         <StaggerGroup className="mt-9 grid gap-5 md:auto-rows-fr md:grid-cols-2">
             {majors.map((major) => <StaggerItem key={major.code} className="h-full md:h-[300px]">
-                <button type="button" onClick={() => setSelectedMajor(major)} className="group flex h-full w-full flex-col overflow-hidden border border-gray-200 bg-white text-left shadow-md rounded-xl transition-transform hover:-translate-y-1 focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-primary">
+                <button type="button" onClick={() => setSelectedMajor(major)} className="group flex h-full w-full flex-col overflow-hidden border border-gray-200 bg-white text-left shadow-md rounded-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-primary/30 focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-primary">
                     <span className="block w-full border-b border-gray-200 bg-gray-50 p-6"><span className="font-extrabold tracking-tight text-5xl text-primary">{major.code}</span></span>
                     <span className="flex flex-1 flex-col p-5">
                         <span className="font-extrabold">{major.name}</span>
