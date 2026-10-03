@@ -31,7 +31,7 @@ function RegistrationSuccess({ number, documentsPending }: { number: string; doc
                 {documentsPending && <p role="status" className="mt-4 border-2 border-amber-700 bg-amber-50 p-3 text-sm font-bold text-amber-900">Data pendaftaran sudah tersimpan, tetapi sebagian dokumen belum berhasil diunggah. Hubungi panitia sekolah untuk mengirimkan dokumen.</p>}
                 <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                     <Link href={`/ppdb/kartu?number=${number}`} className="inline-flex border border-neutral-300 bg-primary px-5 py-3 font-bold text-[#ffffff] shadow-md rounded-xl" style={{ color: "#ffffff" }}>Cetak Kartu Pendaftaran</Link>
-                    <Link href="/ppdb/cek-status" className="inline-flex border border-neutral-300 px-5 py-3 font-bold text-primary" style={{ color: "#216ba5" }}>Cek Status</Link>
+                    <Link href="/ppdb/cek-status" className="inline-flex border border-neutral-300 px-5 py-3 font-bold text-primary" style={{ color: "var(--btn-secondary-text)" }}>Cek Status</Link>
                 </div>
             </Panel>
         </section>

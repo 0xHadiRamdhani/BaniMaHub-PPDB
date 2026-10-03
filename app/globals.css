@@ -14,6 +14,7 @@
   --error-text: #991b1b;
   --success-bg: #f0fdf4;
   --success-text: #166534;
+  --btn-secondary-text: var(--primary);
 }
 
 html[data-theme="dark"] {
@@ -30,6 +31,7 @@ html[data-theme="dark"] {
   --error-text: #fecaca;
   --success-bg: #052e16;
   --success-text: #bbf7d0;
+  --btn-secondary-text: #ffffff;
   color-scheme: dark;
 }
 
