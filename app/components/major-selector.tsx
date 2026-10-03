@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Laptop, Wrench } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { majors } from "@/app/lib/ppdb-data";
 import { StaggerGroup, StaggerItem } from "./motion";
@@ -20,7 +21,10 @@ export default function MajorSelector() {
         <StaggerGroup className="mt-9 grid gap-5 md:auto-rows-fr md:grid-cols-2">
             {majors.map((major) => <StaggerItem key={major.code} className="h-full md:h-[300px]">
                 <button type="button" onClick={() => setSelectedMajor(major)} className="group flex h-full w-full flex-col overflow-hidden border border-neutral-300 bg-paper text-left shadow-md rounded-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-primary/30 focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-primary">
-                    <span className="block w-full border-b border-neutral-300 bg-paper-soft p-6"><span className="font-extrabold tracking-tight text-5xl text-primary" style={{ color: "var(--btn-secondary-text)" }}>{major.code}</span></span>
+                    <span className="block w-full border-b border-neutral-300 bg-paper-soft p-6"><div className="flex items-center gap-3">
+                        {major.code === 'RPL' ? <Laptop className="w-10 h-10 text-primary" style={{ color: "var(--btn-secondary-text)" }} strokeWidth={2.5} /> : major.code === 'TBSM' ? <Wrench className="w-10 h-10 text-primary" style={{ color: "var(--btn-secondary-text)" }} strokeWidth={2.5} /> : null}
+                        <span className="font-extrabold tracking-tight text-5xl text-primary" style={{ color: "var(--btn-secondary-text)" }}>{major.code}</span>
+                    </div></span>
                     <span className="flex flex-1 flex-col p-5">
                         <span className="font-extrabold">{major.name}</span>
                         <span className="mt-2 text-sm leading-6 text-neutral-700">{major.description}</span>
@@ -42,7 +46,10 @@ export default function MajorSelector() {
             {selectedMajor && <>
                 <div className="flex items-start justify-between gap-4 border-b border-neutral-300 bg-paper-soft p-5 sm:p-7">
                     <div>
-                        <p className="font-extrabold tracking-tight text-4xl text-primary" style={{ color: "var(--btn-secondary-text)" }}>{selectedMajor.code}</p>
+                        <div className="flex items-center gap-2 mb-1">
+                            {selectedMajor.code === 'RPL' ? <Laptop className="w-8 h-8 text-primary" style={{ color: "var(--btn-secondary-text)" }} strokeWidth={2.5} /> : selectedMajor.code === 'TBSM' ? <Wrench className="w-8 h-8 text-primary" style={{ color: "var(--btn-secondary-text)" }} strokeWidth={2.5} /> : null}
+                            <p className="font-extrabold tracking-tight text-4xl text-primary" style={{ color: "var(--btn-secondary-text)" }}>{selectedMajor.code}</p>
+                        </div>
                         <h2 id="major-dialog-title" className="mt-1 text-xl font-extrabold sm:text-2xl">{selectedMajor.name}</h2>
                     </div>
                     <button type="button" onClick={() => setSelectedMajor(null)} aria-label="Tutup detail jurusan" className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-primary text-2xl font-bold text-primary hover:bg-paper focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-primary">×</button>
