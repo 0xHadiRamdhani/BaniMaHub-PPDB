@@ -236,3 +236,13 @@ dialog::backdrop {
     transform: translate(3px, 3px);
   }
 }
+
+/* Override tailwind utility classes for font weights globally */
+.font-bold, .font-extrabold, .font-semibold, .font-medium, .font-light, .font-black {
+  font-weight: normal !important;
+}
+
+/* Ensure headings and specific structural tags remain bold */
+h1, h2, h3, h4, h5, h6, .font-display, strong, b, th {
+  font-weight: bold !important;
+}
