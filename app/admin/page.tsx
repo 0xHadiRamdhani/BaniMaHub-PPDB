@@ -201,7 +201,7 @@ export default function AdminPage() {
 
     const summaries = statuses.map((status) => [status, registrations.filter((item) => item.status === status).length] as const);
 
-    return <SubpageShell eyebrow="Administrasi PPDB" title="Data Pendaftar" intro="Daftar pendaftar yang tersimpan di Firebase." hideHomeLink headerAction={<button type="button" onClick={() => void signOut()} className="inline-flex shrink-0 items-center gap-2 border-2 border-ink px-3 py-2 text-sm font-bold hover:bg-gray-50"><LogOut size={16} aria-hidden="true" />Keluar</button>}>
+    return <SubpageShell eyebrow="Administrasi PPDB" title="Data Pendaftar" intro="Daftar pendaftar yang tersimpan di Firebase." hideHomeLink headerAction={<button type="button" onClick={() => void signOut()} className="inline-flex shrink-0 items-center gap-2 border-2 border-ink px-3 py-2 text-sm font-bold hover:bg-paper-soft"><LogOut size={16} aria-hidden="true" />Keluar</button>}>
         <section className="mx-auto max-w-7xl space-y-6 px-5 py-10 sm:px-8 sm:py-14">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Panel><p className="font-extrabold tracking-tight text-4xl text-primary">{loading ? "..." : registrations.length}</p><p className="mt-1 text-sm font-bold">Total pendaftar</p></Panel>
@@ -211,16 +211,16 @@ export default function AdminPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h2 className="font-extrabold tracking-tight text-2xl">Daftar Pendaftar</h2>
                     <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={() => { setAddError(""); setAddDialogOpen(true); }} className="border border-gray-200 bg-primary px-4 py-2 text-sm font-bold text-white shadow-md rounded-xl">Tambah Pendaftar</button>
-                        <button type="button" onClick={() => setReload((value) => value + 1)} disabled={loading} className="border border-gray-200 px-4 py-2 text-sm font-bold hover:bg-gray-50 disabled:opacity-60">Muat ulang</button>
-                        <button type="button" onClick={exportCsv} disabled={!visibleRegistrations.length} className="border border-gray-200 bg-primary px-4 py-2 text-sm font-bold text-white shadow-md rounded-xl disabled:opacity-60">Export CSV</button>
+                        <button type="button" onClick={() => { setAddError(""); setAddDialogOpen(true); }} className="border border-neutral-300 bg-primary px-4 py-2 text-sm font-bold text-white shadow-md rounded-xl">Tambah Pendaftar</button>
+                        <button type="button" onClick={() => setReload((value) => value + 1)} disabled={loading} className="border border-neutral-300 px-4 py-2 text-sm font-bold hover:bg-paper-soft disabled:opacity-60">Muat ulang</button>
+                        <button type="button" onClick={exportCsv} disabled={!visibleRegistrations.length} className="border border-neutral-300 bg-primary px-4 py-2 text-sm font-bold text-white shadow-md rounded-xl disabled:opacity-60">Export CSV</button>
                     </div>
                 </div>
                 {notice && <p role="status" className="mt-5 border-2 border-green-700 bg-green-50 p-3 text-sm font-bold text-green-800">{notice}</p>}
                 <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                    <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari nomor, nama, NISN" className="min-w-0 border border-gray-200 bg-white px-4 py-3 text-sm" aria-label="Cari pendaftar" />
-                    <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="border border-gray-200 bg-white px-4 py-3 text-sm font-bold" aria-label="Filter status">{statusFilters.map((status) => <option key={status}>{status}</option>)}</select>
-                    <select value={majorFilter} onChange={(event) => setMajorFilter(event.target.value)} className="border border-gray-200 bg-white px-4 py-3 text-sm font-bold" aria-label="Filter jurusan">{majorFilters.map((major) => <option key={major}>{major}</option>)}</select>
+                    <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari nomor, nama, NISN" className="min-w-0 border border-neutral-300 bg-paper px-4 py-3 text-sm" aria-label="Cari pendaftar" />
+                    <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="border border-neutral-300 bg-paper px-4 py-3 text-sm font-bold" aria-label="Filter status">{statusFilters.map((status) => <option key={status}>{status}</option>)}</select>
+                    <select value={majorFilter} onChange={(event) => setMajorFilter(event.target.value)} className="border border-neutral-300 bg-paper px-4 py-3 text-sm font-bold" aria-label="Filter jurusan">{majorFilters.map((major) => <option key={major}>{major}</option>)}</select>
                 </div>
                 {error && <p role="alert" className="mt-5 border-2 border-red-700 bg-red-50 p-3 text-sm font-bold text-red-800">{error}</p>}
                 <div className="mt-6 overflow-x-auto">
@@ -233,8 +233,8 @@ export default function AdminPage() {
                                     <td className="p-3"><p className="font-bold">{registration.name}</p><p className="mt-1 text-xs text-neutral-600">NISN: {registration.nisn}</p></td>
                                     <td className="p-3">{registration.major}</td>
                                     <td className="p-3">{registration.phone}</td>
-                                    <td className="p-3"><select value={registration.status} disabled={savingNumber === registration.registration_number} onChange={(event) => void updateStatus(registration.registration_number, event.target.value)} className="max-w-52 border-2 border-primary bg-white px-2 py-2 text-xs font-bold disabled:opacity-60" aria-label={`Ubah status ${registration.registration_number}`}>{statuses.map((status) => <option key={status}>{status}</option>)}</select></td>
-                                    <td className="p-3"><button type="button" disabled={loadingDetails} onClick={() => void openDetails(registration.registration_number)} className="border-2 border-primary px-3 py-2 text-xs font-bold text-primary hover:bg-gray-50 disabled:opacity-60">{loadingDetails ? "Memuat..." : "Lihat"}</button></td>
+                                    <td className="p-3"><select value={registration.status} disabled={savingNumber === registration.registration_number} onChange={(event) => void updateStatus(registration.registration_number, event.target.value)} className="max-w-52 border-2 border-primary bg-paper px-2 py-2 text-xs font-bold disabled:opacity-60" aria-label={`Ubah status ${registration.registration_number}`}>{statuses.map((status) => <option key={status}>{status}</option>)}</select></td>
+                                    <td className="p-3"><button type="button" disabled={loadingDetails} onClick={() => void openDetails(registration.registration_number)} className="border-2 border-primary px-3 py-2 text-xs font-bold text-primary hover:bg-paper-soft disabled:opacity-60">{loadingDetails ? "Memuat..." : "Lihat"}</button></td>
                                 </tr>)}
                             {!loading && visibleRegistrations.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-neutral-600">Tidak ada pendaftar yang cocok.</td></tr>}
                         </tbody>
@@ -244,20 +244,20 @@ export default function AdminPage() {
             </Panel>
         </section>
 
-        <dialog ref={setAddDialog} onCancel={() => setAddDialogOpen(false)} onClick={(event) => { if (event.target === addDialog) setAddDialogOpen(false); }} className="m-auto max-h-[min(90dvh,850px)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto border border-gray-200 bg-white p-0 text-gray-900 backdrop:bg-ink/70" aria-labelledby="add-registration-title">
+        <dialog ref={setAddDialog} onCancel={() => setAddDialogOpen(false)} onClick={(event) => { if (event.target === addDialog) setAddDialogOpen(false); }} className="m-auto max-h-[min(90dvh,850px)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto border border-neutral-300 bg-paper p-0 text-ink backdrop:bg-ink/70" aria-labelledby="add-registration-title">
             <form onSubmit={addRegistration} className="divide-y-[3px] divide-primary">
-                <div className="flex items-start justify-between gap-4 bg-gray-50 p-5 sm:p-7">
+                <div className="flex items-start justify-between gap-4 bg-paper-soft p-5 sm:p-7">
                     <div><p className="text-xs font-extrabold uppercase text-primary">Entri Manual</p><h2 id="add-registration-title" className="mt-1 font-extrabold tracking-tight text-3xl">Tambah Pendaftar</h2></div>
-                    <button type="button" onClick={() => setAddDialogOpen(false)} aria-label="Tutup form tambah pendaftar" className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-primary text-2xl font-bold text-primary hover:bg-white">×</button>
+                    <button type="button" onClick={() => setAddDialogOpen(false)} aria-label="Tutup form tambah pendaftar" className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-primary text-2xl font-bold text-primary hover:bg-paper">×</button>
                 </div>
                 <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-7">
-                    <label className="block text-sm font-bold sm:col-span-2">Nama lengkap<input required name="name" maxLength={120} className="mt-2 block w-full border border-gray-200 bg-white px-4 py-3 font-normal" /></label>
-                    <label className="block text-sm font-bold">NISN<input required name="nisn" inputMode="numeric" className="mt-2 block w-full border border-gray-200 bg-white px-4 py-3 font-normal" /></label>
-                    <label className="block text-sm font-bold">Tanggal lahir<input required name="birth_date" type="date" className="mt-2 block w-full border border-gray-200 bg-white px-4 py-3 font-normal" /></label>
-                    <label className="block text-sm font-bold">Telepon pendaftar<input required name="phone" type="tel" maxLength={30} className="mt-2 block w-full border border-gray-200 bg-white px-4 py-3 font-normal" /></label>
-                    <label className="block text-sm font-bold">Jurusan<select required name="major" defaultValue="" className="mt-2 block w-full border border-gray-200 bg-white px-4 py-3 font-normal"><option value="" disabled>Pilih jurusan</option><option value="RPL - Teknik Komputer">RPL - Teknik Komputer</option><option value="TBSM - Teknik Otomotif">TBSM - Teknik Otomotif</option></select></label>
-                    <label className="block text-sm font-bold">Nama orang tua / wali<input required name="parent_name" maxLength={120} className="mt-2 block w-full border border-gray-200 bg-white px-4 py-3 font-normal" /></label>
-                    <label className="block text-sm font-bold">Telepon orang tua / wali<input required name="parent_phone" type="tel" maxLength={30} className="mt-2 block w-full border border-gray-200 bg-white px-4 py-3 font-normal" /></label>
+                    <label className="block text-sm font-bold sm:col-span-2">Nama lengkap<input required name="name" maxLength={120} className="mt-2 block w-full border border-neutral-300 bg-paper px-4 py-3 font-normal" /></label>
+                    <label className="block text-sm font-bold">NISN<input required name="nisn" inputMode="numeric" className="mt-2 block w-full border border-neutral-300 bg-paper px-4 py-3 font-normal" /></label>
+                    <label className="block text-sm font-bold">Tanggal lahir<input required name="birth_date" type="date" className="mt-2 block w-full border border-neutral-300 bg-paper px-4 py-3 font-normal" /></label>
+                    <label className="block text-sm font-bold">Telepon pendaftar<input required name="phone" type="tel" maxLength={30} className="mt-2 block w-full border border-neutral-300 bg-paper px-4 py-3 font-normal" /></label>
+                    <label className="block text-sm font-bold">Jurusan<select required name="major" defaultValue="" className="mt-2 block w-full border border-neutral-300 bg-paper px-4 py-3 font-normal"><option value="" disabled>Pilih jurusan</option><option value="RPL - Teknik Komputer">RPL - Teknik Komputer</option><option value="TBSM - Teknik Otomotif">TBSM - Teknik Otomotif</option></select></label>
+                    <label className="block text-sm font-bold">Nama orang tua / wali<input required name="parent_name" maxLength={120} className="mt-2 block w-full border border-neutral-300 bg-paper px-4 py-3 font-normal" /></label>
+                    <label className="block text-sm font-bold">Telepon orang tua / wali<input required name="parent_phone" type="tel" maxLength={30} className="mt-2 block w-full border border-neutral-300 bg-paper px-4 py-3 font-normal" /></label>
                 </div>
                 <div className="space-y-4 p-5 sm:p-7">
                     <h3 className="font-extrabold">Dokumen (opsional)</h3>
@@ -267,18 +267,18 @@ export default function AdminPage() {
                     <p className="text-xs text-neutral-600">PDF/JPG/PNG, maksimal 2 MB per dokumen.</p>
                     {addError && <p role="alert" className="border-2 border-red-700 bg-red-50 p-3 text-sm font-bold text-red-800">{addError}</p>}
                     <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={() => setAddDialogOpen(false)} className="border border-gray-200 px-4 py-3 text-sm font-bold">Batal</button>
-                        <button type="submit" disabled={savingNewRegistration} className="border border-gray-200 bg-primary px-5 py-3 text-sm font-bold text-white shadow-md rounded-xl disabled:opacity-60">{savingNewRegistration ? "Menyimpan..." : "Simpan Pendaftar"}</button>
+                        <button type="button" onClick={() => setAddDialogOpen(false)} className="border border-neutral-300 px-4 py-3 text-sm font-bold">Batal</button>
+                        <button type="submit" disabled={savingNewRegistration} className="border border-neutral-300 bg-primary px-5 py-3 text-sm font-bold text-white shadow-md rounded-xl disabled:opacity-60">{savingNewRegistration ? "Menyimpan..." : "Simpan Pendaftar"}</button>
                     </div>
                 </div>
             </form>
         </dialog>
 
-        <dialog ref={setDialog} onCancel={() => setSelectedRegistration(null)} onClick={(event) => { if (event.target === dialog) setSelectedRegistration(null); }} className="m-auto max-h-[min(90dvh,800px)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto border border-gray-200 bg-white p-0 text-gray-900 backdrop:bg-ink/70" aria-labelledby="registration-detail-title">
+        <dialog ref={setDialog} onCancel={() => setSelectedRegistration(null)} onClick={(event) => { if (event.target === dialog) setSelectedRegistration(null); }} className="m-auto max-h-[min(90dvh,800px)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto border border-neutral-300 bg-paper p-0 text-ink backdrop:bg-ink/70" aria-labelledby="registration-detail-title">
             {selectedRegistration && <>
-                <div className="flex items-start justify-between gap-4 border-b border-gray-200 bg-gray-50 p-5 sm:p-7">
+                <div className="flex items-start justify-between gap-4 border-b border-neutral-300 bg-paper-soft p-5 sm:p-7">
                     <div><p className="font-extrabold tracking-tight text-3xl text-primary">{selectedRegistration.registration_number}</p><h2 id="registration-detail-title" className="mt-1 text-xl font-extrabold">{selectedRegistration.name}</h2></div>
-                    <button type="button" onClick={() => setSelectedRegistration(null)} aria-label="Tutup detail pendaftar" className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-primary text-2xl font-bold text-primary hover:bg-white">×</button>
+                    <button type="button" onClick={() => setSelectedRegistration(null)} aria-label="Tutup detail pendaftar" className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-primary text-2xl font-bold text-primary hover:bg-paper">×</button>
                 </div>
                 <div className="space-y-6 p-5 sm:p-7">
                     <dl className="grid gap-4 text-sm sm:grid-cols-2">
@@ -294,11 +294,11 @@ export default function AdminPage() {
                         <h3 className="font-extrabold text-primary text-lg">Dokumen Pendaftaran</h3>
                         <div className="grid gap-4 sm:grid-cols-3">
                             {documents.map((document) => (
-                                <div key={document.name} className="flex flex-col border-2 border-ink bg-white p-3 shadow-md rounded-xl">
+                                <div key={document.name} className="flex flex-col border-2 border-ink bg-paper p-3 shadow-md rounded-xl">
                                     <div className="mb-2 font-bold text-sm border-b-2 border-ink pb-1">{document.name}</div>
                                     {document.url ? (
                                         document.url.includes(".pdf") ? (
-                                            <div className="flex flex-col items-center justify-center p-4 bg-gray-50 border-2 border-dashed border-ink flex-1 min-h-44 text-center">
+                                            <div className="flex flex-col items-center justify-center p-4 bg-paper-soft border-2 border-dashed border-ink flex-1 min-h-44 text-center">
                                                 <p className="text-xs font-bold text-neutral-700 mb-3">Dokumen Berformat PDF</p>
                                                 <a href={document.url} target="_blank" rel="noreferrer" className="border-2 border-primary bg-primary text-white px-3 py-2 text-xs font-bold shadow-md rounded-xl">
                                                     Buka Dokumen PDF
@@ -340,7 +340,7 @@ export default function AdminPage() {
                                 <p className="text-sm font-bold text-red-800">Yakin ingin menghapus <span className="font-extrabold tracking-tight">{selectedRegistration.registration_number}</span> – {selectedRegistration.name}? Tindakan ini tidak dapat dibatalkan.</p>
                                 <div className="flex gap-3">
                                     <button type="button" onClick={() => void deleteRegistration(selectedRegistration.registration_number)} disabled={!!deletingNumber} className="border-2 border-red-700 bg-red-700 px-4 py-2 text-sm font-bold text-white hover:bg-red-800 disabled:opacity-60">{deletingNumber ? "Menghapus..." : "Hapus Permanen"}</button>
-                                    <button type="button" onClick={() => setConfirmDelete(false)} disabled={!!deletingNumber} className="border-2 border-ink px-4 py-2 text-sm font-bold hover:bg-gray-50 disabled:opacity-60">Batal</button>
+                                    <button type="button" onClick={() => setConfirmDelete(false)} disabled={!!deletingNumber} className="border-2 border-ink px-4 py-2 text-sm font-bold hover:bg-paper-soft disabled:opacity-60">Batal</button>
                                 </div>
                             </div>}
                     </section>

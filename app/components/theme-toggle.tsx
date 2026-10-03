@@ -30,5 +30,5 @@ export function ThemeToggle() {
         applyTheme(nextTheme);
     };
 
-    return <button type="button" onClick={toggleTheme} className="theme-toggle flex h-9 w-9 items-center justify-center border border-gray-200 text-gray-700 rounded-lg transition-colors hover:bg-gray-50" aria-label={theme === "dark" ? "Aktifkan mode terang" : "Aktifkan mode gelap"} title={theme === "dark" ? "Mode terang" : "Mode gelap"}>{theme === "dark" ? <Sun aria-hidden="true" size={20} strokeWidth={3} /> : <Moon aria-hidden="true" size={20} strokeWidth={3} />}</button>;
+    return <button type="button" onClick={toggleTheme} className="theme-toggle flex h-9 w-9 items-center justify-center border border-neutral-300 text-neutral-700 rounded-lg transition-colors hover:bg-paper-soft" aria-label={theme === "dark" ? "Aktifkan mode terang" : "Aktifkan mode gelap"} title={theme === "dark" ? "Mode terang" : "Mode gelap"}>{theme === "dark" ? <Sun aria-hidden="true" size={20} strokeWidth={3} /> : <Moon aria-hidden="true" size={20} strokeWidth={3} />}</button>;
 }

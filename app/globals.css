@@ -40,6 +40,9 @@ html[data-theme="dark"] {
   --color-primary: var(--primary);
   --color-primary-strong: var(--primary-strong);
   --color-primary-soft: var(--primary-soft);
+  --color-neutral-300: var(--control-border);
+  --color-neutral-700: var(--muted);
+  --color-neutral-500: var(--muted-soft);
   --font-sans: var(--font-inter), sans-serif;
 }
 
@@ -121,28 +124,6 @@ dialog::backdrop {
   backdrop-filter: blur(8px);
 }
 
-/* Explicit utility classes that might have been lost */
-.text-white { color: #ffffff !important; }
-.text-paper { color: var(--paper) !important; }
-.text-ink { color: var(--ink) !important; }
-.text-primary { color: var(--primary) !important; }
-
-/* Map gray/neutral text to dark mode aware variables */
-.text-gray-900 { color: var(--ink) !important; }
-.text-gray-700, .text-gray-600, .text-neutral-700, .text-neutral-600 { color: var(--muted) !important; }
-.text-gray-500, .text-gray-400, .text-neutral-500, .text-neutral-400 { color: var(--muted-soft) !important; }
-
-.bg-primary { background-color: var(--primary) !important; }
-.bg-paper { background-color: var(--paper) !important; }
-.bg-ink { background-color: var(--ink) !important; }
-
-/* Map white and light gray backgrounds to dark mode aware variables */
-.bg-white { background-color: var(--paper) !important; }
-.bg-gray-50 { background-color: var(--paper-soft) !important; }
-.bg-gray-100 { background-color: var(--paper-soft) !important; }
-
-.border-primary { border-color: var(--primary) !important; }
-.border-gray-200, .border-neutral-300 { border-color: var(--control-border) !important; }
 
 /* Fix shadow colors for dark mode */
 html[data-theme="dark"] .shadow-md,

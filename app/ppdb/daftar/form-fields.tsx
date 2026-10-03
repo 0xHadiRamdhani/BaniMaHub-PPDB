@@ -9,7 +9,7 @@ type TextFieldProps = {
 export function TextField({ name, label, type = "text" }: TextFieldProps) {
     return <label className="block text-sm font-bold">
         {label}
-        <input required name={name} type={type} className="mt-2 block w-full border border-gray-200 bg-white px-4 py-3 font-normal outline-none focus:bg-gray-50" />
+        <input required name={name} type={type} className="mt-2 block w-full border border-neutral-300 bg-paper px-4 py-3 font-normal outline-none focus:bg-paper-soft" />
     </label>;
 }
 
@@ -23,7 +23,7 @@ type UploadFieldProps = {
 export function UploadField({ name, label, filename, onChange }: UploadFieldProps) {
     return <label className="block text-sm font-bold">
         {label}
-        <input required name={name} type="file" accept=".pdf,image/*" onChange={onChange} className="mt-2 block w-full border border-gray-200 p-3 font-normal" />
+        <input required name={name} type="file" accept=".pdf,image/*" onChange={onChange} className="mt-2 block w-full border border-neutral-300 p-3 font-normal" />
         {filename && <span className="mt-1 block text-xs font-normal">{filename}</span>}
     </label>;
 }
