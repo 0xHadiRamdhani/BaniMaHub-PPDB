@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #0f172a;
-  --paper: #f8fbff;
-  --paper-soft: #eaf3ff;
-  --primary: #2563eb;
-  --primary-strong: #1d4ed8;
-  --primary-soft: #dbeafe;
+  --ink: #111827;
+  --paper: #ffffff;
+  --paper-soft: #f9fafb;
+  --primary: #216ba5;
+  --primary-strong: #1a5684;
+  --primary-soft: #e6f0f9;
   --muted: #475569;
   --muted-soft: #64748b;
-  --control-border: #cbd5e1;
+  --control-border: #e5e7eb;
   --error-bg: #fef2f2;
   --error-text: #991b1b;
   --success-bg: #f0fdf4;
@@ -18,9 +18,9 @@
 
 html[data-theme="dark"] {
   --ink: #f8fafc;
-  --paper: #0f172a;
-  --paper-soft: #172554;
-  --primary: #60a5fa;
+  --paper: #111827;
+  --paper-soft: #1f2937;
+  --primary: #3b82f6;
   --primary-strong: #3b82f6;
   --primary-soft: #1e3a8a;
   --muted: #cbd5e1;
@@ -237,3 +237,53 @@ dialog::backdrop {
   }
 }
 
+
+/* Modern Professional Design Overrides (SPMB Jatim style) */
+.border-\[3px\] {
+  border-width: 1px !important;
+  border-color: var(--control-border) !important;
+}
+
+.border-ink {
+  border-color: var(--control-border) !important;
+}
+
+.comic-shadow, .comic-shadow-lg {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 8px !important;
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.comic-shadow:hover, .comic-shadow-lg:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.comic-button {
+  border-radius: 6px !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.comic-button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 6px -1px rgba(33, 107, 165, 0.3) !important;
+}
+
+.comic-button:active {
+  transform: translateY(0) !important;
+}
+
+body {
+  background: var(--paper-soft) !important;
+}
+
+.border-b-\[3px\], .border-r-\[3px\], .border-l-\[3px\], .border-t-\[3px\] {
+  border-width: 1px !important;
+  border-color: var(--control-border) !important;
+}
+
+/* Fix any primary borders to use the correct color if not overridden by the general one */
+.border-primary {
+  border-color: var(--primary) !important;
+}
