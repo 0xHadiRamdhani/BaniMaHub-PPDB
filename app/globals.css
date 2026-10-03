@@ -33,7 +33,7 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
-@theme inline {
+@theme {
   --color-ink: var(--ink);
   --color-paper: var(--paper);
   --color-paper-soft: var(--paper-soft);
@@ -120,3 +120,19 @@ dialog::backdrop {
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
+
+/* Explicit utility classes that might have been lost */
+.text-white { color: #ffffff !important; }
+.text-paper { color: var(--paper) !important; }
+.text-ink { color: var(--ink) !important; }
+.text-primary { color: var(--primary) !important; }
+.text-gray-900 { color: #111827 !important; }
+
+.bg-primary { background-color: var(--primary) !important; }
+.bg-paper { background-color: var(--paper) !important; }
+.bg-ink { background-color: var(--ink) !important; }
+.bg-white { background-color: #ffffff !important; }
+.bg-gray-50 { background-color: #f9fafb !important; }
+
+.border-primary { border-color: var(--primary) !important; }
+.border-gray-200 { border-color: #e5e7eb !important; }
