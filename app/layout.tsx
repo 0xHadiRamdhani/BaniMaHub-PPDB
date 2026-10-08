@@ -24,6 +24,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           html[data-theme="dark"] { --btn-secondary-text: #ffffff !important; }
           /* Emergency overrides to bypass stuck CSS cache */
           html[data-theme="dark"] .text-primary { color: #ffffff !important; }
+          .text-white,
+          [class*="text-[#ffffff]"],
+          [class*="text-white"],
+          button.bg-primary,
+          a.bg-primary,
+          button.bg-ink,
+          a.bg-ink,
+          button.bg-red-700,
+          thead.bg-primary,
+          thead.bg-primary th {
+            color: #ffffff !important;
+          }
         ` }} />
       </head>
       <body>{children}</body>

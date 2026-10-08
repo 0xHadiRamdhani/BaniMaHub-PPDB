@@ -5,6 +5,7 @@ import TechBackground from "@/app/components/tech-background";
 import { ThemeToggle } from "./components/theme-toggle";
 import MajorSelector from "./components/major-selector";
 import Header from "./components/header";
+import { cookies } from "next/headers";
 
 const advantages = [
     ["01", "Guru Berpengalaman", "Diajar tenaga pendidik yang paham kebutuhan industri, bukan cuma teori di buku."],
@@ -43,12 +44,15 @@ function StudentArt() {
     </div>;
 }
 
-export default function Home() {
+export default async function Home() {
+    const cookieStore = await cookies();
+    const registrationNumber = cookieStore.get("registration_number")?.value;
+
     return <main>
         <Header />
 
         <section className="relative overflow-hidden border-b border-neutral-300 py-10 sm:py-16 lg:py-20"><TechBackground /><div className="relative z-10 mx-auto grid max-w-7xl items-center gap-8 px-4 sm:gap-10 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
-            <Reveal><div className="lg:max-w-2xl"><h1 className="font-extrabold tracking-tight text-4xl leading-[.98] sm:text-7xl">Wujudkan Masa Depanmu Mulai dari SMK Bani Masum!</h1><p className="mt-5 max-w-xl text-base leading-7 text-ink/80 sm:text-lg sm:leading-8">Belajar keahlian yang benar-benar dipakai di dunia kerja, dari praktik nyata sampai bimbingan guru yang siap mendampingi kamu sampai lulus.</p><div className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:gap-4"><Link href="/ppdb/daftar" className="rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg  bg-primary px-6 py-3 text-center font-bold text-[#ffffff] shadow-md rounded-xl " style={{ color: "#ffffff" }}>Daftar Sekarang</Link><a href="#jurusan" className="rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg  bg-paper px-6 py-3 text-center font-bold text-primary shadow-md rounded-xl" style={{ color: "var(--btn-secondary-text)" }}>Lihat Jurusan</a></div></div></Reveal>
+            <Reveal><div className="lg:max-w-2xl"><h1 className="font-extrabold tracking-tight text-4xl leading-[.98] sm:text-7xl">Wujudkan Masa Depanmu Mulai dari SMK Bani Masum!</h1><p className="mt-5 max-w-xl text-base leading-7 text-ink/80 sm:text-lg sm:leading-8">Belajar keahlian yang benar-benar dipakai di dunia kerja, dari praktik nyata sampai bimbingan guru yang siap mendampingi kamu sampai lulus.</p><div className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:gap-4"><Link href="/ppdb/daftar" className="rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg  bg-primary px-6 py-3 text-center font-bold text-[#ffffff] shadow-md rounded-xl " style={{ color: "#ffffff" }}>Daftar Sekarang</Link><a href="#jurusan" className="rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg  bg-paper px-6 py-3 text-center font-bold text-primary shadow-md rounded-xl" style={{ color: "var(--btn-secondary-text)" }}>Lihat Jurusan</a>{registrationNumber && <Link href={`/ppdb/kartu?number=${registrationNumber}`} className="rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg bg-amber-500 px-6 py-3 text-center font-bold text-white shadow-md rounded-xl">Lihat Tiket Kamu</Link>}</div></div></Reveal>
             <Float className="w-full lg:max-w-125 lg:justify-self-end"><StudentArt /></Float>
         </div></section>
 
@@ -66,6 +70,6 @@ export default function Home() {
 
         <section className="py-16"><div className="mx-auto max-w-7xl px-5 sm:px-8"><Reveal><div className=" bg-primary px-6 py-12 text-center text-[#ffffff] shadow-lg rounded-2xl  sm:px-10" style={{ color: "#ffffff" }}><h2 className="font-extrabold tracking-tight text-4xl sm:text-5xl">Siap Gabung Angkatan Baru?</h2><p className="mx-auto mt-3 max-w-xl text-[#ffffff]/85" style={{ color: "#ffffff" }}>Isi formulir pendaftaran online sekarang, cuma butuh 10 menit.</p><Link href="/ppdb/daftar" className="rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg mt-7 inline-flex  bg-paper px-6 py-3 font-bold text-primary " style={{ color: "var(--btn-secondary-text)" }}>Mulai Daftar</Link></div></Reveal></div></section>
 
-        <footer className="border-t border-neutral-300 py-10"><div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-8 px-5 sm:px-8"><div><div className="font-extrabold tracking-tight text-2xl">SMK BANI MASUM</div><p className="mt-2 text-sm leading-7 text-neutral-700">Subang, Jawa Barat<br />ppdb@banimasum.sch.id<br />(0260) 000-000</p></div><nav className="flex flex-wrap gap-5 text-sm font-bold"><Link href="/tentang">Tentang</Link><Link href="/jurusan">Jurusan</Link><Link href="/ppdb">PPDB</Link><Link href="/ppdb/cek-status">Cek Status</Link><Link href="/faq">FAQ</Link></nav></div><div className="mx-auto mt-8 max-w-7xl px-5 text-xs text-neutral-500 sm:px-8">© 2026 SMK Bani Masum. Semua hak dilindungi.</div></footer>
+        <footer className="border-t border-neutral-300 py-10"><div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-8 px-5 sm:px-8"><div><div className="font-extrabold tracking-tight text-2xl">SMK BANI MASUM</div><p className="mt-2 text-sm leading-7 text-neutral-700">Subang, Jawa Barat<br />ppdb@banimasum.sch.id<br />(0260) 000-000</p></div><nav className="flex flex-wrap gap-5 text-sm font-bold"><Link href="/tentang">Tentang</Link><Link href="/jurusan">Jurusan</Link><Link href="/ppdb">PPDB</Link><Link href="/ppdb/cek-status">Cek Status</Link><Link href="/ppdb/kartu">Cetak Kartu</Link><Link href="/faq">FAQ</Link></nav></div><div className="mx-auto mt-8 max-w-7xl px-5 text-xs text-neutral-500 sm:px-8">© 2026 SMK Bani Masum. Semua hak dilindungi.</div></footer>
     </main>;
 }

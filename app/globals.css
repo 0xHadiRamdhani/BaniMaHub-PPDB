@@ -133,11 +133,25 @@ html[data-theme="dark"] .shadow-lg,
 html[data-theme="dark"] .shadow-xl {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
 }
-\n
+
 /* ========================================================
    CRITICAL EXPLICIT UTILITIES TO BYPASS TAILWIND COMPILER
    ======================================================== */
-.text-white { color: #ffffff !important; }
+.text-white,
+[class*="text-[#ffffff]"],
+[class*="text-white"] {
+  color: #ffffff !important;
+}
+
+button.bg-primary,
+a.bg-primary,
+button.bg-ink,
+a.bg-ink,
+button.bg-red-700,
+thead.bg-primary,
+thead.bg-primary th {
+  color: #ffffff !important;
+}
 .text-paper { color: var(--paper) !important; }
 .text-ink { color: var(--ink) !important; }
 .text-primary { color: var(--primary) !important; }

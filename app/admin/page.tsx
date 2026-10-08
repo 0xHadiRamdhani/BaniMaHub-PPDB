@@ -211,9 +211,9 @@ export default function AdminPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h2 className="font-extrabold tracking-tight text-2xl">Daftar Pendaftar</h2>
                     <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={() => { setAddError(""); setAddDialogOpen(true); }} className="border border-neutral-300 bg-primary px-4 py-2 text-sm font-bold text-[#ffffff] shadow-md rounded-xl">Tambah Pendaftar</button>
+                        <button type="button" onClick={() => { setAddError(""); setAddDialogOpen(true); }} className="border border-neutral-300 bg-primary px-4 py-2 text-sm font-bold text-white shadow-md rounded-xl" style={{ color: "#ffffff" }}>Tambah Pendaftar</button>
                         <button type="button" onClick={() => setReload((value) => value + 1)} disabled={loading} className="border border-neutral-300 px-4 py-2 text-sm font-bold hover:bg-paper-soft disabled:opacity-60">Muat ulang</button>
-                        <button type="button" onClick={exportCsv} disabled={!visibleRegistrations.length} className="border border-neutral-300 bg-primary px-4 py-2 text-sm font-bold text-[#ffffff] shadow-md rounded-xl disabled:opacity-60">Export CSV</button>
+                        <button type="button" onClick={exportCsv} disabled={!visibleRegistrations.length} className="border border-neutral-300 bg-primary px-4 py-2 text-sm font-bold text-white shadow-md rounded-xl disabled:opacity-60" style={{ color: "#ffffff" }}>Export CSV</button>
                     </div>
                 </div>
                 {notice && <p role="status" className="mt-5 border-2 border-green-700 bg-green-50 p-3 text-sm font-bold text-green-800">{notice}</p>}
@@ -225,7 +225,7 @@ export default function AdminPage() {
                 {error && <p role="alert" className="mt-5 border-2 border-red-700 bg-red-50 p-3 text-sm font-bold text-red-800">{error}</p>}
                 <div className="mt-6 overflow-x-auto">
                     <table className="w-full min-w-225 border-collapse text-left text-sm">
-                        <thead className="bg-primary text-[#ffffff]"><tr><th className="p-3">Nomor / Tanggal</th><th className="p-3">Pendaftar</th><th className="p-3">Jurusan</th><th className="p-3">Telepon</th><th className="p-3">Status</th><th className="p-3">Detail</th></tr></thead>
+                        <thead className="bg-primary text-white" style={{ color: "#ffffff" }}><tr><th className="p-3">Nomor / Tanggal</th><th className="p-3">Pendaftar</th><th className="p-3">Jurusan</th><th className="p-3">Telepon</th><th className="p-3">Status</th><th className="p-3">Detail</th></tr></thead>
                         <tbody>
                             {loading ? <tr><td colSpan={6} className="p-8 text-center text-neutral-600">Memuat data pendaftar...</td></tr>
                                 : visibleRegistrations.map((registration) => <tr key={registration.registration_number} className="border-b-2 border-primary/20 align-top">
@@ -268,7 +268,7 @@ export default function AdminPage() {
                     {addError && <p role="alert" className="border-2 border-red-700 bg-red-50 p-3 text-sm font-bold text-red-800">{addError}</p>}
                     <div className="flex justify-end gap-3 pt-2">
                         <button type="button" onClick={() => setAddDialogOpen(false)} className="border border-neutral-300 px-4 py-3 text-sm font-bold">Batal</button>
-                        <button type="submit" disabled={savingNewRegistration} className="border border-neutral-300 bg-primary px-5 py-3 text-sm font-bold text-[#ffffff] shadow-md rounded-xl disabled:opacity-60">{savingNewRegistration ? "Menyimpan..." : "Simpan Pendaftar"}</button>
+                        <button type="submit" disabled={savingNewRegistration} className="border border-neutral-300 bg-primary px-5 py-3 text-sm font-bold text-white shadow-md rounded-xl disabled:opacity-60" style={{ color: "#ffffff" }}>{savingNewRegistration ? "Menyimpan..." : "Simpan Pendaftar"}</button>
                     </div>
                 </div>
             </form>
@@ -300,7 +300,7 @@ export default function AdminPage() {
                                         document.url.includes(".pdf") ? (
                                             <div className="flex flex-col items-center justify-center p-4 bg-paper-soft border-2 border-dashed border-ink flex-1 min-h-44 text-center">
                                                 <p className="text-xs font-bold text-neutral-700 mb-3">Dokumen Berformat PDF</p>
-                                                <a href={document.url} target="_blank" rel="noreferrer" className="border-2 border-primary bg-primary text-[#ffffff] px-3 py-2 text-xs font-bold shadow-md rounded-xl">
+                                                <a href={document.url} target="_blank" rel="noreferrer" className="border-2 border-primary bg-primary text-white px-3 py-2 text-xs font-bold shadow-md rounded-xl" style={{ color: "#ffffff" }}>
                                                     Buka Dokumen PDF
                                                 </a>
                                             </div>
@@ -317,7 +317,8 @@ export default function AdminPage() {
                                                     href={document.url}
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="mt-2 block text-center border-2 border-primary bg-primary px-3 py-1.5 text-xs font-bold text-[#ffffff] shadow-md rounded-xl hover:opacity-90"
+                                                    className="mt-2 block text-center border-2 border-primary bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-md rounded-xl hover:opacity-90"
+                                                    style={{ color: "#ffffff" }}
                                                 >
                                                     Lihat Ukuran Penuh ↗
                                                 </a>
@@ -339,7 +340,7 @@ export default function AdminPage() {
                             : <div className="mt-3 space-y-3">
                                 <p className="text-sm font-bold text-red-800">Yakin ingin menghapus <span className="font-extrabold tracking-tight">{selectedRegistration.registration_number}</span> – {selectedRegistration.name}? Tindakan ini tidak dapat dibatalkan.</p>
                                 <div className="flex gap-3">
-                                    <button type="button" onClick={() => void deleteRegistration(selectedRegistration.registration_number)} disabled={!!deletingNumber} className="border-2 border-red-700 bg-red-700 px-4 py-2 text-sm font-bold text-[#ffffff] hover:bg-red-800 disabled:opacity-60">{deletingNumber ? "Menghapus..." : "Hapus Permanen"}</button>
+                                    <button type="button" onClick={() => void deleteRegistration(selectedRegistration.registration_number)} disabled={!!deletingNumber} className="border-2 border-red-700 bg-red-700 px-4 py-2 text-sm font-bold text-white hover:bg-red-800 disabled:opacity-60" style={{ color: "#ffffff" }}>{deletingNumber ? "Menghapus..." : "Hapus Permanen"}</button>
                                     <button type="button" onClick={() => setConfirmDelete(false)} disabled={!!deletingNumber} className="border-2 border-ink px-4 py-2 text-sm font-bold hover:bg-paper-soft disabled:opacity-60">Batal</button>
                                 </div>
                             </div>}

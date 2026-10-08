@@ -85,7 +85,9 @@ export async function POST(request: Request) {
         }
         stage = "menyimpan data pendaftaran ke Firestore";
         await createPublicRegistration(number, { ...record, ...documentPaths, documents_pending: documentsPending });
-        return Response.json({ number, documentsPending }, { status: 201 });
+        const response = Response.json({ number, documentsPending }, { status: 201 });
+        response.headers.set('Set-Cookie', `registration_number=${number}; Path=/; Max-Age=2592000; SameSite=Lax`);
+        return response;
     } catch (error) {
         console.error(`Failed to create Firebase registration while ${stage}`, error);
         await Promise.allSettled(paths.map(deleteDocument));

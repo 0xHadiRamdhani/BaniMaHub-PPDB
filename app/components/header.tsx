@@ -24,11 +24,12 @@ export default function Header() {
                     <a href="#alur" className="text-ink/80 transition-colors hover:text-primary">Alur Daftar</a>
                     <a href="#jadwal" className="text-ink/80 transition-colors hover:text-primary">Jadwal</a>
                     <a href="#syarat" className="text-ink/80 transition-colors hover:text-primary">Syarat</a>
+                    <Link href="/ppdb/kartu" className="text-ink/80 transition-colors hover:text-primary">Tiket</Link>
                 </nav>
                 
                 <div className="flex items-center gap-2">
                     <ThemeToggle />
-                    <Link href="/ppdb/daftar" className="hidden lg:flex rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg shrink-0 bg-primary px-3 py-2 text-xs font-bold text-[#ffffff] sm:px-4 sm:text-sm">
+                    <Link href="/ppdb/daftar" className="hidden lg:flex rounded-lg transition-all hover:-translate-y-1 hover:shadow-lg shrink-0 bg-primary px-3 py-2 text-xs font-bold text-white sm:px-4 sm:text-sm" style={{ color: "#ffffff" }}>
                         Daftar Sekarang
                     </Link>
                     <button 
@@ -55,6 +56,7 @@ export default function Header() {
                         <a href="#alur" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Alur Daftar</a>
                         <a href="#jadwal" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Jadwal</a>
                         <a href="#syarat" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Syarat</a>
+                        <Link href="/ppdb/kartu" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Tiket</Link>
                     </nav>
                 </div>
             )}
