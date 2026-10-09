@@ -42,7 +42,7 @@ export async function hasAdminSession(request?: Request) {
     const bearer = request?.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
     if (bearer) {
         try {
-            const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyCEgNSXz-7GTiAfPnURNgE9v_tfcxYKt1k";
+            const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDfdGHGqqxpkeG_Pmbu_lN7kau6W9azdGc";
             const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

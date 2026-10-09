@@ -41,7 +41,7 @@ export async function POST(request: Request) {
 
     const email = typeof credentials.email === "string" ? credentials.email.trim().toLowerCase() : "";
     const password = typeof credentials.password === "string" ? credentials.password : "";
-    const firebaseApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyCEgNSXz-7GTiAfPnURNgE9v_tfcxYKt1k";
+    const firebaseApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDfdGHGqqxpkeG_Pmbu_lN7kau6W9azdGc";
 
     try {
         const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${encodeURIComponent(firebaseApiKey)}`, {
