@@ -95,7 +95,7 @@ service cloud.firestore {
     // Read/update/delete: hanya via Service Account (bypass rules).
     match /registrations/{registrationId} {
       allow create: if validRegistration(registrationId);
-      allow read, update, delete: if false;
+      allow read, update, delete: if request.auth != null;
     }
 
     // ── Koleksi: registration_status ────────────────────────────────────────
@@ -108,7 +108,8 @@ service cloud.firestore {
         && resource.data.keys().hasOnly(['registration_number', 'name', 'status']);
       allow list: if false;
       allow create: if validStatus(registrationId);
-      allow update, delete: if false;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
     }
 
     // ── Catch-all: blokir semua akses lain ─────────────────────────────────
