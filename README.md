@@ -163,7 +163,7 @@ Buka `http://localhost:8080`.
 
 Konfigurasi Firebase web, service account Firebase, dan API key ImgBB disimpan di kode. `.env.local` tidak diperlukan saat menjalankan atau men-deploy aplikasi. Nilai konfigurasi server berada di `app/lib/private-config.ts` dan hanya boleh diimpor oleh kode server.
 
-Aktifkan **Email/Password** pada Firebase Authentication dan buat akun yang akan digunakan oleh panitia. Semua akun Firebase Authentication yang berhasil login dapat membuka area admin, jadi jangan aktifkan pendaftaran akun publik jika tidak semua pengguna boleh mengakses data pendaftar. Buat Firestore default database di project `ppdb-smk-bani-masum-641ce`, lalu terapkan `firestore.rules`. Service account di konfigurasi harus memiliki role `Cloud Datastore User` (`roles/datastore.user`) dan `Storage Object Admin`.
+Aktifkan **Email/Password** pada Firebase Authentication dan buat akun yang akan digunakan oleh panitia. Semua akun Firebase Authentication yang berhasil login dapat membuka area admin, jadi jangan aktifkan pendaftaran akun publik jika tidak semua pengguna boleh mengakses data pendaftar. Buat Firestore default database di project `ppdb-smk-bm`, lalu terapkan `firestore.rules`. Service account di konfigurasi harus memiliki role `Cloud Datastore User` (`roles/datastore.user`) dan `Storage Object Admin`.
 
 ### Deploy ke Vercel
 

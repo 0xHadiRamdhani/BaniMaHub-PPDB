@@ -1,7 +1,7 @@
 {
   "projects": {
-    "default": "ppdb-smk-bani-masum-641ce",
-    "ppdb": "ppdb-smk-bani-masum-641ce"
+    "default": "ppdb-smk-bm",
+    "ppdb": "ppdb-smk-bm"
   },
   "targets": {},
   "etags": {}

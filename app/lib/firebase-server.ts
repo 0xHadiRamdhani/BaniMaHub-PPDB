@@ -1,8 +1,8 @@
 import { createHash, createSign } from "node:crypto";
 import { firebaseServiceAccount, imgbbApiKey } from "@/app/lib/private-config";
 
-const projectId = "ppdb-smk-bani-masum-641ce";
-const bucketName = "ppdb-smk-bani-masum-641ce.firebasestorage.app";
+const projectId = "ppdb-smk-bm";
+const bucketName = "ppdb-smk-bm.firebasestorage.app";
 // firestoreBase → dipakai sebagai URL endpoint HTTP request
 const firestoreBase = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
 // firestoreDocPath → dipakai sebagai resource name di dalam body request (bukan URL)
@@ -130,7 +130,7 @@ export async function updateRegistrationWithPublicStatus(number: string, data: R
 // Public form writes are authorized by Firestore Security Rules, not server IAM.
 // The Firebase web API key identifies the project; it is not a secret.
 export async function createPublicRegistration(number: string, data: Record<string, unknown>) {
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyCEgNSXz-7GTiAfPnURNgE9v_tfcxYKt1k";
+    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDfdGHGqqxpkeG_Pmbu_lN7kau6W9azdGc";
     const fields = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, encodeValue(value)]));
     const status = { registration_number: number, name: data.name, status: data.status };
     const statusFields = Object.fromEntries(Object.entries(status).map(([key, value]) => [key, encodeValue(value)]));
@@ -155,7 +155,7 @@ export async function createPublicRegistration(number: string, data: Record<stri
 }
 
 export async function getPublicRegistrationStatus(number: string) {
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyCEgNSXz-7GTiAfPnURNgE9v_tfcxYKt1k";
+    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDfdGHGqqxpkeG_Pmbu_lN7kau6W9azdGc";
     const response = await fetch(`${firestoreBase}/registration_status/${encodeURIComponent(number)}?key=${encodeURIComponent(apiKey)}`, { cache: "no-store" });
     if (response.status === 404) return null;
     if (!response.ok) {
