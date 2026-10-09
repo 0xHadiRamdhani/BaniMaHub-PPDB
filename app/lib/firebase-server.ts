@@ -28,7 +28,7 @@ async function accessToken() {
     const account = serviceAccount();
     const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url");
     const now = Math.floor(Date.now() / 1000);
-    const unsigned = `${encode({ alg: "RS256", typ: "JWT" })}.${encode({ iss: account.client_email, scope: "https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/devstorage.read_write", aud: oauthTokenUrl, iat: now, exp: now + 3600 })}`;
+    const unsigned = `${encode({ alg: "RS256", typ: "JWT" })}.${encode({ iss: account.client_email, scope: "https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/devstorage.read_write https://www.googleapis.com/auth/firebase.messaging", aud: oauthTokenUrl, iat: now, exp: now + 3600 })}`;
     const signer = createSign("RSA-SHA256");
     signer.update(unsigned);
     const assertion = `${unsigned}.${signer.sign(account.private_key).toString("base64url")}`;
@@ -309,4 +309,37 @@ export async function getDocumentDownloadUrl(path: string) {
     signer.update(stringToSign);
     const signature = signer.sign(account.private_key).toString("hex");
     return `https://${host}${objectPath}?${canonicalQuery}&X-Goog-Signature=${signature}`;
+}
+
+export async function sendAdminPushNotification(title: string, body: string, data?: Record<string, string>) {
+    try {
+        const token = await accessToken();
+        const fcmUrl = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
+        const payload = {
+            message: {
+                topic: "admin_registrations",
+                notification: {
+                    title,
+                    body,
+                },
+                data: data ?? {},
+            },
+        };
+        const res = await fetch(fcmUrl, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+            const err = await res.text();
+            console.error("FCM Send failed:", res.status, err);
+        } else {
+            console.log("FCM Notification sent successfully to topic 'admin_registrations'");
+        }
+    } catch (e) {
+        console.error("Failed to send admin push notification:", e);
+    }
 }

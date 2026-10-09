@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { createPublicRegistration, deleteDocument, getPublicRegistrationStatus, uploadRegistrationDocument } from "@/app/lib/firebase-server";
+import { createPublicRegistration, deleteDocument, getPublicRegistrationStatus, uploadRegistrationDocument, sendAdminPushNotification } from "@/app/lib/firebase-server";
 
 export const runtime = "nodejs";
 
@@ -85,6 +85,18 @@ export async function POST(request: Request) {
         }
         stage = "menyimpan data pendaftaran ke Firestore";
         await createPublicRegistration(number, { ...record, ...documentPaths, documents_pending: documentsPending });
+
+        // Kirim push notification instan ke aplikasi mobile admin (FCM)
+        void sendAdminPushNotification(
+            "Pendaftar Baru Masuk!",
+            `${record.name} baru saja mendaftar di jurusan ${record.major}.`,
+            {
+                registration_number: number,
+                name: record.name,
+                major: record.major,
+            }
+        );
+
         const response = Response.json({ number, documentsPending }, { status: 201 });
         response.headers.set('Set-Cookie', `registration_number=${number}; Path=/; Max-Age=2592000; SameSite=Lax`);
         return response;
