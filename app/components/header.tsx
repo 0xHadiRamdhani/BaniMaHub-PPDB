@@ -24,7 +24,7 @@ export default function Header() {
                     <a href="#alur" className="text-ink/80 transition-colors hover:text-primary">Alur Daftar</a>
                     <a href="#jadwal" className="text-ink/80 transition-colors hover:text-primary">Jadwal</a>
                     <a href="#syarat" className="text-ink/80 transition-colors hover:text-primary">Syarat</a>
-                    <Link href="/ppdb/kartu" className="text-ink/80 transition-colors hover:text-primary">Tiket</Link>
+                    <Link href="/ppdb/tiket" className="text-ink/80 transition-colors hover:text-primary">Tiket</Link>
                 </nav>
                 
                 <div className="flex items-center gap-2">
@@ -56,7 +56,7 @@ export default function Header() {
                         <a href="#alur" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Alur Daftar</a>
                         <a href="#jadwal" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Jadwal</a>
                         <a href="#syarat" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Syarat</a>
-                        <Link href="/ppdb/kartu" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Tiket</Link>
+                        <Link href="/ppdb/tiket" onClick={() => setIsOpen(false)} className="text-ink/80 transition-colors hover:text-primary">Tiket</Link>
                     </nav>
                 </div>
             )}
