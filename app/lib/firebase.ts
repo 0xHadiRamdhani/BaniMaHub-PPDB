@@ -23,7 +23,7 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 // Initialize Analytics (only supported in browser environments)
 let analytics;
 if (typeof window !== "undefined") {
-  isSupported().then((supported) => {
+  isSupported().then((supported: boolean) => {
     if (supported) {
       analytics = getAnalytics(app);
     }
