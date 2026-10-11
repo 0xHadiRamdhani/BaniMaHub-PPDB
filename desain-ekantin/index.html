@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Kantin & Market Sekolah - Solusi Belanja Sekolah</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                        },
+                        school: {
+                            50: '#eff6ff',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-brand-600 text-white text-xs py-1 px-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <span><i class="fa-solid fa-graduation-cap mr-1"></i> Official E-Commerce SMK Bani Ma'sum</span>
+                <span class="hidden md:inline">|</span>
+                <span class="hidden md:inline"><i class="fa-solid fa-clock mr-1"></i> Jam Operasional Koperasi: 07:00 - 15:30 WIB</span>
+            </div>
+            <div class="flex items-center space-x-3 text-xs">
+                <a href="#" onclick="openModal('trackingModal')" class="hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-truck"></i> Melacak Pesanan
+                </a>
+                <span>|</span>
+                <a href="#" class="hover:underline">Bantuan Sekolah</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Sticky Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between gap-4">
+                
+                <!-- Logo -->
+                <a href="#" onclick="filterCategory('all')" class="flex items-center gap-2 group shrink-0">
+                    <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white text-xl font-bold shadow-md shadow-brand-500/30 group-hover:bg-brand-600 transition">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold bg-gradient-to-r from-brand-600 to-red-500 bg-clip-text text-transparent">E-Kantin</span>
+                        <span class="block text-[10px] font-medium text-gray-500 uppercase tracking-widest -mt-1">SMK Bani Ma'sum Market</span>
+                    </div>
+                </a>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-2xl relative hidden md:block">
+                    <div class="flex rounded-lg border-2 border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 overflow-hidden bg-white">
+                        <select id="headerCategorySelect" onchange="searchProducts()" class="bg-gray-50 text-xs font-medium text-gray-700 px-3 border-r border-gray-200 focus:outline-none cursor-pointer">
+                            <option value="all">Semua Kategori</option>
+                            <option value="seragam">Seragam</option>
+                            <option value="atk">Alat Tulis</option>
+                            <option value="buku">Buku Pelajaran</option>
+                            <option value="merch">Merchandise</option>
+                            <option value="makanan">Makanan/Kantin</option>
+                            <option value="karya">Karya Siswa</option>
+                        </select>
+                        <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="Cari seragam batik, pensil 2B, nasi goreng, atau topi sekolah..." class="w-full px-4 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none">
+                        <button onclick="searchProducts()" class="bg-brand-500 hover:bg-brand-600 text-white px-6 py-2 transition flex items-center justify-center">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User & Cart Actions -->
+                <div class="flex items-center gap-4 shrink-0">
+                    <!-- Cart Icon Button -->
+                    <button onclick="toggleCartDrawer()" class="relative p-2 text-gray-700 hover:text-brand-600 transition">
+                        <i class="fa-solid fa-cart-shopping text-2xl"></i>
+                        <span id="cartBadge" class="absolute -top-1 -right-1 bg-brand-500 text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm">0</span>
+                    </button>
+
+                    <!-- User Profile / Balance -->
+                    <div class="flex items-center gap-3 border-l border-gray-200 pl-4">
+                        <div class="hidden sm:block text-right">
+                            <div class="text-xs text-gray-500">E-Kantin Pay</div>
+                            <div class="text-sm font-bold text-brand-600 flex items-center gap-1 justify-end">
+                                <i class="fa-solid fa-wallet text-xs"></i>
+                                <span id="userBalanceDisplay">Rp 150.000</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 cursor-pointer p-1 hover:bg-gray-100 rounded-lg transition" onclick="toggleUserMenu()">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar Siswa" class="w-9 h-9 rounded-full object-cover border border-gray-300">
+                            <div class="hidden lg:block">
+                                <div class="text-xs font-semibold text-gray-800 leading-tight">Ahmad Siswa</div>
+                                <div class="text-[10px] text-gray-500">Kelas XII IPA 1</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 hidden lg:block"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Mobile Search Bar -->
+            <div class="mt-3 md:hidden">
+                <div class="flex rounded-lg border border-brand-500 overflow-hidden bg-white shadow-sm">
+                    <input type="text" id="mobileSearchInput" onkeyup="searchProductsMobile()" placeholder="Cari perlengkapan sekolah..." class="w-full px-3 py-2 text-xs focus:outline-none">
+                    <button onclick="searchProductsMobile()" class="bg-brand-500 text-white px-4 text-xs font-medium">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- Banner Carousel / Promo Highlights -->
+        <section class="mb-8 relative rounded-2xl overflow-hidden shadow-lg bg-gradient-to-r from-brand-600 via-red-500 to-brand-500 text-white">
+            <div class="p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                <div class="space-y-3 max-w-xl text-center md:text-left">
+                    <span class="inline-block bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        <i class="fa-solid fa-bolt text-yellow-300 mr-1"></i> Promo Tahun Ajaran Baru
+                    </span>
+                    <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+                        Diskon Hingga 25% Paket Seragam & ATK Lengkap!
+                    </h1>
+                    <p class="text-sm text-red-100">
+                        Gunakan kode voucher <span class="bg-white text-brand-600 font-mono font-bold px-2 py-0.5 rounded text-xs shadow-sm">SEKOLAHHEBAT</span> saat checkout untuk potongan harga ekstra.
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+                        <button onclick="filterCategory('seragam')" class="bg-white text-brand-600 font-bold px-5 py-2.5 rounded-xl shadow hover:bg-red-50 transition text-sm">
+                            Belanja Seragam
+                        </button>
+                        <button onclick="openVoucherModal()" class="bg-black/30 hover:bg-black/40 backdrop-blur-md text-white border border-white/30 font-semibold px-4 py-2.5 rounded-xl transition text-sm">
+                            Klaim Voucher
+                        </button>
+                    </div>
+                </div>
+                <div class="w-48 h-48 md:w-64 md:h-64 flex-shrink-0 relative flex items-center justify-center">
+                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?w=500&auto=format&fit=crop&q=80" alt="Perlengkapan Sekolah" class="w-full h-full object-cover rounded-xl shadow-2xl border-4 border-white/20 rotate-3 transform hover:rotate-0 transition duration-300">
+                </div>
+            </div>
+            <!-- Decorative circles -->
+            <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="absolute -top-10 -left-10 w-48 h-48 bg-black/10 rounded-full blur-2xl"></div>
+        </section>
+
+        <!-- Quick Categories Links -->
+        <section class="mb-8">
+            <h2 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-brand-500"></i> Kategori Cepat
+            </h2>
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3">
+                <button onclick="filterCategory('all')" class="category-btn active flex flex-col items-center p-3 rounded-2xl bg-white border border-gray-100 hover:border-brand-500 hover:shadow-md transition group text-center" data-cat="all">
+                    <div class="w-12 h-12 rounded-xl bg-red-50 text-brand-500 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-border-all"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-700">Semua</span>
+                </button>
+                <button onclick="filterCategory('seragam')" class="category-btn flex flex-col items-center p-3 rounded-2xl bg-white border border-gray-100 hover:border-brand-500 hover:shadow-md transition group text-center" data-cat="seragam">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-shirt"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-700">Seragam</span>
+                </button>
+                <button onclick="filterCategory('atk')" class="category-btn flex flex-col items-center p-3 rounded-2xl bg-white border border-gray-100 hover:border-brand-500 hover:shadow-md transition group text-center" data-cat="atk">
+                    <div class="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-pen-ruler"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-700">Alat Tulis</span>
+                </button>
+                <button onclick="filterCategory('buku')" class="category-btn flex flex-col items-center p-3 rounded-2xl bg-white border border-gray-100 hover:border-brand-500 hover:shadow-md transition group text-center" data-cat="buku">
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-700">Buku Paket</span>
+                </button>
+                <button onclick="filterCategory('makanan')" class="category-btn flex flex-col items-center p-3 rounded-2xl bg-white border border-gray-100 hover:border-brand-500 hover:shadow-md transition group text-center" data-cat="makanan">
+                    <div class="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-700">Kantin</span>
+                </button>
+                <button onclick="filterCategory('merch')" class="category-btn flex flex-col items-center p-3 rounded-2xl bg-white border border-gray-100 hover:border-brand-500 hover:shadow-md transition group text-center" data-cat="merch">
+                    <div class="w-12 h-12 rounded-xl bg-yellow-50 text-yellow-600 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-id-card"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-700">Merchandise</span>
+                </button>
+                <button onclick="filterCategory('karya')" class="category-btn flex flex-col items-center p-3 rounded-2xl bg-white border border-gray-100 hover:border-brand-500 hover:shadow-md transition group text-center" data-cat="karya">
+                    <div class="w-12 h-12 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-palette"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-700">Karya Siswa</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Product Catalog Header & Filter -->
+        <section class="mb-10">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-3">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800" id="catalogTitle">Katalog Produk Sekolah</h2>
+                    <p class="text-xs text-gray-500">Pilih kebutuhan belajar dan konsumsi harianmu</p>
+                </div>
+                
+                <!-- Sort options -->
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500 whitespace-nowrap"><i class="fa-solid fa-arrow-down-wide-short"></i> Urutkan:</span>
+                    <select id="sortSelect" onchange="sortProducts()" class="bg-white border border-gray-300 rounded-lg text-xs py-1.5 px-3 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                        <option value="popular">Paling Populer</option>
+                        <option value="lowest">Harga Terendah</option>
+                        <option value="highest">Harga Tertinggi</option>
+                        <option value="rating">Rating Tertinggi</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <!-- Products dynamically rendered here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-12">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-400 text-3xl mb-3">
+                    <i class="fa-solid fa-magnifying-glass-minus"></i>
+                </div>
+                <h3 class="text-base font-bold text-gray-700">Produk Tidak Ditemukan</h3>
+                <p class="text-xs text-gray-500 mt-1">Coba kata kunci lain atau pilih kategori yang berbeda.</p>
+                <button onclick="filterCategory('all')" class="mt-4 px-4 py-2 bg-brand-500 text-white rounded-lg text-xs font-medium hover:bg-brand-600 transition">
+                    Lihat Semua Produk
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 text-xs border-t border-gray-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center text-white font-bold">
+                            <i class="fa-solid fa-store text-sm"></i>
+                        </div>
+                        <span class="text-lg font-bold text-white">E-Kantin SMK Bani Ma'sum</span>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed">
+                        Platform e-commerce resmi sekolah untuk kemudahan pemesanan makanan kantin, perlengkapan seragam, alat tulis, dan karya kewirausahaan siswa.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Layanan Sekolah</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-brand-500 transition">Kantin & Koperasi Sekolah</a></li>
+                        <li><a href="#" class="hover:text-brand-500 transition">Pemesanan Seragam Baru</a></li>
+                        <li><a href="#" class="hover:text-brand-500 transition">Pengadaan Buku Paket</a></li>
+                        <li><a href="#" class="hover:text-brand-500 transition">Bursa Karya Siswa (P5)</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Metode Pembayaran</h4>
+                    <div class="flex flex-wrap gap-2 text-lg text-gray-400">
+                        <span class="bg-gray-800 px-2 py-1 rounded border border-gray-700 text-brand-500 font-bold text-xs"><i class="fa-solid fa-id-card mr-1"></i> E-Kantin Pay</span>
+                        <span class="bg-gray-800 px-2 py-1 rounded border border-gray-700 text-xs"><i class="fa-solid fa-qrcode text-blue-400 mr-1"></i> QRIS</span>
+                        <span class="bg-gray-800 px-2 py-1 rounded border border-gray-700 text-xs"><i class="fa-solid fa-money-bill-wave text-green-400 mr-1"></i> Tunai Koperasi</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Kontak & Bantuan</h4>
+                    <p class="text-gray-400 mb-2"><i class="fa-solid fa-location-dot mr-1 text-brand-500"></i> Gedung Koperasi Lt. 1, SMK Bani Ma'sum</p>
+                    <p class="text-gray-400 mb-2"><i class="fa-solid fa-phone mr-1 text-brand-500"></i> (021) 555-0192 / Ext. 104</p>
+                    <p class="text-gray-400"><i class="fa-solid fa-envelope mr-1 text-brand-500"></i> ekantin@smkbanimasum.sch.id</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6 text-center text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <p>&copy; 2026 E-Kantin Sekolah E-Commerce. All rights reserved.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:text-gray-300">Privasi</a>
+                    <a href="#" class="hover:text-gray-300">Syarat & Ketentuan</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    
+    <!-- Product Detail Modal -->
+    <div id="productModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative my-8 animate-fade-in">
+            <button onclick="closeModal('productModal')" class="absolute top-3 right-3 z-10 w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2">
+                <!-- Product Gallery -->
+                <div class="p-6 bg-gray-50 flex flex-col justify-center items-center border-b md:border-b-0 md:border-r border-gray-200">
+                    <img id="modalProductImg" src="" alt="Detail Produk" class="w-full h-64 object-cover rounded-xl shadow-md mb-4">
+                    <div class="flex gap-2" id="modalThumbnails">
+                        <!-- Thumbnails populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Product Information & Options -->
+                <div class="p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span id="modalSellerBadge" class="bg-brand-100 text-brand-700 text-[10px] font-bold px-2 py-0.5 rounded">Official Store</span>
+                            <span id="modalCategory" class="text-xs font-semibold text-gray-400">Seragam</span>
+                        </div>
+                        <h2 id="modalTitle" class="text-xl font-bold text-gray-900 mb-2">Nama Produk</h2>
+                        
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="flex text-yellow-400 text-xs" id="modalRatingStars"></div>
+                            <span id="modalRatingText" class="text-xs font-bold text-gray-700">4.9</span>
+                            <span class="text-xs text-gray-400">|</span>
+                            <span id="modalSoldText" class="text-xs text-gray-500">Terjual 120+</span>
+                        </div>
+
+                        <div class="bg-red-50 p-3 rounded-xl mb-4 border border-red-100">
+                            <div class="text-xs text-gray-500">Harga</div>
+                            <div class="text-2xl font-extrabold text-brand-600" id="modalPrice">Rp 0</div>
+                        </div>
+
+                        <!-- Variant Options (Sizes/Colors) -->
+                        <div class="mb-4" id="variantSection">
+                            <label class="block text-xs font-bold text-gray-700 mb-2">Pilih Ukuran / Varian:</label>
+                            <div class="flex flex-wrap gap-2" id="variantOptions">
+                                <!-- Variant buttons -->
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold text-gray-700 mb-2">Deskripsi Produk:</label>
+                            <p id="modalDescription" class="text-xs text-gray-600 leading-relaxed max-h-28 overflow-y-auto custom-scrollbar">
+                                Deskripsi lengkap produk sekolah...
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Quantity & Action -->
+                    <div class="pt-4 border-t border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-bold text-gray-700">Jumlah:</span>
+                            <div class="flex items-center border border-gray-300 rounded-lg">
+                                <button onclick="adjustModalQty(-1)" class="px-3 py-1 text-gray-600 hover:bg-gray-100">-</button>
+                                <span id="modalQty" class="px-4 py-1 text-xs font-bold text-gray-800">1</span>
+                                <button onclick="adjustModalQty(1)" class="px-3 py-1 text-gray-600 hover:bg-gray-100">+</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="addModalToCart()" class="w-full py-2.5 px-4 bg-red-100 text-brand-700 border border-brand-300 hover:bg-red-200 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-cart-plus"></i> + Keranjang
+                            </button>
+                            <button onclick="buyNowFromModal()" class="w-full py-2.5 px-4 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold text-xs transition shadow-md shadow-brand-500/20">
+                                Beli Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Drawer Right -->
+    <div id="cartDrawer" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div onclick="toggleCartDrawer()" class="absolute inset-0 bg-black/50 backdrop-blur-xs transition-opacity"></div>
+        
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col justify-between transform transition-transform duration-300">
+            <!-- Header Cart -->
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-brand-500"></i>
+                    <h3 class="font-bold text-gray-800">Keranjang Belanja</h3>
+                    <span id="cartCountHeader" class="text-xs bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full font-bold">0 Barang</span>
+                </div>
+                <button onclick="toggleCartDrawer()" class="text-gray-400 hover:text-gray-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Cart Items List -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="cartItemsContainer">
+                <!-- Cart items dynamically rendered -->
+            </div>
+
+            <!-- Cart Footer Summary & Voucher -->
+            <div class="p-4 border-t border-gray-200 bg-gray-50">
+                <!-- Voucher Input -->
+                <div class="mb-3">
+                    <div class="flex gap-2">
+                        <input type="text" id="voucherInput" placeholder="Masukkan Kode Voucher (e.g. SEKOLAHHEBAT)" class="uppercase flex-1 px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500">
+                        <button onclick="applyVoucher()" class="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-black transition">Pakai</button>
+                    </div>
+                    <div id="voucherMessage" class="text-[11px] mt-1 font-medium"></div>
+                </div>
+
+                <div class="space-y-1 mb-4 text-xs">
+                    <div class="flex justify-between text-gray-500">
+                        <span>Subtotal Produk:</span>
+                        <span id="cartSubtotal">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-green-600 font-medium">
+                        <span>Diskon Voucher:</span>
+                        <span id="cartDiscount">- Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-gray-900 text-sm font-bold pt-2 border-t border-gray-200">
+                        <span>Total Belanja:</span>
+                        <span id="cartTotal" class="text-brand-600">Rp 0</span>
+                    </div>
+                </div>
+
+                <button onclick="proceedToCheckout()" id="checkoutBtn" disabled class="w-full py-3 bg-brand-500 hover:bg-brand-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition shadow-md shadow-brand-500/20">
+                    Lanjut Ke Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Page / Modal -->
+    <div id="checkoutModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl relative my-6 max-h-[90vh] flex flex-col">
+            <div class="p-4 bg-brand-500 text-white flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bag-shopping text-lg"></i>
+                    <h3 class="font-bold text-base">Checkout Pesanan Sekolah</h3>
+                </div>
+                <button onclick="closeModal('checkoutModal')" class="text-white/80 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 flex-1 text-xs">
+                <!-- Delivery Location / Method -->
+                <div>
+                    <h4 class="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-location-dot text-brand-500"></i> Lokasi & Metode Pengambilan
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="border-2 border-brand-500 bg-red-50/50 rounded-xl p-3 cursor-pointer flex items-start gap-3 relative">
+                            <input type="radio" name="deliveryMethod" value="koperasi" checked class="mt-1 text-brand-500 focus:ring-brand-500">
+                            <div>
+                                <div class="font-bold text-gray-800">Ambil Mandiri di Koperasi</div>
+                                <p class="text-gray-500 text-[11px] mt-0.5">Ambil di Gedung Koperasi Lt. 1 saat jam istirahat sekolah.</p>
+                                <span class="inline-block bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded mt-1">Bebas Biaya</span>
+                            </div>
+                        </label>
+                        <label class="border border-gray-200 rounded-xl p-3 cursor-pointer flex items-start gap-3 hover:border-brand-300">
+                            <input type="radio" name="deliveryMethod" value="antar_kelas" class="mt-1 text-brand-500 focus:ring-brand-500">
+                            <div>
+                                <div class="font-bold text-gray-800">Antar ke Ruang Kelas</div>
+                                <p class="text-gray-500 text-[11px] mt-0.5">Diantarkan oleh kurir OSIS saat jam istirahat pertama.</p>
+                                <span class="inline-block bg-brand-100 text-brand-700 text-[10px] font-bold px-1.5 py-0.5 rounded mt-1">+ Rp 2.000</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Classroom Details input -->
+                    <div class="mt-3">
+                        <label class="block font-semibold text-gray-700 mb-1">Catatan Lokasi / Nomor Ruangan Kelas:</label>
+                        <input type="text" id="classNote" placeholder="Contoh: Kelas XII IPA 1 (Meja Belakang)" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <!-- Item Summary list -->
+                <div>
+                    <h4 class="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-brand-500"></i> Ringkasan Pesanan
+                    </h4>
+                    <div id="checkoutItemsList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar border border-gray-100 p-2 rounded-xl bg-gray-50">
+                        <!-- Items rendered here -->
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div>
+                    <h4 class="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-credit-card text-brand-500"></i> Pilih Metode Pembayaran
+                    </h4>
+                    <div class="space-y-2">
+                        <label class="border border-gray-200 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:border-brand-400">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="paymentMethod" value="ekantin" checked class="text-brand-500">
+                                <div>
+                                    <div class="font-bold text-gray-800 flex items-center gap-2">
+                                        <i class="fa-solid fa-wallet text-brand-500"></i> Saldo Kartu Pelajar (E-Kantin Pay)
+                                    </div>
+                                    <div class="text-[11px] text-gray-500">Saldo Anda: <span class="font-bold text-green-600" id="checkoutUserBalance">Rp 150.000</span></div>
+                                </div>
+                            </div>
+                            <span class="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded">Otomatis Terpotong</span>
+                        </label>
+
+                        <label class="border border-gray-200 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:border-brand-400">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="paymentMethod" value="qris" class="text-brand-500">
+                                <div>
+                                    <div class="font-bold text-gray-800 flex items-center gap-2">
+                                        <i class="fa-solid fa-qrcode text-blue-600"></i> QRIS Sekolah / Transfer Bank
+                                    </div>
+                                    <div class="text-[11px] text-gray-500">Scan QRIS BCA/Mandiri/Gopay/OVO</div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="border border-gray-200 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:border-brand-400">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="paymentMethod" value="cod" class="text-brand-500">
+                                <div>
+                                    <div class="font-bold text-gray-800 flex items-center gap-2">
+                                        <i class="fa-solid fa-money-bill-wave text-green-600"></i> Bayar Tunai di Koperasi (COD)
+                                    </div>
+                                    <div class="text-[11px] text-gray-500">Bayar langsung saat mengambil barang</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Final Calculations -->
+                <div class="bg-red-50/60 p-4 rounded-xl border border-red-100 space-y-2">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Total Harga Barang:</span>
+                        <span id="checkoutSubtotal">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Biaya Pengantaran / Layanan:</span>
+                        <span id="checkoutShipping">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-green-600 font-medium">
+                        <span>Potongan Voucher:</span>
+                        <span id="checkoutVoucherDiscount">- Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-gray-900 text-base font-extrabold pt-2 border-t border-red-200">
+                        <span>Total Tagihan:</span>
+                        <span id="checkoutGrandTotal" class="text-brand-600">Rp 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-200 bg-gray-50 flex gap-3">
+                <button onclick="closeModal('checkoutModal')" class="w-1/3 py-2.5 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition">Batal</button>
+                <button onclick="processOrder()" class="w-2/3 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl transition shadow-lg shadow-brand-500/20">Buat Pesanan Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Tracking Status Modal -->
+    <div id="trackingModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl relative p-6">
+            <button onclick="closeModal('trackingModal')" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <h3 class="font-bold text-lg text-gray-800 mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-truck-fast text-brand-500"></i> Status Pesanan Terakhir
+            </h3>
+            <p class="text-xs text-gray-500 mb-6" id="trackingOrderId">No. Invoice: #EK-20261008-01</p>
+
+            <!-- Status Timeline -->
+            <div class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-brand-200">
+                
+                <div class="relative flex items-start gap-3">
+                    <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-brand-500 border-2 border-white ring-2 ring-brand-300"></div>
+                    <div>
+                        <div class="text-xs font-bold text-brand-600">Pesanan Dibuat</div>
+                        <div class="text-[11px] text-gray-500">Pembayaran berhasil terverifikasi.</div>
+                    </div>
+                </div>
+
+                <div class="relative flex items-start gap-3">
+                    <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-brand-500 border-2 border-white ring-2 ring-brand-300"></div>
+                    <div>
+                        <div class="text-xs font-bold text-brand-600">Diproses Koperasi Sekolah</div>
+                        <div class="text-[11px] text-gray-500">Petugas koperasi sedang menyiapkan barang/makanan Anda.</div>
+                    </div>
+                </div>
+
+                <div class="relative flex items-start gap-3">
+                    <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-yellow-400 border-2 border-white ring-2 ring-yellow-200 animate-pulse"></div>
+                    <div>
+                        <div class="text-xs font-bold text-yellow-600">Siap Diambil / Diantarkan</div>
+                        <div class="text-[11px] text-gray-500">Silakan ambil di Koperasi atau tunggu kurir OSIS datang ke kelas.</div>
+                    </div>
+                </div>
+
+                <div class="relative flex items-start gap-3 opacity-40">
+                    <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-gray-300 border-2 border-white"></div>
+                    <div>
+                        <div class="text-xs font-bold text-gray-700">Selesai</div>
+                        <div class="text-[11px] text-gray-500">Pesanan telah diterima siswa.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-gray-100 flex justify-end">
+                <button onclick="closeModal('trackingModal')" class="px-4 py-2 bg-gray-800 text-white rounded-xl text-xs font-bold">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voucher Modal -->
+    <div id="voucherModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center relative shadow-2xl">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl mb-3">
+                <i class="fa-solid fa-ticket"></i>
+            </div>
+            <h3 class="font-bold text-base text-gray-800 mb-1">Voucher Tersedia!</h3>
+            <p class="text-xs text-gray-500 mb-4">Salin kode di bawah ini & gunakan saat checkout keranjang belanja.</p>
+            
+            <div class="bg-red-50 border-2 border-dashed border-red-300 p-3 rounded-xl mb-4">
+                <div class="text-xs text-gray-500">Kode Diskon 15%:</div>
+                <div class="text-lg font-extrabold text-brand-600 tracking-wider my-1 font-mono">SEKOLAHHEBAT</div>
+                <button onclick="copyVoucherCode('SEKOLAHHEBAT')" class="mt-1 px-3 py-1 bg-brand-500 text-white rounded text-[10px] font-bold hover:bg-brand-600 transition">
+                    <i class="fa-solid fa-copy mr-1"></i> Salin Kode
+                </button>
+            </div>
+
+            <button onclick="closeModal('voucherModal')" class="w-full py-2 bg-gray-200 text-gray-700 text-xs font-bold rounded-xl">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        // MOCK DATABASE PRODUCT LIST
+        const products = [
+            {
+                id: 1,
+                name: "Seragam Batik SMK Resmi (Lengan Pendek)",
+                category: "seragam",
+                price: 85000,
+                rating: 4.9,
+                sold: "230+",
+                seller: "Official Koperasi",
+                image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&auto=format&fit=crop&q=80",
+                description: "Batik motif resmi sekolah bahan katun halus, menyerap keringat, nyaman digunakan seharian di sekolah. Tersedia varian S, M, L, XL.",
+                variants: ["S", "M", "L", "XL", "XXL"]
+            },
+            {
+                id: 2,
+                name: "Paket Alat Tulis Lengkap Ujian (2B, Penghapus, Penggaris)",
+                category: "atk",
+                price: 22000,
+                rating: 4.8,
+                sold: "510+",
+                seller: "Kantin ATK 01",
+                image: "https://images.unsplash.com/photo-1585336261026-61e778929b22?w=400&auto=format&fit=crop&q=80",
+                description: "Satu set berisi 2 pensil 2B standar komputer, 1 penghapus khusus ujian, 1 rautan, dan penggaris transparan 20cm.",
+                variants: ["Standar"]
+            },
+            {
+                id: 3,
+                name: "Buku Paket Matematika Tingkat Lanjut Kelas XII",
+                category: "buku",
+                price: 68000,
+                rating: 4.7,
+                sold: "95+",
+                seller: "Perpustakaan & Toko Buku",
+                image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&auto=format&fit=crop&q=80",
+                description: "Buku kurikulum merdeka resmi revisi terbaru untuk siswa kelas 12 SMK/MA Dilengkapi dengan latihan soal SBMPTN/UTBK.",
+                variants: ["Kurikulum Merdeka"]
+            },
+            {
+                id: 4,
+                name: "Nasi Goreng Spesial Telur + Kerupuk (Kantin Bu Ani)",
+                category: "makanan",
+                price: 15000,
+                rating: 4.9,
+                sold: "1.2k+",
+                seller: "Kantin Stand 03",
+                image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&auto=format&fit=crop&q=80",
+                description: "Nasi goreng hangat dimasak fresh setiap pagi, disajikan dengan telur ceplok/dadar, mentimun, dan kerupuk gurih.",
+                variants: ["Tidak Pedas", "Sedang", "Pedas"]
+            },
+            {
+                id: 5,
+                name: "Jaket Hoodie Almamater Sekolah (Merchandise Resmi)",
+                category: "merch",
+                price: 135000,
+                rating: 5.0,
+                sold: "180+",
+                seller: "OSIS Merch Store",
+                image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400&auto=format&fit=crop&q=80",
+                description: "Hoodie bahan fleece tebal dengan bordir logo sekolah presisi tinggi. Cocok untuk acara luar kelas atau hari santai.",
+                variants: ["M", "L", "XL"]
+            },
+            {
+                id: 6,
+                name: "Gantungan Kunci & Keychain Akrilik Karya Siswa DKV",
+                category: "karya",
+                price: 12000,
+                rating: 4.8,
+                sold: "85+",
+                seller: "Kewirausahaan Siswa",
+                image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80",
+                description: "Gantungan kunci akrilik unik hasil karya dan desain kreatif siswa jurusan Seni & DKV. Dukung produk lokal sekolah!",
+                variants: ["Desain A", "Desain B", "Desain C"]
+            },
+            {
+                id: 7,
+                name: "Dasi & Topi Upacara Sekolah Paket Hemat",
+                category: "seragam",
+                price: 25000,
+                rating: 4.6,
+                sold: "340+",
+                seller: "Official Koperasi",
+                image: "https://images.unsplash.com/photo-1589756823695-278bc923f962?w=400&auto=format&fit=crop&q=80",
+                description: "Dasi sekolah berlogo bordir beserta topi kelengkapan wajib upacara hari Senin.",
+                variants: ["Satu Ukuran"]
+            },
+            {
+                id: 8,
+                name: "Es Teh Manis Segar Jumbo (Kantin Pak Jaka)",
+                category: "makanan",
+                price: 5000,
+                rating: 4.9,
+                sold: "2.5k+",
+                seller: "Kantin Stand 01",
+                image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=80",
+                description: "Es teh manis racikan asli menyegarkan dalam cup besar 22oz. Cocok dikonsumsi saat istirahat siang.",
+                variants: ["Normal Ice", "Less Ice"]
+            }
+        ];
+
+        // GLOBAL APPLICATION STATE
+        let cart = [];
+        let activeCategory = 'all';
+        let currentModalProductId = null;
+        let selectedModalVariant = '';
+        let currentModalQty = 1;
+        let appliedVoucherCode = '';
+        let voucherDiscountPercentage = 0;
+        let userBalance = 150000;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProducts(products);
+            updateCartUI();
+        });
+
+        // RENDER PRODUCT CATALOG GRID
+        function renderProducts(productList) {
+            const grid = document.getElementById('productGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (!productList || productList.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = productList.map(prod => `
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group">
+                    <div class="relative overflow-hidden cursor-pointer" onclick="openProductModal(${prod.id})">
+                        <img src="${prod.image}" alt="${prod.name}" class="w-full h-40 object-cover group-hover:scale-105 transition duration-500">
+                        <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
+                            ${prod.seller}
+                        </span>
+                    </div>
+
+                    <div class="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-800 line-clamp-2 hover:text-brand-600 transition cursor-pointer mb-1" onclick="openProductModal(${prod.id})">
+                                ${prod.name}
+                            </h3>
+                            <div class="flex items-center gap-1 text-[11px] text-yellow-500 mb-2">
+                                <i class="fa-solid fa-star"></i>
+                                <span class="font-bold text-gray-700">${prod.rating}</span>
+                                <span class="text-gray-400 text-[10px]">(${prod.sold})</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm font-extrabold text-brand-600 mb-3">
+                                Rp ${prod.price.toLocaleString('id-ID')}
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <button onclick="addToCartDirect(${prod.id})" class="w-full py-1.5 bg-red-50 hover:bg-red-100 text-brand-700 font-bold rounded-lg text-[11px] transition flex items-center justify-center gap-1 border border-red-200">
+                                    <i class="fa-solid fa-cart-plus"></i> +
+                                </button>
+                                <button onclick="buyNowDirect(${prod.id})" class="w-full py-1.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-lg text-[11px] transition">
+                                    Beli
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // FILTER & SEARCH LOGIC
+        function filterCategory(cat) {
+            activeCategory = cat;
+            
+            // Update active state on buttons
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.classList.add('border-brand-500', 'bg-red-50');
+                    btn.classList.remove('border-gray-100', 'bg-white');
+                } else {
+                    btn.classList.remove('border-brand-500', 'bg-red-50');
+                    btn.classList.add('border-gray-100', 'bg-white');
+                }
+            });
+
+            const categoryTitles = {
+                all: "Katalog Produk Sekolah",
+                seragam: "Seragam & Perlengkapan Resmi",
+                atk: "Alat Tulis & Alat Belajar",
+                buku: "Buku Paket & Modul Pembelajaran",
+                makanan: "Kantin & Konsumsi Harian",
+                merch: "Merchandise & Souvenir Sekolah",
+                karya: "Karya Siswa & Entrepreneurship"
+            };
+            document.getElementById('catalogTitle').innerText = categoryTitles[cat] || "Katalog Produk";
+
+            searchProducts();
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const headerCat = document.getElementById('headerCategorySelect').value;
+
+            let filtered = products.filter(p => {
+                const matchCategory = (activeCategory === 'all' || p.category === activeCategory) &&
+                                     (headerCat === 'all' || p.category === headerCat);
+                const matchQuery = p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query);
+                return matchCategory && matchQuery;
+            });
+
+            renderProducts(filtered);
+        }
+
+        function searchProductsMobile() {
+            const query = document.getElementById('mobileSearchInput').value.toLowerCase();
+            let filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            renderProducts(filtered);
+        }
+
+        function sortProducts() {
+            const val = document.getElementById('sortSelect').value;
+            let sorted = [...products];
+
+            if (val === 'lowest') sorted.sort((a,b) => a.price - b.price);
+            else if (val === 'highest') sorted.sort((a,b) => b.price - a.price);
+            else if (val === 'rating') sorted.sort((a,b) => b.rating - a.rating);
+
+            renderProducts(sorted);
+        }
+
+        // MODAL PRODUCT DETAILS
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            currentModalProductId = product.id;
+            currentModalQty = 1;
+            selectedModalVariant = product.variants[0] || '';
+
+            document.getElementById('modalTitle').innerText = product.name;
+            document.getElementById('modalPrice').innerText = `Rp ${product.price.toLocaleString('id-ID')}`;
+            document.getElementById('modalDescription').innerText = product.description;
+            document.getElementById('modalCategory').innerText = product.category.toUpperCase();
+            document.getElementById('modalSellerBadge').innerText = product.seller;
+            document.getElementById('modalRatingText').innerText = product.rating;
+            document.getElementById('modalSoldText').innerText = `Terjual ${product.sold}`;
+            document.getElementById('modalProductImg').src = product.image;
+            document.getElementById('modalQty').innerText = currentModalQty;
+
+            // Render rating stars
+            const starsContainer = document.getElementById('modalRatingStars');
+            starsContainer.innerHTML = Array(5).fill(0).map((_, i) => 
+                `<i class="fa-solid fa-star ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}"></i>`
+            ).join('');
+
+            // Render Variants
+            const variantContainer = document.getElementById('variantOptions');
+            variantContainer.innerHTML = product.variants.map((v, idx) => `
+                <button onclick="selectVariant('${v}')" class="variant-btn px-3 py-1 text-xs border rounded-lg font-medium transition ${idx === 0 ? 'border-brand-500 bg-red-50 text-brand-600 font-bold' : 'border-gray-300 text-gray-700 hover:border-gray-400'}">
+                    ${v}
+                </button>
+            `).join('');
+
+            openModal('productModal');
+        }
+
+        function selectVariant(variant) {
+            selectedModalVariant = variant;
+            document.querySelectorAll('.variant-btn').forEach(btn => {
+                if (btn.innerText === variant) {
+                    btn.classList.add('border-brand-500', 'bg-red-50', 'text-brand-600', 'font-bold');
+                    btn.classList.remove('border-gray-300', 'text-gray-700');
+                } else {
+                    btn.classList.remove('border-brand-500', 'bg-red-50', 'text-brand-600', 'font-bold');
+                    btn.classList.add('border-gray-300', 'text-gray-700');
+                }
+            });
+        }
+
+        function adjustModalQty(delta) {
+            currentModalQty = Math.max(1, currentModalQty + delta);
+            document.getElementById('modalQty').innerText = currentModalQty;
+        }
+
+        function addModalToCart() {
+            const product = products.find(p => p.id === currentModalProductId);
+            if (product) {
+                addToCart(product, currentModalQty, selectedModalVariant);
+                closeModal('productModal');
+            }
+        }
+
+        function buyNowFromModal() {
+            addModalToCart();
+            toggleCartDrawer();
+        }
+
+        // CART FUNCTIONS
+        function addToCartDirect(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                addToCart(product, 1, product.variants[0] || '');
+            }
+        }
+
+        function buyNowDirect(productId) {
+            addToCartDirect(productId);
+            toggleCartDrawer();
+        }
+
+        function addToCart(product, qty, variant) {
+            const existingIndex = cart.findIndex(item => item.id === product.id && item.variant === variant);
+            if (existingIndex > -1) {
+                cart[existingIndex].qty += qty;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image,
+                    variant: variant,
+                    qty: qty
+                });
+            }
+            updateCartUI();
+            showNotification(`"${product.name}" telah ditambahkan ke keranjang!`);
+        }
+
+        function updateCartQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        function removeCartItem(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cartItemsContainer');
+            const cartBadge = document.getElementById('cartBadge');
+            const cartCountHeader = document.getElementById('cartCountHeader');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+
+            const totalItemsCount = cart.reduce((acc, item) => acc + item.qty, 0);
+            cartBadge.innerText = totalItemsCount;
+            cartCountHeader.innerText = `${totalItemsCount} Barang`;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-2"></i>
+                        <p class="text-xs">Keranjang Anda masih kosong.</p>
+                    </div>
+                `;
+                checkoutBtn.disabled = true;
+            } else {
+                checkoutBtn.disabled = false;
+                container.innerHTML = cart.map((item, index) => `
+                    <div class="flex gap-3 bg-gray-50 p-2.5 rounded-xl border border-gray-100 relative">
+                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg">
+                        <div class="flex-1 flex flex-col justify-between">
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-800 line-clamp-1">${item.name}</h4>
+                                <span class="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">${item.variant || 'Default'}</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs font-extrabold text-brand-600">Rp ${(item.price * item.qty).toLocaleString('id-ID')}</span>
+                                <div class="flex items-center border border-gray-300 rounded-md bg-white">
+                                    <button onclick="updateCartQty(${index}, -1)" class="px-2 py-0.5 text-xs hover:bg-gray-100">-</button>
+                                    <span class="px-2 py-0.5 text-xs font-bold">${item.qty}</span>
+                                    <button onclick="updateCartQty(${index}, 1)" class="px-2 py-0.5 text-xs hover:bg-gray-100">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="removeCartItem(${index})" class="text-gray-400 hover:text-red-500 text-xs p-1">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const discountAmount = Math.round((subtotal * voucherDiscountPercentage) / 100);
+            const grandTotal = subtotal - discountAmount;
+
+            document.getElementById('cartSubtotal').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('cartDiscount').innerText = `- Rp ${discountAmount.toLocaleString('id-ID')}`;
+            document.getElementById('cartTotal').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+        }
+
+        function applyVoucher() {
+            const code = document.getElementById('voucherInput').value.trim().toUpperCase();
+            const msg = document.getElementById('voucherMessage');
+
+            if (code === 'SEKOLAHHEBAT') {
+                appliedVoucherCode = code;
+                voucherDiscountPercentage = 15;
+                msg.className = "text-[11px] mt-1 font-medium text-green-600";
+                msg.innerText = "✓ Voucher SEKOLAHHEBAT berhasil dipasang! (Diskon 15%)";
+            } else if (code === '') {
+                msg.innerText = "";
+                voucherDiscountPercentage = 0;
+            } else {
+                msg.className = "text-[11px] mt-1 font-medium text-red-500";
+                msg.innerText = "✕ Kode voucher tidak valid atau sudah kadaluwarsa.";
+                voucherDiscountPercentage = 0;
+            }
+
+            calculateTotals();
+        }
+
+        function proceedToCheckout() {
+            if (cart.length === 0) return;
+
+            toggleCartDrawer();
+            
+            // Populate Checkout Items List
+            const listContainer = document.getElementById('checkoutItemsList');
+            listContainer.innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center text-xs border-b border-gray-100 pb-1">
+                    <div>
+                        <span class="font-bold text-gray-800">${item.name}</span>
+                        <span class="text-gray-400 text-[10px]"> (${item.variant}) x${item.qty}</span>
+                    </div>
+                    <span class="font-bold text-gray-700">Rp ${(item.price * item.qty).toLocaleString('id-ID')}</span>
+                </div>
+            `).join('');
+
+            updateCheckoutCalculations();
+            openModal('checkoutModal');
+        }
+
+        function updateCheckoutCalculations() {
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const discountAmount = Math.round((subtotal * voucherDiscountPercentage) / 100);
+            
+            const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+            const shippingFee = (deliveryMethod === 'antar_kelas') ? 2000 : 0;
+
+            const grandTotal = subtotal - discountAmount + shippingFee;
+
+            document.getElementById('checkoutSubtotal').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('checkoutShipping').innerText = `Rp ${shippingFee.toLocaleString('id-ID')}`;
+            document.getElementById('checkoutVoucherDiscount').innerText = `- Rp ${discountAmount.toLocaleString('id-ID')}`;
+            document.getElementById('checkoutGrandTotal').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+        }
+
+        // Listen for delivery radio change to recalculate fees
+        document.querySelectorAll('input[name="deliveryMethod"]').forEach(elem => {
+            elem.addEventListener('change', updateCheckoutCalculations);
+        });
+
+        function processOrder() {
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const discountAmount = Math.round((subtotal * voucherDiscountPercentage) / 100);
+            const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+            const shippingFee = (deliveryMethod === 'antar_kelas') ? 2000 : 0;
+            const grandTotal = subtotal - discountAmount + shippingFee;
+
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+            if (paymentMethod === 'ekantin') {
+                if (userBalance < grandTotal) {
+                    alert('Saldo E-Kantin Pay Anda tidak cukup untuk melakukan transaksi ini.');
+                    return;
+                }
+                userBalance -= grandTotal;
+                document.getElementById('userBalanceDisplay').innerText = `Rp ${userBalance.toLocaleString('id-ID')}`;
+                document.getElementById('checkoutUserBalance').innerText = `Rp ${userBalance.toLocaleString('id-ID')}`;
+            }
+
+            // Clear Cart
+            cart = [];
+            updateCartUI();
+            closeModal('checkoutModal');
+
+            // Open Tracking Modal
+            const randomInvoice = 'EK-' + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('trackingOrderId').innerText = `No. Invoice: #${randomInvoice}`;
+            openModal('trackingModal');
+        }
+
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cartDrawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function openVoucherModal() {
+            openModal('voucherModal');
+        }
+
+        function copyVoucherCode(code) {
+            const tempInput = document.createElement('input');
+            tempInput.value = code;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showNotification('Kode voucher berhasil disalin!');
+        }
+
+        function showNotification(text) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-gray-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl z-50 flex items-center gap-2 animate-bounce';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-brand-500 text-sm"></i> ${text}`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function toggleUserMenu() {
+            showNotification('Status Pengguna: Ahmad Siswa (Kelas XII IPA 1)');
+        }
+    </script>
+</body>
+</html>

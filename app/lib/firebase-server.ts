@@ -65,12 +65,12 @@ async function firebaseRequest<T>(url: string, init: RequestInit = {}): Promise<
 }
 
 function encodeValue(value: unknown): FirestoreValue {
-    if (value === null) return { nullValue: "NULL_VALUE" };
+    if (value === null || value === undefined) return { nullValue: "NULL_VALUE" };
     if (typeof value === "string") return { stringValue: value };
     if (typeof value === "boolean") return { booleanValue: value };
     if (typeof value === "number") return Number.isInteger(value) ? { integerValue: String(value) } : { doubleValue: value };
     if (Array.isArray(value)) return { arrayValue: { values: value.map(encodeValue) } };
-    if (typeof value === "object") return { mapValue: { fields: Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, encodeValue(item)])) } };
+    if (typeof value === "object") return { mapValue: { fields: Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([, item]) => item !== undefined).map(([key, item]) => [key, encodeValue(item)])) } };
     throw new Error("Unsupported Firestore value.");
 }
 
@@ -115,15 +115,26 @@ export async function createRegistrationWithPublicStatus(number: string, data: R
 
 export async function updateRegistrationWithPublicStatus(number: string, data: Record<string, unknown>) {
     const fields = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, encodeValue(value)]));
-    const statusFields = Object.fromEntries(Object.entries(data).filter(([key]) => key === "status").map(([key, value]) => [key, encodeValue(value)]));
+    const statusFields = Object.fromEntries(
+        Object.entries(data)
+            .filter(([key]) => key === "status" || key === "name")
+            .map(([key, value]) => [key, encodeValue(value)])
+    );
+    const writes: Array<Record<string, unknown>> = [
+        {
+            update: { name: `${firestoreDocPath}/registrations/${encodeURIComponent(number)}`, fields },
+            updateMask: { fieldPaths: Object.keys(fields) },
+        },
+    ];
+    if (Object.keys(statusFields).length > 0) {
+        writes.push({
+            update: { name: `${firestoreDocPath}/registration_status/${encodeURIComponent(number)}`, fields: statusFields },
+            updateMask: { fieldPaths: Object.keys(statusFields) },
+        });
+    }
     await firebaseRequest(`${firestoreBase}:commit`, {
         method: "POST",
-        body: JSON.stringify({
-            writes: [
-                { update: { name: `${firestoreDocPath}/registrations/${encodeURIComponent(number)}`, fields }, updateMask: { fieldPaths: Object.keys(fields) } },
-                { update: { name: `${firestoreDocPath}/registration_status/${encodeURIComponent(number)}`, fields: statusFields }, updateMask: { fieldPaths: Object.keys(statusFields) } },
-            ]
-        }),
+        body: JSON.stringify({ writes }),
     });
 }
 
@@ -311,35 +322,89 @@ export async function getDocumentDownloadUrl(path: string) {
     return `https://${host}${objectPath}?${canonicalQuery}&X-Goog-Signature=${signature}`;
 }
 
-export async function sendAdminPushNotification(title: string, body: string, data?: Record<string, string>) {
-    try {
-        const token = await accessToken();
-        const fcmUrl = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
-        const payload = {
-            message: {
-                topic: "admin_registrations",
-                notification: {
-                    title,
-                    body,
-                },
-                data: data ?? {},
+// ==========================================
+// E-KANTIN FIRESTORE HELPERS
+// ==========================================
+
+export async function listEkantinProducts() {
+    const data = await firebaseRequest<Array<{ document?: { name: string; fields?: Record<string, FirestoreValue> } }>>(`${firestoreBase}:runQuery`, {
+        method: "POST",
+        body: JSON.stringify({
+            structuredQuery: {
+                from: [{ collectionId: "ekantin_products" }],
+                orderBy: [{ field: { fieldPath: "created_at" }, direction: "DESCENDING" }],
+                limit: 500,
             },
-        };
-        const res = await fetch(fcmUrl, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-            const err = await res.text();
-            console.error("FCM Send failed:", res.status, err);
-        } else {
-            console.log("FCM Notification sent successfully to topic 'admin_registrations'");
-        }
-    } catch (e) {
-        console.error("Failed to send admin push notification:", e);
-    }
+        }),
+    });
+    return (data ?? []).flatMap((row) => (row.document ? [decodeDocument(row.document)] : []));
 }
+
+export async function getEkantinProduct(id: string) {
+    const doc = await firebaseRequest<{ name: string; fields?: Record<string, FirestoreValue> }>(`${firestoreBase}/ekantin_products/${encodeURIComponent(id)}`);
+    return doc ? decodeDocument(doc) : null;
+}
+
+export async function saveEkantinProduct(id: string, data: Record<string, unknown>) {
+    const fields = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined).map(([key, value]) => [key, encodeValue(value)]));
+    return firebaseRequest(`${firestoreBase}/ekantin_products/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ fields }),
+    });
+}
+
+export async function updateEkantinProduct(id: string, data: Record<string, unknown>) {
+    const fields = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined).map(([key, value]) => [key, encodeValue(value)]));
+    const query = new URLSearchParams();
+    for (const key of Object.keys(fields)) query.append("updateMask.fieldPaths", key);
+    return firebaseRequest(`${firestoreBase}/ekantin_products/${encodeURIComponent(id)}?${query}`, {
+        method: "PATCH",
+        body: JSON.stringify({ fields }),
+    });
+}
+
+export async function deleteEkantinProduct(id: string) {
+    return firebaseRequest(`${firestoreBase}/ekantin_products/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+export async function listEkantinOrders() {
+    const data = await firebaseRequest<Array<{ document?: { name: string; fields?: Record<string, FirestoreValue> } }>>(`${firestoreBase}:runQuery`, {
+        method: "POST",
+        body: JSON.stringify({
+            structuredQuery: {
+                from: [{ collectionId: "ekantin_orders" }],
+                orderBy: [{ field: { fieldPath: "created_at" }, direction: "DESCENDING" }],
+                limit: 1000,
+            },
+        }),
+    });
+    return (data ?? []).flatMap((row) => (row.document ? [decodeDocument(row.document)] : []));
+}
+
+export async function getEkantinOrder(invoice: string) {
+    const doc = await firebaseRequest<{ name: string; fields?: Record<string, FirestoreValue> }>(`${firestoreBase}/ekantin_orders/${encodeURIComponent(invoice)}`);
+    return doc ? decodeDocument(doc) : null;
+}
+
+export async function createEkantinOrder(invoice: string, data: Record<string, unknown>) {
+    const fields = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined).map(([key, value]) => [key, encodeValue(value)]));
+    return firebaseRequest(`${firestoreBase}/ekantin_orders/${encodeURIComponent(invoice)}?currentDocument.exists=false`, {
+        method: "PATCH",
+        body: JSON.stringify({ fields }),
+    });
+}
+
+export async function updateEkantinOrder(invoice: string, data: Record<string, unknown>) {
+    const fields = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined).map(([key, value]) => [key, encodeValue(value)]));
+    const query = new URLSearchParams();
+    for (const key of Object.keys(fields)) query.append("updateMask.fieldPaths", key);
+    return firebaseRequest(`${firestoreBase}/ekantin_orders/${encodeURIComponent(invoice)}?${query}`, {
+        method: "PATCH",
+        body: JSON.stringify({ fields }),
+    });
+}
+
+export async function deleteEkantinOrder(invoice: string) {
+    return firebaseRequest(`${firestoreBase}/ekantin_orders/${encodeURIComponent(invoice)}`, { method: "DELETE" });
+}
+
