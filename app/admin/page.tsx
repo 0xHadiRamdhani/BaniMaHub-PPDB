@@ -3094,10 +3094,10 @@ export default function AdminPage() {
                                         key={tpl.title}
                                         type="button"
                                         onClick={() => setSelectedTplIdx(idx)}
-                                        className={`shrink-0 rounded-xl border px-3 py-1.5 text-xs transition-colors ${
+                                        className={`shrink-0 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all ${
                                             isSelected
-                                                ? "border-[#0F172A] bg-[#0F172A] font-bold text-white"
-                                                : "border-[#E2E8F0] bg-[#F8FAFC] font-medium text-[#0F172A]"
+                                                ? "border-[#2563EB] bg-[#2563EB] text-white shadow-xs"
+                                                : "border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] hover:border-slate-300"
                                         }`}
                                         style={isSelected ? { color: "#ffffff" } : undefined}
                                     >
@@ -3107,15 +3107,19 @@ export default function AdminPage() {
                             })}
                         </div>
 
-                        <div className="mt-3 rounded-[16px] border border-[#22C55E]/30 bg-[#F0FDF4] p-4">
-                            <div className="mb-2 flex items-center justify-between">
-                                <span className="text-xs font-bold text-[#15803D]">
-                                    Pratinjau Pesan WhatsApp
-                                </span>
+                        <div className="mt-3.5 rounded-[16px] border border-[#22C55E]/30 bg-[#F0FDF4] p-4 shadow-xs">
+                            <div className="mb-2.5 flex items-center justify-between border-b border-[#22C55E]/20 pb-2">
+                                <div className="flex items-center gap-1.5">
+                                    <MessageCircle size={15} className="text-[#16A34A]" />
+                                    <span className="text-xs font-bold text-[#15803D]">
+                                        Pratinjau Pesan WhatsApp
+                                    </span>
+                                </div>
                                 <span
-                                    className="rounded px-2 py-0.5 text-[10px] font-bold text-white"
+                                    className="rounded-md px-2 py-0.5 text-[10px] font-bold text-white shadow-xs"
                                     style={{
                                         backgroundColor: WA_TEMPLATES[selectedTplIdx].tagColor,
+                                        color: "#ffffff",
                                     }}
                                 >
                                     {WA_TEMPLATES[selectedTplIdx].tag}
@@ -3135,7 +3139,7 @@ export default function AdminPage() {
                                         "Format pesan berhasil disalin!"
                                     )
                                 }
-                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white py-3 text-xs font-bold text-[#0F172A] hover:bg-slate-50"
+                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white py-3 text-xs font-bold text-[#0F172A] shadow-xs transition-colors hover:bg-slate-100"
                             >
                                 <Copy size={15} className="text-[#16A34A]" />
                                 <span>Salin Format</span>
@@ -3144,7 +3148,7 @@ export default function AdminPage() {
                                 href={`https://wa.me/?text=${encodeURIComponent(WA_TEMPLATES[selectedTplIdx].text)}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#16A34A] py-3 text-xs font-bold text-white hover:bg-[#15803D]"
+                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#16A34A] py-3 text-xs font-bold text-white shadow-xs transition-colors hover:bg-[#15803D]"
                                 style={{ color: "#ffffff" }}
                             >
                                 <Share2 size={15} />

@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { createPublicRegistration, deleteDocument, getPublicRegistrationStatus, uploadRegistrationDocument } from "@/app/lib/firebase-server";
+import { createPublicRegistration, decodeDocument, deleteDocument, getPublicRegistrationStatus, getRegistration, uploadRegistrationDocument } from "@/app/lib/firebase-server";
 
 export const runtime = "nodejs";
 
@@ -17,9 +17,50 @@ export async function GET(request: Request) {
         return Response.json({ error: "Nomor pendaftaran tidak valid." }, { status: 400 });
     }
     try {
-        const data = await getPublicRegistrationStatus(number);
-        if (!data) return Response.json({ error: "Nomor pendaftaran tidak ditemukan." }, { status: 404 });
-        return Response.json({ registration: { number: data.registration_number, name: data.name, status: data.status } }, { headers: { "Cache-Control": "private, no-store" } });
+        let doc: Record<string, unknown> | null = null;
+        try {
+            const raw = await getRegistration(number);
+            if (raw) {
+                doc = decodeDocument(raw);
+            }
+        } catch {
+            // fallback
+        }
+        if (!doc) {
+            try {
+                doc = await getPublicRegistrationStatus(number);
+            } catch {
+                // fallback
+            }
+        }
+        if (!doc) return Response.json({ error: "Nomor pendaftaran tidak ditemukan." }, { status: 404 });
+
+        // Pastikan nama bukan path resource Firestore
+        let candidateName = typeof doc.name === "string" ? doc.name.trim() : "";
+        if (candidateName.startsWith("projects/")) {
+            candidateName = "";
+        }
+        if (!candidateName) {
+            // Coba ambil dari fallback public registration status
+            const fallbackDoc = await getPublicRegistrationStatus(number).catch(() => null);
+            if (fallbackDoc && typeof fallbackDoc.name === "string" && !fallbackDoc.name.startsWith("projects/")) {
+                candidateName = fallbackDoc.name;
+            }
+        }
+
+        return Response.json({
+            registration: {
+                number: String(doc.registration_number || number),
+                name: candidateName || "Calon Siswa",
+                status: String(doc.status || "Menunggu verifikasi"),
+                major: doc.major ? String(doc.major) : "RPL - Rekayasa Perangkat Lunak",
+                nisn: doc.nisn ? String(doc.nisn) : "-",
+                created_at: doc.created_at ? String(doc.created_at) : new Date().toISOString(),
+                photo_url: doc.photo_url ? String(doc.photo_url) : null,
+                phone: doc.phone ? String(doc.phone) : "-",
+                birth_date: doc.birth_date ? String(doc.birth_date) : "-",
+            }
+        }, { headers: { "Cache-Control": "private, no-store" } });
     } catch (error) {
         console.error("Failed to look up registration in Firebase", error);
         return Response.json({ error: "Status pendaftaran belum dapat diperiksa." }, { status: 500 });

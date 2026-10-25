@@ -24,6 +24,15 @@ import {
   TrendingUp,
   Clock,
   Layers,
+  ShoppingBag,
+  MessageCircle,
+  ExternalLink,
+  Receipt,
+  User,
+  Sparkles,
+  MapPin,
+  Check,
+  FileText,
 } from "lucide-react";
 
 type CategoryId = "makanan" | "minuman" | "alat-tulis" | "seragam" | "atribut";
@@ -122,6 +131,21 @@ function getStatusBadgeStyle(status: OrderStatus) {
   }
 }
 
+function getWhatsAppUrl(phone?: string, invoice?: string, name?: string) {
+  if (!phone) return null;
+  const cleaned = phone.replace(/\D/g, "");
+  if (!cleaned) return null;
+  const formatted = cleaned.startsWith("0")
+    ? `62${cleaned.slice(1)}`
+    : cleaned.startsWith("62")
+    ? cleaned
+    : `62${cleaned}`;
+  const text = encodeURIComponent(
+    `Halo ${name || "Siswa/Siswi"}, kami dari Pengelola E-Kantin & Koperasi SMK Bani Masum terkait pesanan #${invoice || ""}: `
+  );
+  return `https://wa.me/${formatted}?text=${text}`;
+}
+
 export default function AdminEKantinPage() {
   const router = useRouter();
 
@@ -179,7 +203,7 @@ export default function AdminEKantinPage() {
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || localStorage.getItem("ppdb_admin_dark_mode");
-      const isDark = savedTheme !== null ? (savedTheme === "dark" || savedTheme === "true") : true;
+      const isDark = savedTheme !== null ? savedTheme === "dark" || savedTheme === "true" : true;
       setDarkMode(isDark);
       applyTheme(isDark);
     } catch {
@@ -538,16 +562,16 @@ export default function AdminEKantinPage() {
     <div
       className={
         darkMode
-          ? "dark min-h-screen bg-[#020617] text-slate-100 pb-24 sm:pb-12"
-          : "min-h-screen bg-[#F1F5F9] text-[#0F172A] pb-24 sm:pb-12"
+          ? "dark min-h-screen bg-[#020617] text-slate-100 pb-24 sm:pb-16"
+          : "min-h-screen bg-[#F8FAFC] text-[#0F172A] pb-24 sm:pb-16"
       }
     >
       {/* Admin Header Bar */}
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 text-slate-900 shadow-xs backdrop-blur-md dark:border-slate-800 dark:bg-[#0F172A] dark:text-white">
+      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 text-slate-900 shadow-[0_1px_3px_rgba(15,23,42,0.03)] backdrop-blur-md dark:border-slate-800 dark:bg-[#0F172A]/95 dark:text-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           {/* School & Module Identity */}
-          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-            <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white p-1 shadow-xs dark:border-sky-400/40 sm:h-10 sm:w-10">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-xs dark:border-slate-700 dark:bg-slate-800">
               <Image
                 src="/logo.png"
                 alt="Logo SMK Bani Masum"
@@ -558,11 +582,16 @@ export default function AdminEKantinPage() {
               />
             </div>
             <div className="min-w-0">
-              <div className="truncate font-black tracking-tight text-[13px] sm:text-base text-slate-900 leading-tight dark:text-white">
-                SMK BANI MASUM
+              <div className="flex items-center gap-1.5">
+                <span className="truncate font-black tracking-tight text-sm sm:text-base text-slate-900 dark:text-white">
+                  SMK BANI MASUM
+                </span>
+                <span className="hidden sm:inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-500/15 dark:text-sky-300">
+                  Koperasi
+                </span>
               </div>
-              <div className="truncate text-[9.5px] sm:text-[10px] font-semibold tracking-wider text-blue-600 uppercase dark:text-sky-400">
-                Admin E-Kantin & Koperasi
+              <div className="truncate text-[10.5px] font-medium text-slate-500 dark:text-slate-400">
+                Panel Pengelola E-Kantin & Penjualan
               </div>
             </div>
           </div>
@@ -573,7 +602,7 @@ export default function AdminEKantinPage() {
             <div className="flex items-center gap-1.5">
               <Link
                 href="/admin"
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-100 px-2.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700/80 dark:hover:text-white sm:px-3"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200/90 bg-slate-50 px-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-3"
                 title="Buka Panel Admin PPDB"
                 aria-label="Panel Admin PPDB"
               >
@@ -582,12 +611,15 @@ export default function AdminEKantinPage() {
               </Link>
               <Link
                 href="/ekantin"
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-100 px-2.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700/80 dark:hover:text-white sm:px-3"
-                title="Buka Halaman Toko E-Kantin Publik"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200/90 bg-slate-50 px-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-3"
+                title="Buka Halaman Toko E-Kantin Publik di Tab Baru"
                 aria-label="Toko Publik E-Kantin"
               >
                 <Store size={15} className="text-slate-500 dark:text-slate-300" />
                 <span className="hidden sm:inline">Toko Publik</span>
+                <ExternalLink size={12} className="text-slate-400 opacity-70" />
               </Link>
             </div>
 
@@ -599,16 +631,16 @@ export default function AdminEKantinPage() {
               <button
                 type="button"
                 onClick={toggleDarkMode}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-100 text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700/80 dark:hover:text-white"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200/90 bg-slate-50 text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700"
                 title={darkMode ? "Ganti ke Mode Terang" : "Ganti ke Mode Gelap"}
                 aria-label="Ubah Tema Tampilan"
               >
-                {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+                {darkMode ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-slate-600" />}
               </button>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-700 transition-colors hover:bg-rose-100 hover:text-rose-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20 dark:hover:text-rose-100"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-rose-200/90 bg-rose-50 text-rose-700 transition-colors hover:bg-rose-100 hover:text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
                 title="Keluar Akun Admin E-Kantin"
                 aria-label="Keluar dari Akun Admin"
               >
@@ -620,18 +652,49 @@ export default function AdminEKantinPage() {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 space-y-6">
+        {/* Page Intro Banner */}
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                Dashboard E-Kantin & Koperasi
+              </h1>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live Firestore
+              </span>
+            </div>
+            <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              Pantau pesanan makanan siswa, stok seragam praktik, ATK, dan transaksi koperasi sekolah.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void loadAllData()}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-xs transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              <RefreshCw size={13} className={loading ? "animate-spin text-blue-600" : "text-slate-400"} />
+              <span>Sinkronisasi Data</span>
+            </button>
+          </div>
+        </div>
+
         {/* Notifications */}
         {notice && (
-          <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-xs font-semibold text-emerald-800 shadow-xs dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+                <CheckCircle2 size={13} />
+              </div>
               <span>{notice}</span>
             </div>
             <button
               type="button"
               onClick={() => setNotice("")}
-              className="text-emerald-600 hover:text-emerald-800 dark:text-emerald-300/70 dark:hover:text-emerald-200"
+              className="text-emerald-700 hover:text-emerald-900 dark:text-emerald-300/70 dark:hover:text-emerald-200"
               aria-label="Tutup notifikasi"
             >
               <X size={15} />
@@ -639,15 +702,17 @@ export default function AdminEKantinPage() {
           </div>
         )}
         {error && (
-          <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
-            <div className="flex items-center gap-2">
-              <AlertTriangle size={16} className="shrink-0 text-rose-600 dark:text-rose-400" />
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-xs font-semibold text-rose-800 shadow-xs dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300">
+                <AlertTriangle size={13} />
+              </div>
               <span>{error}</span>
             </div>
             <button
               type="button"
               onClick={() => setError("")}
-              className="text-rose-600 hover:text-rose-800 dark:text-rose-300/70 dark:hover:text-rose-200"
+              className="text-rose-700 hover:text-rose-900 dark:text-rose-300/70 dark:hover:text-rose-200"
               aria-label="Tutup pesan error"
             >
               <X size={15} />
@@ -656,41 +721,44 @@ export default function AdminEKantinPage() {
         )}
 
         {/* KPI Summary Cards */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 sm:gap-4">
+          {/* Card 1: Omzet */}
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)] transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                 Total Omzet
               </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
-                <TrendingUp size={14} />
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                <TrendingUp size={16} />
               </div>
             </div>
-            <p className="mt-2 text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
+            <p className="mt-3 text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
               {formatRupiah(stats.revenue)}
             </p>
-            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-              {stats.completedCount} pesanan selesai
-            </p>
+            <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <Check size={12} strokeWidth={2.5} />
+              <span>{stats.completedCount} pesanan selesai</span>
+            </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          {/* Card 2: Perlu Diproses */}
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)] transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                 Perlu Diproses
               </span>
               <div
-                className={`flex h-7 w-7 items-center justify-center rounded-lg ${
+                className={`flex h-8 w-8 items-center justify-center rounded-xl ${
                   stats.pendingCount > 0
                     ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                    : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
+                    : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                 }`}
               >
-                <Clock size={14} />
+                <Clock size={16} />
               </div>
             </div>
             <p
-              className={`mt-2 text-xl font-black tracking-tight sm:text-2xl ${
+              className={`mt-3 text-xl font-black tracking-tight sm:text-2xl ${
                 stats.pendingCount > 0
                   ? "text-amber-600 dark:text-amber-400"
                   : "text-slate-900 dark:text-white"
@@ -698,69 +766,77 @@ export default function AdminEKantinPage() {
             >
               {stats.pendingCount} Pesanan
             </p>
-            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
               {stats.readyCount} siap diambil atau diantar
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          {/* Card 3: Total Transaksi */}
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)] transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                 Total Transaksi
               </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                <Package size={14} />
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                <ShoppingBag size={16} />
               </div>
             </div>
-            <p className="mt-2 text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
+            <p className="mt-3 text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
               {stats.totalOrders} Invoice
             </p>
-            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
               Total pesanan siswa tercatat
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          {/* Card 4: Katalog Produk */}
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)] transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                 Katalog Produk
               </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                <UtensilsCrossed size={14} />
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                <UtensilsCrossed size={16} />
               </div>
             </div>
-            <p className="mt-2 text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
+            <p className="mt-3 text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
               {stats.totalProducts} Item
             </p>
-            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
               {stats.totalStock} unit ({stats.lowStockCount} stok menipis)
             </p>
           </div>
         </div>
 
         {/* Workspace Toolbar: Segmented Tabs & Action Buttons */}
-        <div className="mt-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center border-b border-slate-200 pb-4 dark:border-slate-800">
           {/* Segmented Tab Switcher */}
           <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1 dark:border-slate-800 dark:bg-slate-900">
             <button
               type="button"
               onClick={() => setActiveTab("orders")}
-              className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
                 activeTab === "orders"
                   ? "bg-white text-slate-900 shadow-xs dark:bg-slate-800 dark:text-white"
                   : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
               <Package size={14} />
-              <span>Pesanan Siswa</span>
-              <span className="rounded-full bg-slate-200/80 px-2 py-0.5 text-[10px] font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+              <span>Daftar Pesanan</span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${
+                  activeTab === "orders"
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-200"
+                    : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+                }`}
+              >
                 {orders.length}
               </span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("products")}
-              className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
                 activeTab === "products"
                   ? "bg-white text-slate-900 shadow-xs dark:bg-slate-800 dark:text-white"
                   : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
@@ -768,7 +844,13 @@ export default function AdminEKantinPage() {
             >
               <UtensilsCrossed size={14} />
               <span>Katalog Produk</span>
-              <span className="rounded-full bg-slate-200/80 px-2 py-0.5 text-[10px] font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${
+                  activeTab === "products"
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-200"
+                    : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+                }`}
+              >
                 {products.length}
               </span>
             </button>
@@ -782,39 +864,21 @@ export default function AdminEKantinPage() {
                   type="button"
                   onClick={exportOrdersCsv}
                   disabled={!orders.length}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-xs transition-colors hover:bg-slate-50 disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                   title="Export Data Pesanan ke File CSV"
                 >
-                  <Download size={14} />
+                  <Download size={14} className="text-slate-500" />
                   <span>Export CSV</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void loadAllData()}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                  title="Muat Ulang Data Pesanan"
-                >
-                  <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-                  <span>Muat Ulang</span>
                 </button>
               </>
             ) : (
               <>
-                <button
-                  type="button"
-                  onClick={() => void loadAllData()}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                  title="Muat Ulang Katalog Produk"
-                >
-                  <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-                  <span>Muat Ulang</span>
-                </button>
                 {products.length === 0 && (
                   <button
                     type="button"
                     disabled={seedingCatalog}
                     onClick={() => void handleSeedDefaultCatalog()}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100 disabled:opacity-50 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2 text-xs font-bold text-blue-700 transition-colors hover:bg-blue-100 disabled:opacity-50 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300"
                   >
                     <Layers size={14} />
                     <span>{seedingCatalog ? "Menyimpan..." : "Muat Data Standar"}</span>
@@ -823,21 +887,24 @@ export default function AdminEKantinPage() {
                 <button
                   type="button"
                   onClick={openAddProductModal}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-blue-500 active:bg-blue-700"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-blue-500 active:bg-blue-700"
+                  style={{ color: "#ffffff" }}
                 >
                   <Plus size={15} strokeWidth={2.5} />
-                  <span>Tambah Produk</span>
+                  <span>Tambah Produk Baru</span>
                 </button>
               </>
             )}
           </div>
         </div>
 
-        {/* TAB 1: ORDERS MANAGEMENT */}
+        {/* =====================================================================
+            TAB 1: ORDERS MANAGEMENT
+           ===================================================================== */}
         {activeTab === "orders" && (
-          <section className="mt-6">
+          <section className="space-y-4">
             {/* Search & Filters */}
-            <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-12">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
               <div className="relative sm:col-span-6">
                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -845,14 +912,14 @@ export default function AdminEKantinPage() {
                   value={orderSearch}
                   onChange={(e) => setOrderSearch(e.target.value)}
                   placeholder="Cari nomor invoice (EK-...), nama siswa, kelas, atau menu..."
-                  className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-xs text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+                  className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-xs font-medium text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white placeholder-slate-400"
                 />
               </div>
               <div className="sm:col-span-3">
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                 >
                   <option value="Semua">Semua Status Pesanan</option>
                   {ORDER_STATUSES.map((st) => (
@@ -866,7 +933,7 @@ export default function AdminEKantinPage() {
                 <select
                   value={deliveryFilter}
                   onChange={(e) => setDeliveryFilter(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                 >
                   <option value="Semua">Semua Metode Ambil</option>
                   <option value="Ambil di Koperasi">Ambil di Koperasi</option>
@@ -880,38 +947,45 @@ export default function AdminEKantinPage() {
                 {[1, 2, 3].map((n) => (
                   <div
                     key={n}
-                    className="h-32 animate-pulse rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
+                    className="h-32 animate-pulse rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
                   />
                 ))}
               </div>
             ) : filteredOrders.length === 0 ? (
               <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-900">
-                <p className="text-base font-bold text-slate-900 dark:text-white">Belum Ada Data Pesanan</p>
-                <p className="mx-auto mt-1.5 max-w-md text-xs text-slate-500 dark:text-slate-400">
-                  Setiap pesanan yang dibuat oleh siswa atau guru di katalog toko publik akan otomatis ditampilkan di sini.
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                  <Receipt size={24} />
+                </div>
+                <p className="mt-3 text-base font-bold text-slate-900 dark:text-white">Belum Ada Data Pesanan</p>
+                <p className="mx-auto mt-1 max-w-md text-xs text-slate-500 dark:text-slate-400">
+                  Pesanan yang dibuat oleh siswa atau guru melalui katalog toko publik akan langsung masuk dan ditampilkan di sini.
                 </p>
                 <div className="mt-4">
                   <Link
                     href="/ekantin"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                   >
                     <Store size={14} />
-                    <span>Lihat Toko Publik</span>
+                    <span>Buka Toko Publik</span>
+                    <ExternalLink size={12} />
                   </Link>
                 </div>
               </div>
             ) : (
-              <div className="space-y-3.5">
+              <div className="space-y-3">
                 {filteredOrders.map((ord) => {
                   const isBusy = updatingOrderInvoice === ord.invoice;
+                  const waUrl = getWhatsAppUrl(ord.buyer_phone, ord.invoice, ord.buyer_name);
                   return (
                     <div
                       key={ord.invoice}
-                      className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs transition hover:shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                      className="group rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)] transition hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90 dark:hover:border-slate-700"
                     >
-                      <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-3.5 dark:border-slate-800 sm:flex-row sm:items-center">
-                        <div className="flex flex-wrap items-center gap-2.5">
-                          <span className="rounded-md bg-slate-100 px-2.5 py-1 font-mono text-xs font-bold text-slate-900 dark:bg-slate-800 dark:text-slate-200">
+                      {/* Order Header Row */}
+                      <div className="flex flex-col justify-between gap-2.5 border-b border-slate-100 pb-3.5 dark:border-slate-800 sm:flex-row sm:items-center">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs font-bold text-slate-900 dark:bg-slate-800 dark:text-slate-200">
                             {ord.invoice}
                           </span>
                           <span
@@ -921,10 +995,10 @@ export default function AdminEKantinPage() {
                           >
                             {ord.status}
                           </span>
-                          <span className="rounded-md bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                          <span className="rounded-md border border-slate-200/80 bg-slate-50 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                             {ord.delivery_method}
                           </span>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-[11px] font-medium text-slate-400">
                             {new Date(ord.created_at).toLocaleString("id-ID", {
                               day: "2-digit",
                               month: "short",
@@ -936,52 +1010,80 @@ export default function AdminEKantinPage() {
 
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-slate-400">{ord.payment_method} •</span>
-                          <span className="text-base font-extrabold text-slate-900 dark:text-white">
+                          <span className="text-base font-black text-slate-900 dark:text-white">
                             {formatRupiah(ord.total)}
                           </span>
                         </div>
                       </div>
 
+                      {/* Order Body Details */}
                       <div className="mt-3.5 grid gap-4 lg:grid-cols-12 lg:items-center">
-                        <div className="lg:col-span-4">
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">{ord.buyer_name}</p>
-                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                            Kelas / Ruangan: <span className="text-slate-700 dark:text-slate-200">{ord.buyer_class}</span>
-                          </p>
+                        {/* Column 1: Customer Profile */}
+                        <div className="lg:col-span-4 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">{ord.buyer_name}</p>
+                            <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-500/15 dark:text-sky-300">
+                              {ord.buyer_class}
+                            </span>
+                          </div>
+
+                          {ord.buyer_phone && (
+                            <div className="flex items-center gap-2 pt-0.5">
+                              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                {ord.buyer_phone}
+                              </span>
+                              {waUrl && (
+                                <a
+                                  href={waUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 transition hover:bg-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-300"
+                                  title="Kirim pesan WhatsApp ke siswa/pemesan"
+                                >
+                                  <MessageCircle size={11} />
+                                  <span>WhatsApp</span>
+                                </a>
+                              )}
+                            </div>
+                          )}
+
                           {ord.notes && (
-                            <p className="mt-1 text-xs italic text-slate-500 dark:text-slate-400">
-                              Catatan Siswa: &ldquo;{ord.notes}&rdquo;
+                            <p className="text-xs italic text-slate-500 dark:text-slate-400 pt-0.5">
+                              Catatan: &ldquo;{ord.notes}&rdquo;
                             </p>
                           )}
                           {ord.admin_notes && (
-                            <p className="mt-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                              Catatan Petugas: {ord.admin_notes}
+                            <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 pt-0.5">
+                              Petugas: {ord.admin_notes}
                             </p>
                           )}
                         </div>
 
+                        {/* Column 2: Items Summary Chips */}
                         <div className="lg:col-span-4">
                           <div className="flex flex-wrap gap-1.5">
                             {ord.items.map((item, idx) => (
                               <span
                                 key={idx}
-                                className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300"
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/90 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-300"
                               >
-                                {item.qty}x {item.name}{" "}
-                                <span className="text-slate-400">({item.variant})</span>
+                                <span className="font-bold text-slate-900 dark:text-white">{item.qty}x</span>
+                                <span>{item.name}</span>
+                                <span className="text-slate-400 text-[11px]">({item.variant})</span>
                               </span>
                             ))}
                           </div>
                         </div>
 
-                        {/* Order Workflow Action Buttons */}
+                        {/* Column 3: Workflow Action Buttons */}
                         <div className="flex flex-wrap items-center justify-end gap-2 lg:col-span-4">
                           {ord.status === "Menunggu Konfirmasi" && (
                             <button
                               type="button"
                               disabled={isBusy}
                               onClick={() => void handleUpdateOrderStatus(ord.invoice, "Diproses Koperasi")}
-                              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
+                              className="rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-500 disabled:opacity-50"
+                              style={{ color: "#ffffff" }}
                             >
                               Proses Pesanan
                             </button>
@@ -993,7 +1095,8 @@ export default function AdminEKantinPage() {
                               onClick={() =>
                                 void handleUpdateOrderStatus(ord.invoice, "Siap Diambil / Diantar")
                               }
-                              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-50"
+                              className="rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-500 disabled:opacity-50"
+                              style={{ color: "#ffffff" }}
                             >
                               Siap Diambil
                             </button>
@@ -1003,7 +1106,8 @@ export default function AdminEKantinPage() {
                               type="button"
                               disabled={isBusy}
                               onClick={() => void handleUpdateOrderStatus(ord.invoice, "Selesai")}
-                              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50"
+                              className="rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-500 disabled:opacity-50"
+                              style={{ color: "#ffffff" }}
                             >
                               Selesaikan
                             </button>
@@ -1014,7 +1118,7 @@ export default function AdminEKantinPage() {
                               setSelectedOrderModal(ord);
                               setAdminNotesInput(ord.admin_notes || "");
                             }}
-                            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                           >
                             Detail
                           </button>
@@ -1022,7 +1126,7 @@ export default function AdminEKantinPage() {
                             type="button"
                             disabled={isBusy}
                             onClick={() => void handleDeleteOrder(ord.invoice)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-rose-500/40 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-rose-500/40 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                             title="Hapus Pesanan"
                             aria-label={`Hapus invoice ${ord.invoice}`}
                           >
@@ -1038,11 +1142,13 @@ export default function AdminEKantinPage() {
           </section>
         )}
 
-        {/* TAB 2: PRODUCTS CATALOG MANAGEMENT */}
+        {/* =====================================================================
+            TAB 2: PRODUCTS CATALOG MANAGEMENT
+           ===================================================================== */}
         {activeTab === "products" && (
-          <section className="mt-6">
+          <section className="space-y-4">
             {/* Search & Category Filter Toolbar */}
-            <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div className="flex flex-1 flex-col gap-3 sm:flex-row">
                 <div className="relative w-full max-w-md">
                   <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -1050,16 +1156,16 @@ export default function AdminEKantinPage() {
                     type="text"
                     value={productSearch}
                     onChange={(e) => setProductSearch(e.target.value)}
-                    placeholder="Cari nama produk, kategori, atau unit..."
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-xs text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+                    placeholder="Cari nama produk, kategori, atau penjual..."
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-xs font-medium text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white placeholder-slate-400"
                   />
                 </div>
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                  className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                 >
-                  <option value="Semua">Semua Kategori</option>
+                  <option value="Semua">Semua Kategori Produk</option>
                   {CATEGORIES.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.label}
@@ -1068,8 +1174,8 @@ export default function AdminEKantinPage() {
                 </select>
               </div>
 
-              <div className="text-xs text-slate-500 dark:text-slate-400">
-                Menampilkan <span className="font-bold text-slate-900 dark:text-white">{filteredProducts.length}</span> dari {products.length} produk
+              <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                Menampilkan <strong className="text-slate-900 dark:text-white">{filteredProducts.length}</strong> dari {products.length} produk
               </div>
             </div>
 
@@ -1078,16 +1184,19 @@ export default function AdminEKantinPage() {
                 {[1, 2, 3, 4].map((n) => (
                   <div
                     key={n}
-                    className="h-80 animate-pulse rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
+                    className="h-80 animate-pulse rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
                   />
                 ))}
               </div>
             ) : filteredProducts.length === 0 ? (
               <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-900">
-                <p className="text-base font-bold text-slate-900 dark:text-white">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                  <UtensilsCrossed size={24} />
+                </div>
+                <p className="mt-3 text-base font-bold text-slate-900 dark:text-white">
                   Katalog Produk Masih Kosong
                 </p>
-                <p className="mx-auto mt-1.5 max-w-md text-xs text-slate-500 dark:text-slate-400">
+                <p className="mx-auto mt-1 max-w-md text-xs text-slate-500 dark:text-slate-400">
                   Tambahkan produk baru ke dalam katalog atau impor 8 data contoh standar Koperasi SMK Bani Masum.
                 </p>
                 <div className="mt-5 flex flex-wrap justify-center gap-3">
@@ -1095,7 +1204,7 @@ export default function AdminEKantinPage() {
                     type="button"
                     disabled={seedingCatalog}
                     onClick={() => void handleSeedDefaultCatalog()}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs font-bold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300"
                   >
                     <Layers size={14} />
                     <span>{seedingCatalog ? "Menyimpan..." : "Muat 8 Produk Standar"}</span>
@@ -1103,7 +1212,8 @@ export default function AdminEKantinPage() {
                   <button
                     type="button"
                     onClick={openAddProductModal}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-500"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-blue-500"
+                    style={{ color: "#ffffff" }}
                   >
                     <Plus size={14} strokeWidth={2.5} />
                     <span>Tambah Produk Manual</span>
@@ -1115,7 +1225,7 @@ export default function AdminEKantinPage() {
                 {filteredProducts.map((prod) => (
                   <div
                     key={prod.id}
-                    className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs transition-all hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+                    className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.03)] transition-all hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90 dark:hover:border-slate-700"
                   >
                     {/* Product Image & Badges */}
                     <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
@@ -1126,12 +1236,12 @@ export default function AdminEKantinPage() {
                           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">
+                        <div className="flex h-full w-full items-center justify-center text-xs font-medium text-slate-400">
                           Tanpa Foto
                         </div>
                       )}
                       {/* Category Badge */}
-                      <span className="absolute left-2.5 top-2.5 rounded-md bg-slate-900/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-xs">
+                      <span className="absolute left-2.5 top-2.5 rounded-md bg-slate-900/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-xs">
                         {prod.category}
                       </span>
                       {/* Stock Badge */}
@@ -1141,7 +1251,7 @@ export default function AdminEKantinPage() {
                             ? "bg-rose-600/90 text-white"
                             : prod.stock <= 5
                             ? "bg-amber-600/90 text-white"
-                            : "bg-slate-900/80 text-emerald-400"
+                            : "bg-emerald-600/90 text-white"
                         }`}
                       >
                         {prod.stock === 0 ? "Habis" : `Stok: ${prod.stock}`}
@@ -1150,7 +1260,7 @@ export default function AdminEKantinPage() {
 
                     {/* Product Details */}
                     <div className="flex flex-1 flex-col p-4">
-                      <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                      <p className="truncate text-[11px] font-semibold text-slate-400">
                         {prod.seller}
                       </p>
                       <h3 className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-slate-900 dark:text-white">
@@ -1158,7 +1268,7 @@ export default function AdminEKantinPage() {
                       </h3>
 
                       <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-base font-extrabold text-slate-900 dark:text-white">
+                        <span className="text-base font-black text-slate-900 dark:text-white">
                           {formatRupiah(prod.price)}
                         </span>
                         {prod.original_price && prod.original_price > prod.price && (
@@ -1173,27 +1283,27 @@ export default function AdminEKantinPage() {
                       </p>
 
                       {/* Quick Stock Controls */}
-                      <div className="mt-3 flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50/60 px-2.5 py-1.5 text-xs dark:border-slate-800 dark:bg-slate-800/40">
-                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                      <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/80 px-2.5 py-1.5 text-xs dark:border-slate-800 dark:bg-slate-800/40">
+                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                           Ubah Stok
                         </span>
                         <div className="flex items-center gap-1.5">
                           <button
                             type="button"
                             onClick={() => void handleQuickStockChange(prod, prod.stock - 1)}
-                            className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-white text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                            className="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                             title="Kurang 1 stok"
                             aria-label="Kurang 1 stok"
                           >
                             -1
                           </button>
-                          <span className="min-w-6 text-center font-bold text-slate-900 dark:text-white">
+                          <span className="min-w-6 text-center font-black text-slate-900 dark:text-white">
                             {prod.stock}
                           </span>
                           <button
                             type="button"
                             onClick={() => void handleQuickStockChange(prod, prod.stock + 5)}
-                            className="inline-flex h-6 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-[11px] font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                            className="inline-flex h-6 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-[11px] font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                             title="Tambah 5 stok"
                             aria-label="Tambah 5 stok"
                           >
@@ -1207,7 +1317,7 @@ export default function AdminEKantinPage() {
                         <button
                           type="button"
                           onClick={() => openEditProductModal(prod)}
-                          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
+                          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 text-xs font-bold text-slate-700 shadow-xs transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
                         >
                           <Edit3 size={13} />
                           <span>Edit</span>
@@ -1215,7 +1325,7 @@ export default function AdminEKantinPage() {
                         <button
                           type="button"
                           onClick={() => void handleDeleteProduct(prod)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-rose-500/40 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-rose-500/40 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                           title="Hapus Produk"
                           aria-label={`Hapus produk ${prod.name}`}
                         >
@@ -1231,78 +1341,113 @@ export default function AdminEKantinPage() {
         )}
       </main>
 
-      {/* Order Detail & Status Edit Modal */}
+      {/* =====================================================================
+          ORDER DETAIL & STATUS MODAL
+         ===================================================================== */}
       {selectedOrderModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#1E293B] sm:rounded-3xl">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-white/10">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-[#38BDF8]">
-                  Kelola Pesanan Siswa
-                </span>
-                <h3 className="text-xl font-extrabold">{selectedOrderModal.invoice}</h3>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#0F172A]/65 p-0 backdrop-blur-xs sm:items-center sm:p-4">
+          <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xl dark:border-slate-800 dark:bg-[#0F172A] sm:rounded-3xl">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-sky-300">
+                  <Receipt size={20} />
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-sky-400">
+                    Rincian Pesanan
+                  </span>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                    {selectedOrderModal.invoice}
+                  </h3>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedOrderModal(null)}
-                className="rounded-full bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/20 dark:hover:text-white"
+                className="rounded-xl p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
                 aria-label="Tutup detail pesanan"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
-            <div className="mt-4 space-y-3 text-xs">
-              <div className="rounded-2xl bg-slate-100 p-4 dark:bg-[#0F172A]">
-                <p className="font-bold text-sm">{selectedOrderModal.buyer_name}</p>
-                <p className="text-blue-600 dark:text-[#38BDF8]">
-                  Kelas: {selectedOrderModal.buyer_class} • {selectedOrderModal.delivery_method}
+            <div className="mt-4 space-y-4 text-xs">
+              {/* Customer Box */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60">
+                <div className="flex items-center justify-between">
+                  <p className="font-extrabold text-sm text-slate-900 dark:text-white">
+                    {selectedOrderModal.buyer_name}
+                  </p>
+                  <span className="rounded-md bg-blue-100 px-2 py-0.5 text-[11px] font-bold text-blue-700 dark:bg-blue-900/60 dark:text-blue-200">
+                    Kelas: {selectedOrderModal.buyer_class}
+                  </span>
+                </div>
+                <p className="mt-1 text-slate-600 dark:text-slate-300">
+                  Metode: <strong className="text-slate-900 dark:text-white">{selectedOrderModal.delivery_method}</strong>
                 </p>
                 {selectedOrderModal.buyer_phone && (
-                  <p className="mt-1">WhatsApp: {selectedOrderModal.buyer_phone}</p>
+                  <p className="mt-1 text-slate-600 dark:text-slate-300">
+                    WhatsApp: <span className="font-semibold">{selectedOrderModal.buyer_phone}</span>
+                  </p>
                 )}
                 {selectedOrderModal.notes && (
-                  <p className="mt-1 italic text-slate-400">
-                    Catatan Siswa: {selectedOrderModal.notes}
+                  <p className="mt-2 rounded-xl bg-white p-2.5 italic text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
+                    &ldquo;{selectedOrderModal.notes}&rdquo;
                   </p>
                 )}
               </div>
 
+              {/* Items List */}
               <div className="space-y-2">
-                {selectedOrderModal.items.map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between rounded-xl border border-slate-200 px-3.5 py-2.5 dark:border-white/10"
-                  >
-                    <span>
-                      <strong>
-                        {item.qty}x {item.name}
-                      </strong>{" "}
-                      ({item.variant})
+                <span className="font-bold uppercase tracking-wider text-slate-500 text-[11px] dark:text-slate-400">
+                  Daftar Barang Dipesan
+                </span>
+                <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900/40">
+                  {selectedOrderModal.items.map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between px-3.5 py-2.5 text-xs"
+                    >
+                      <div>
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          {item.qty}x {item.name}
+                        </span>{" "}
+                        <span className="text-slate-400">({item.variant})</span>
+                      </div>
+                      <span className="font-black text-slate-900 dark:text-white">
+                        {formatRupiah(item.price * item.qty)}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between bg-slate-50 px-3.5 py-2.5 font-black text-sm rounded-b-2xl dark:bg-slate-800/60">
+                    <span>Total Pembayaran</span>
+                    <span className="text-blue-600 dark:text-sky-400">
+                      {formatRupiah(selectedOrderModal.total)}
                     </span>
-                    <span className="font-bold">{formatRupiah(item.price * item.qty)}</span>
                   </div>
-                ))}
+                </div>
               </div>
 
+              {/* Admin Note Input */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider">
-                  Catatan Petugas Koperasi (Tampil di Bukti Siswa)
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  Catatan Petugas Koperasi (Tampil di Bukti Pesanan Siswa)
                 </label>
                 <input
                   type="text"
                   value={adminNotesInput}
                   onChange={(e) => setAdminNotesInput(e.target.value)}
-                  placeholder="Contoh: Pesanan sudah siap di loket 1 koperasi"
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 text-xs outline-none focus:border-[#2563EB] dark:border-white/15"
+                  placeholder="Contoh: Pesanan sudah siap di loket 1 koperasi sekolah"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
               </div>
 
+              {/* Status Update Buttons */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
                   Ubah Status Pesanan
                 </label>
-                <div className="mt-2 grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {ORDER_STATUSES.map((st) => (
                     <button
                       key={st}
@@ -1316,9 +1461,10 @@ export default function AdminEKantinPage() {
                       }
                       className={`rounded-xl border px-3 py-2.5 text-xs font-bold transition ${
                         selectedOrderModal.status === st
-                          ? "border-[#2563EB] bg-[#2563EB] text-white"
-                          : "border-slate-200 hover:border-[#38BDF8] dark:border-white/15"
+                          ? "border-blue-600 bg-blue-600 text-white shadow-xs"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                       }`}
+                      style={selectedOrderModal.status === st ? { color: "#ffffff" } : undefined}
                     >
                       {st}
                     </button>
@@ -1330,52 +1476,63 @@ export default function AdminEKantinPage() {
         </div>
       )}
 
-      {/* Add / Edit Product Modal */}
+      {/* =====================================================================
+          ADD / EDIT PRODUCT MODAL
+         ===================================================================== */}
       {isProductModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#0F172A]/65 p-0 backdrop-blur-xs sm:items-center sm:p-4">
           <form
             onSubmit={handleSaveProduct}
-            className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#1E293B] sm:rounded-3xl"
+            className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xl dark:border-slate-800 dark:bg-[#0F172A] sm:rounded-3xl"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-white/10">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-[#38BDF8]">
-                  Firebase Firestore Katalog
-                </span>
-                <h3 className="text-xl font-extrabold">
-                  {editingProduct ? `Edit Produk: ${editingProduct.name}` : "Tambah Produk E-Kantin Baru"}
-                </h3>
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-sky-300">
+                  <UtensilsCrossed size={20} />
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-sky-400">
+                    Katalog E-Kantin & Koperasi
+                  </span>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                    {editingProduct ? `Edit: ${editingProduct.name}` : "Tambah Produk Baru"}
+                  </h3>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsProductModalOpen(false)}
-                className="rounded-full bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/20 dark:hover:text-white"
+                className="rounded-xl p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
                 aria-label="Tutup form produk"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
             <div className="mt-4 space-y-3.5 text-xs">
               <div>
-                <label className="block font-bold uppercase tracking-wider">Nama Produk *</label>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                  Nama Produk *
+                </label>
                 <input
                   type="text"
                   required
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="Contoh: Paket Nasi Ayam Geprek Koperasi"
-                  className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 outline-none focus:border-[#2563EB] dark:border-white/15"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">Kategori *</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                    Kategori *
+                  </label>
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value as CategoryId)}
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-bold outline-none dark:border-white/15 dark:bg-[#0F172A]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   >
                     {CATEGORIES.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -1385,7 +1542,9 @@ export default function AdminEKantinPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">Harga Jual (Rp) *</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                    Harga Jual (Rp) *
+                  </label>
                   <input
                     type="number"
                     required
@@ -1393,25 +1552,27 @@ export default function AdminEKantinPage() {
                     value={formPrice}
                     onChange={(e) => setFormPrice(e.target.value)}
                     placeholder="15000"
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 outline-none focus:border-[#2563EB] dark:border-white/15"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">Stok Tersedia *</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                    Stok Tersedia *
+                  </label>
                   <input
                     type="number"
                     required
                     min={0}
                     value={formStock}
                     onChange={(e) => setFormStock(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 outline-none focus:border-[#2563EB] dark:border-white/15"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                     Harga Coret (Opsional)
                   </label>
                   <input
@@ -1419,34 +1580,38 @@ export default function AdminEKantinPage() {
                     value={formOriginalPrice}
                     onChange={(e) => setFormOriginalPrice(e.target.value)}
                     placeholder="18000"
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 outline-none focus:border-[#2563EB] dark:border-white/15"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">Unit Penjual</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                    Unit Penjual
+                  </label>
                   <input
                     type="text"
                     value={formSeller}
                     onChange={(e) => setFormSeller(e.target.value)}
                     placeholder="Kantin Sehat / Koperasi"
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 outline-none focus:border-[#2563EB] dark:border-white/15"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">Estimasi / Label</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                    Estimasi / Waktu
+                  </label>
                   <input
                     type="text"
                     value={formEstimate}
                     onChange={(e) => setFormEstimate(e.target.value)}
                     placeholder="Siap 5 Menit"
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 outline-none focus:border-[#2563EB] dark:border-white/15"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                     Pilihan Varian (Pisahkan Koma)
                   </label>
                   <input
@@ -1454,11 +1619,11 @@ export default function AdminEKantinPage() {
                     value={formVariants}
                     onChange={(e) => setFormVariants(e.target.value)}
                     placeholder="Level 1, Level 3, Tanpa Sambal"
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 outline-none focus:border-[#2563EB] dark:border-white/15"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                     Badge Promo (Opsional)
                   </label>
                   <input
@@ -1466,36 +1631,38 @@ export default function AdminEKantinPage() {
                     value={formBadge}
                     onChange={(e) => setFormBadge(e.target.value)}
                     placeholder="Best Seller / Wajib Praktik"
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 outline-none focus:border-[#2563EB] dark:border-white/15"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold uppercase tracking-wider">Deskripsi Produk</label>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                  Deskripsi Produk
+                </label>
                 <textarea
                   rows={2}
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
                   placeholder="Jelaskan detail menu atau spesifikasi perlengkapan sekolah..."
-                  className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2 outline-none focus:border-[#2563EB] dark:border-white/15"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                     Upload Foto Produk (ImgBB / Storage)
                   </label>
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     onChange={(e) => setFormImageFile(e.target.files?.[0] || null)}
-                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs dark:border-white/15"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                     Atau Gunakan URL Gambar
                   </label>
                   <input
@@ -1503,30 +1670,36 @@ export default function AdminEKantinPage() {
                     value={formImageUrl}
                     onChange={(e) => setFormImageUrl(e.target.value)}
                     placeholder="https://..."
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-transparent px-3.5 py-2.5 outline-none focus:border-[#2563EB] dark:border-white/15"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex items-center justify-end gap-2.5 border-t border-slate-100 pt-4 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setIsProductModalOpen(false)}
-                className="rounded-xl border border-slate-200 bg-slate-100 px-5 py-3 text-xs font-bold text-slate-700 transition hover:bg-slate-200 dark:border-white/15 dark:bg-transparent dark:text-white dark:hover:bg-white/10"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               >
                 Batal
               </button>
               <button
                 type="submit"
                 disabled={savingProduct}
-                className="flex-1 rounded-xl bg-[#2563EB] py-3 text-xs font-extrabold text-white shadow-lg shadow-[#2563EB]/30 transition hover:bg-[#1D4ED8] disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-blue-500 disabled:opacity-50"
+                style={{ color: "#ffffff" }}
               >
-                {savingProduct
-                  ? "Menyimpan ke Firebase..."
-                  : editingProduct
-                  ? "Simpan Perubahan Produk"
-                  : "Simpan Produk ke Firebase"}
+                {savingProduct ? (
+                  <>
+                    <RefreshCw size={13} className="animate-spin" />
+                    <span>Menyimpan ke Firebase...</span>
+                  </>
+                ) : editingProduct ? (
+                  <span>Simpan Perubahan</span>
+                ) : (
+                  <span>Simpan Produk</span>
+                )}
               </button>
             </div>
           </form>
@@ -1536,16 +1709,16 @@ export default function AdminEKantinPage() {
       {/* Mobile Bottom Navigation Bar */}
       <nav
         aria-label="Navigasi Cepat Mobile E-Kantin"
-        className="pb-safe fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 px-2 py-1.5 text-slate-700 shadow-[0_-8px_24px_rgba(2,6,23,0.06)] backdrop-blur-md dark:border-slate-800 dark:bg-[#0F172A]/95 dark:text-white dark:shadow-[0_-8px_24px_rgba(2,6,23,0.35)] sm:hidden"
+        className="pb-safe fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200/90 bg-white/95 px-2 py-1.5 text-slate-700 shadow-[0_-4px_16px_rgba(15,23,42,0.06)] backdrop-blur-md dark:border-slate-800 dark:bg-[#0F172A]/95 dark:text-white sm:hidden"
       >
         <div className="mx-auto grid max-w-md grid-cols-4 items-center gap-1">
           <button
             type="button"
             onClick={() => setActiveTab("orders")}
-            className={`flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium transition-colors ${
+            className={`flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold transition-colors ${
               activeTab === "orders"
-                ? "bg-blue-50 text-blue-700 font-bold dark:bg-slate-800 dark:text-blue-400"
-                : "text-slate-500 hover:text-slate-800 active:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:active:bg-slate-800 dark:active:text-white"
+                ? "bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-sky-300"
+                : "text-slate-500 hover:text-slate-800 active:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
             title="Daftar Pesanan"
           >
@@ -1555,10 +1728,10 @@ export default function AdminEKantinPage() {
           <button
             type="button"
             onClick={() => setActiveTab("products")}
-            className={`flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium transition-colors ${
+            className={`flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold transition-colors ${
               activeTab === "products"
-                ? "bg-blue-50 text-blue-700 font-bold dark:bg-slate-800 dark:text-blue-400"
-                : "text-slate-500 hover:text-slate-800 active:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:active:bg-slate-800 dark:active:text-white"
+                ? "bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-sky-300"
+                : "text-slate-500 hover:text-slate-800 active:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
             title="Katalog Produk"
           >
@@ -1568,7 +1741,7 @@ export default function AdminEKantinPage() {
           <button
             type="button"
             onClick={openAddProductModal}
-            className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold text-blue-600 transition-colors hover:text-blue-700 active:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:active:bg-slate-800"
+            className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold text-blue-600 transition-colors hover:text-blue-700 active:bg-blue-50 dark:text-sky-400 dark:hover:text-sky-300"
             title="Tambah Produk Baru"
           >
             <Plus size={17} strokeWidth={2.5} />
@@ -1576,11 +1749,11 @@ export default function AdminEKantinPage() {
           </button>
           <Link
             href="/admin"
-            className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium text-slate-500 transition-colors hover:text-slate-800 active:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:active:bg-slate-800 dark:active:text-white"
+            className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-semibold text-slate-500 transition-colors hover:text-slate-800 active:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200"
             title="Ke Panel Admin PPDB"
           >
             <GraduationCap size={17} />
-            <span>Admin PPDB</span>
+            <span>PPDB</span>
           </Link>
         </div>
       </nav>
