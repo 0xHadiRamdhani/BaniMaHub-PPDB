@@ -408,3 +408,37 @@ export async function deleteEkantinOrder(invoice: string) {
     return firebaseRequest(`${firestoreBase}/ekantin_orders/${encodeURIComponent(invoice)}`, { method: "DELETE" });
 }
 
+export async function getSchedule(): Promise<Array<[string, string, string]> | null> {
+    try {
+        const doc = await firebaseRequest<{ name: string; fields?: Record<string, FirestoreValue> }>(
+            `${firestoreBase}/settings/schedule`
+        );
+        if (!doc) return null;
+        const decoded = decodeDocument(doc);
+        if (Array.isArray(decoded.items) && decoded.items.length > 0) {
+            return decoded.items as Array<[string, string, string]>;
+        }
+        return null;
+    } catch (e) {
+        console.error("Failed to fetch schedule from Firebase:", e);
+        return null;
+    }
+}
+
+export async function saveSchedule(items: Array<[string, string, string]>): Promise<boolean> {
+    try {
+        const fields = {
+            items: encodeValue(items),
+            updated_at: encodeValue(new Date().toISOString()),
+        };
+        await firebaseRequest(`${firestoreBase}/settings/schedule`, {
+            method: "PATCH",
+            body: JSON.stringify({ fields }),
+        });
+        return true;
+    } catch (e) {
+        console.error("Failed to save schedule to Firebase:", e);
+        return false;
+    }
+}
+

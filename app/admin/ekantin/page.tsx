@@ -4,6 +4,27 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  GraduationCap,
+  Store,
+  Sun,
+  Moon,
+  LogOut,
+  Package,
+  UtensilsCrossed,
+  Plus,
+  CheckCircle2,
+  AlertTriangle,
+  X,
+  Search,
+  Download,
+  RefreshCw,
+  Edit3,
+  Trash2,
+  TrendingUp,
+  Clock,
+  Layers,
+} from "lucide-react";
 
 type CategoryId = "makanan" | "minuman" | "alat-tulis" | "seragam" | "atribut";
 
@@ -87,17 +108,17 @@ function formatRupiah(amount: number) {
 function getStatusBadgeStyle(status: OrderStatus) {
   switch (status) {
     case "Menunggu Konfirmasi":
-      return "border-amber-500/30 bg-amber-500/15 text-amber-400";
+      return "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-300";
     case "Diproses Koperasi":
-      return "border-sky-500/30 bg-sky-500/15 text-sky-400";
+      return "border-blue-200 bg-blue-50 text-blue-800 dark:border-sky-500/30 dark:bg-sky-500/15 dark:text-sky-300";
     case "Siap Diambil / Diantar":
-      return "border-indigo-500/30 bg-indigo-500/15 text-indigo-300";
+      return "border-indigo-200 bg-indigo-50 text-indigo-800 dark:border-indigo-500/30 dark:bg-indigo-500/15 dark:text-indigo-300";
     case "Selesai":
-      return "border-emerald-500/30 bg-emerald-500/15 text-emerald-400";
+      return "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300";
     case "Dibatalkan":
-      return "border-rose-500/30 bg-rose-500/15 text-rose-400";
+      return "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/15 dark:text-rose-300";
     default:
-      return "border-slate-500/30 bg-slate-500/15 text-slate-300";
+      return "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300";
   }
 }
 
@@ -144,10 +165,23 @@ export default function AdminEKantinPage() {
   const [formImageUrl, setFormImageUrl] = useState("");
   const [formImageFile, setFormImageFile] = useState<File | null>(null);
 
+  const THEME_STORAGE_KEY = "ppdb:theme";
+
+  const applyTheme = (isDark: boolean) => {
+    const theme = isDark ? "dark" : "light";
+    if (typeof document !== "undefined") {
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+      document.documentElement.classList.toggle("dark", isDark);
+    }
+  };
+
   useEffect(() => {
     try {
-      const savedTheme = localStorage.getItem("ppdb_admin_dark_mode");
-      if (savedTheme !== null) setDarkMode(savedTheme === "true");
+      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || localStorage.getItem("ppdb_admin_dark_mode");
+      const isDark = savedTheme !== null ? (savedTheme === "dark" || savedTheme === "true") : true;
+      setDarkMode(isDark);
+      applyTheme(isDark);
     } catch {
       // ignore
     }
@@ -157,10 +191,12 @@ export default function AdminEKantinPage() {
     setDarkMode((prev) => {
       const next = !prev;
       try {
+        localStorage.setItem(THEME_STORAGE_KEY, next ? "dark" : "light");
         localStorage.setItem("ppdb_admin_dark_mode", String(next));
       } catch {
         // ignore
       }
+      applyTheme(next);
       return next;
     });
   };
@@ -506,63 +542,79 @@ export default function AdminEKantinPage() {
           : "min-h-screen bg-[#F1F5F9] text-[#0F172A] pb-24 sm:pb-12"
       }
     >
-      {/* Top AppBar */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0F172A]/95 text-white shadow-lg backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white p-1.5 shadow-inner">
+      {/* Admin Header Bar */}
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 text-slate-900 shadow-xs backdrop-blur-md dark:border-slate-800 dark:bg-[#0F172A] dark:text-white">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          {/* School & Module Identity */}
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white p-1 shadow-xs dark:border-sky-400/40 sm:h-10 sm:w-10">
               <Image
                 src="/logo.png"
-                alt="SMK Bani Ma'sum"
-                width={36}
-                height={36}
-                className="h-8 w-8 object-contain"
+                alt="Logo SMK Bani Masum"
+                fill
+                sizes="40px"
+                className="object-contain p-0.5"
+                priority
               />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="rounded-md bg-[#2563EB] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
-                  Admin E-Kantin
-                </span>
-                <span className="hidden items-center gap-1.5 text-xs font-medium text-emerald-400 sm:inline-flex">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  Firebase Firestore Connected
-                </span>
+            <div className="min-w-0">
+              <div className="truncate font-black tracking-tight text-[13px] sm:text-base text-slate-900 leading-tight dark:text-white">
+                SMK BANI MASUM
               </div>
-              <h1 className="text-base font-extrabold tracking-tight sm:text-lg">
-                Manajemen Koperasi & E-Kantin SMK Bani Ma&apos;sum
-              </h1>
+              <div className="truncate text-[9.5px] sm:text-[10px] font-semibold tracking-wider text-blue-600 uppercase dark:text-sky-400">
+                Admin E-Kantin & Koperasi
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-bold text-slate-200 transition hover:bg-white/15"
-            >
-              <span>← Admin PPDB</span>
-            </Link>
-            <Link
-              href="/ekantin"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[#38BDF8]/30 bg-[#38BDF8]/10 px-3.5 py-2 text-xs font-bold text-[#38BDF8] transition hover:bg-[#38BDF8]/20"
-            >
-              <span>Lihat Toko E-Kantin ↗</span>
-            </Link>
-            <button
-              type="button"
-              onClick={toggleDarkMode}
-              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white transition hover:bg-white/15"
-              title="Ubah Tema"
-            >
-              {darkMode ? "☀ Light" : "🌙 Dark"}
-            </button>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="rounded-xl border border-rose-500/30 bg-rose-500/15 px-3.5 py-2 text-xs font-bold text-rose-300 transition hover:bg-rose-500/25"
-            >
-              Keluar
-            </button>
+          {/* Compact Segmented Control Bar */}
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            {/* Segment 1: Navigasi Modul */}
+            <div className="flex items-center gap-1.5">
+              <Link
+                href="/admin"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-100 px-2.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700/80 dark:hover:text-white sm:px-3"
+                title="Buka Panel Admin PPDB"
+                aria-label="Panel Admin PPDB"
+              >
+                <GraduationCap size={15} className="text-slate-500 dark:text-slate-300" />
+                <span className="hidden xs:inline">Admin PPDB</span>
+              </Link>
+              <Link
+                href="/ekantin"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-100 px-2.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700/80 dark:hover:text-white sm:px-3"
+                title="Buka Halaman Toko E-Kantin Publik"
+                aria-label="Toko Publik E-Kantin"
+              >
+                <Store size={15} className="text-slate-500 dark:text-slate-300" />
+                <span className="hidden sm:inline">Toko Publik</span>
+              </Link>
+            </div>
+
+            {/* Divider */}
+            <div className="h-5 w-px bg-slate-200 dark:bg-slate-700/80 mx-0.5" aria-hidden="true" />
+
+            {/* Segment 2: Tampilan & Sesi */}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={toggleDarkMode}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-100 text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700/80 dark:hover:text-white"
+                title={darkMode ? "Ganti ke Mode Terang" : "Ganti ke Mode Gelap"}
+                aria-label="Ubah Tema Tampilan"
+              >
+                {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-700 transition-colors hover:bg-rose-100 hover:text-rose-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20 dark:hover:text-rose-100"
+                title="Keluar Akun Admin E-Kantin"
+                aria-label="Keluar dari Akun Admin"
+              >
+                <LogOut size={15} />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -571,29 +623,50 @@ export default function AdminEKantinPage() {
       <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         {/* Notifications */}
         {notice && (
-          <div className="mb-5 flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-3 text-xs font-bold text-emerald-300">
-            <span>✓ {notice}</span>
-            <button type="button" onClick={() => setNotice("")} className="text-emerald-200">
-              ✕
+          <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <span>{notice}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setNotice("")}
+              className="text-emerald-600 hover:text-emerald-800 dark:text-emerald-300/70 dark:hover:text-emerald-200"
+              aria-label="Tutup notifikasi"
+            >
+              <X size={15} />
             </button>
           </div>
         )}
         {error && (
-          <div className="mb-5 flex items-center justify-between rounded-2xl border border-rose-500/30 bg-rose-500/15 px-4 py-3 text-xs font-bold text-rose-300">
-            <span>⚠ {error}</span>
-            <button type="button" onClick={() => setError("")} className="text-rose-200">
-              ✕
+          <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={16} className="shrink-0 text-rose-600 dark:text-rose-400" />
+              <span>{error}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setError("")}
+              className="text-rose-600 hover:text-rose-800 dark:text-rose-300/70 dark:hover:text-rose-200"
+              aria-label="Tutup pesan error"
+            >
+              <X size={15} />
             </button>
           </div>
         )}
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#0F172A]">
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              Total Omzet Koperasi
-            </p>
-            <p className="mt-1.5 text-xl font-extrabold text-[#2563EB] dark:text-[#38BDF8] sm:text-2xl">
+        {/* KPI Summary Cards */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                Total Omzet
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                <TrendingUp size={14} />
+              </div>
+            </div>
+            <p className="mt-2 text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
               {formatRupiah(stats.revenue)}
             </p>
             <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
@@ -601,93 +674,162 @@ export default function AdminEKantinPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#0F172A]">
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              Pesanan Perlu Diproses
-            </p>
-            <p className="mt-1.5 text-xl font-extrabold text-amber-500 sm:text-2xl">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                Perlu Diproses
+              </span>
+              <div
+                className={`flex h-7 w-7 items-center justify-center rounded-lg ${
+                  stats.pendingCount > 0
+                    ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                    : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
+                }`}
+              >
+                <Clock size={14} />
+              </div>
+            </div>
+            <p
+              className={`mt-2 text-xl font-black tracking-tight sm:text-2xl ${
+                stats.pendingCount > 0
+                  ? "text-amber-600 dark:text-amber-400"
+                  : "text-slate-900 dark:text-white"
+              }`}
+            >
               {stats.pendingCount} Pesanan
             </p>
             <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-              {stats.readyCount} siap diambil / diantar
+              {stats.readyCount} siap diambil atau diantar
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#0F172A]">
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              Total Pesanan Masuk
-            </p>
-            <p className="mt-1.5 text-xl font-extrabold text-[#0F172A] dark:text-white sm:text-2xl">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                Total Transaksi
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                <Package size={14} />
+              </div>
+            </div>
+            <p className="mt-2 text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
               {stats.totalOrders} Invoice
             </p>
             <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-              Tersimpan di Firebase
+              Total pesanan siswa tercatat
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#0F172A]">
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              Katalog Produk Aktif
-            </p>
-            <p className="mt-1.5 text-xl font-extrabold text-emerald-500 sm:text-2xl">
-              {stats.totalProducts} Produk
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                Katalog Produk
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                <UtensilsCrossed size={14} />
+              </div>
+            </div>
+            <p className="mt-2 text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
+              {stats.totalProducts} Item
             </p>
             <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-              Total {stats.totalStock} stok ({stats.lowStockCount} stok tipis)
+              {stats.totalStock} unit ({stats.lowStockCount} stok menipis)
             </p>
           </div>
         </div>
 
-        {/* Workspace Navigation Bar */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-[#0F172A]">
-          <div className="flex flex-wrap items-center gap-2">
+        {/* Workspace Toolbar: Segmented Tabs & Action Buttons */}
+        <div className="mt-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+          {/* Segmented Tab Switcher */}
+          <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1 dark:border-slate-800 dark:bg-slate-900">
             <button
               type="button"
               onClick={() => setActiveTab("orders")}
-              className={`rounded-xl px-4 py-2.5 text-xs font-extrabold transition ${
+              className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all ${
                 activeTab === "orders"
-                  ? "bg-[#2563EB] text-white shadow-md shadow-[#2563EB]/25"
-                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
+                  ? "bg-white text-slate-900 shadow-xs dark:bg-slate-800 dark:text-white"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
-              📦 Pesanan Siswa ({orders.length})
+              <Package size={14} />
+              <span>Pesanan Siswa</span>
+              <span className="rounded-full bg-slate-200/80 px-2 py-0.5 text-[10px] font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                {orders.length}
+              </span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("products")}
-              className={`rounded-xl px-4 py-2.5 text-xs font-extrabold transition ${
+              className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all ${
                 activeTab === "products"
-                  ? "bg-[#2563EB] text-white shadow-md shadow-[#2563EB]/25"
-                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
+                  ? "bg-white text-slate-900 shadow-xs dark:bg-slate-800 dark:text-white"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
-              🍱 Katalog Produk Firebase ({products.length})
+              <UtensilsCrossed size={14} />
+              <span>Katalog Produk</span>
+              <span className="rounded-full bg-slate-200/80 px-2 py-0.5 text-[10px] font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                {products.length}
+              </span>
             </button>
           </div>
 
+          {/* Action Buttons for Current Tab */}
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={openAddProductModal}
-              className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-extrabold text-white shadow-sm transition hover:bg-emerald-500"
-            >
-              + Tambah Produk Baru
-            </button>
-            <button
-              type="button"
-              onClick={exportOrdersCsv}
-              disabled={!orders.length}
-              className="rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-bold text-slate-700 transition hover:border-[#2563EB] disabled:opacity-40 dark:border-white/15 dark:text-slate-200"
-            >
-              ⬇ Export CSV
-            </button>
-            <button
-              type="button"
-              onClick={() => void loadAllData()}
-              className="rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-bold text-slate-700 transition hover:border-[#2563EB] dark:border-white/15 dark:text-slate-200"
-            >
-              ↻ Segarkan Firebase
-            </button>
+            {activeTab === "orders" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={exportOrdersCsv}
+                  disabled={!orders.length}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  title="Export Data Pesanan ke File CSV"
+                >
+                  <Download size={14} />
+                  <span>Export CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void loadAllData()}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  title="Muat Ulang Data Pesanan"
+                >
+                  <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+                  <span>Muat Ulang</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => void loadAllData()}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  title="Muat Ulang Katalog Produk"
+                >
+                  <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+                  <span>Muat Ulang</span>
+                </button>
+                {products.length === 0 && (
+                  <button
+                    type="button"
+                    disabled={seedingCatalog}
+                    onClick={() => void handleSeedDefaultCatalog()}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100 disabled:opacity-50 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300"
+                  >
+                    <Layers size={14} />
+                    <span>{seedingCatalog ? "Menyimpan..." : "Muat Data Standar"}</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={openAddProductModal}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-blue-500 active:bg-blue-700"
+                >
+                  <Plus size={15} strokeWidth={2.5} />
+                  <span>Tambah Produk</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -696,20 +838,21 @@ export default function AdminEKantinPage() {
           <section className="mt-6">
             {/* Search & Filters */}
             <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-12">
-              <div className="sm:col-span-6">
+              <div className="relative sm:col-span-6">
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   value={orderSearch}
                   onChange={(e) => setOrderSearch(e.target.value)}
                   placeholder="Cari nomor invoice (EK-...), nama siswa, kelas, atau menu..."
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs outline-none focus:border-[#2563EB] dark:border-white/10 dark:bg-[#0F172A] dark:text-white"
+                  className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-xs text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
                 />
               </div>
               <div className="sm:col-span-3">
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold outline-none focus:border-[#2563EB] dark:border-white/10 dark:bg-[#0F172A] dark:text-white"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                 >
                   <option value="Semua">Semua Status Pesanan</option>
                   {ORDER_STATUSES.map((st) => (
@@ -723,7 +866,7 @@ export default function AdminEKantinPage() {
                 <select
                   value={deliveryFilter}
                   onChange={(e) => setDeliveryFilter(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold outline-none focus:border-[#2563EB] dark:border-white/10 dark:bg-[#0F172A] dark:text-white"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                 >
                   <option value="Semua">Semua Metode Ambil</option>
                   <option value="Ambil di Koperasi">Ambil di Koperasi</option>
@@ -737,43 +880,48 @@ export default function AdminEKantinPage() {
                 {[1, 2, 3].map((n) => (
                   <div
                     key={n}
-                    className="h-32 animate-pulse rounded-2xl border border-white/10 bg-white/5"
+                    className="h-32 animate-pulse rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
                   />
                 ))}
               </div>
             ) : filteredOrders.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center dark:border-white/10 dark:bg-[#0F172A]">
-                <p className="text-base font-extrabold">Belum Ada Data Pesanan E-Kantin</p>
-                <p className="mx-auto mt-1 max-w-md text-xs text-slate-500 dark:text-slate-400">
-                  Setiap pesanan yang dibuat oleh siswa/guru di halaman{" "}
-                  <Link href="/ekantin" className="font-bold text-[#38BDF8] underline">
-                    /ekantin
-                  </Link>{" "}
-                  akan langsung muncul secara otomatis di sini dari Firebase Firestore.
+              <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-base font-bold text-slate-900 dark:text-white">Belum Ada Data Pesanan</p>
+                <p className="mx-auto mt-1.5 max-w-md text-xs text-slate-500 dark:text-slate-400">
+                  Setiap pesanan yang dibuat oleh siswa atau guru di katalog toko publik akan otomatis ditampilkan di sini.
                 </p>
+                <div className="mt-4">
+                  <Link
+                    href="/ekantin"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                  >
+                    <Store size={14} />
+                    <span>Lihat Toko Publik</span>
+                  </Link>
+                </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 {filteredOrders.map((ord) => {
                   const isBusy = updatingOrderInvoice === ord.invoice;
                   return (
                     <div
                       key={ord.invoice}
-                      className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-[#38BDF8]/50 dark:border-white/10 dark:bg-[#0F172A]"
+                      className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs transition hover:shadow-sm dark:border-slate-800 dark:bg-slate-900"
                     >
-                      <div className="flex flex-col justify-between gap-3 border-b border-slate-200/70 pb-3.5 dark:border-white/10 sm:flex-row sm:items-center">
+                      <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-3.5 dark:border-slate-800 sm:flex-row sm:items-center">
                         <div className="flex flex-wrap items-center gap-2.5">
-                          <span className="rounded-lg bg-[#2563EB]/15 px-3 py-1 font-mono text-xs font-extrabold text-[#2563EB] dark:text-[#38BDF8]">
+                          <span className="rounded-md bg-slate-100 px-2.5 py-1 font-mono text-xs font-bold text-slate-900 dark:bg-slate-800 dark:text-slate-200">
                             {ord.invoice}
                           </span>
                           <span
-                            className={`rounded-full border px-3 py-0.5 text-xs font-bold ${getStatusBadgeStyle(
+                            className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${getStatusBadgeStyle(
                               ord.status
                             )}`}
                           >
                             {ord.status}
                           </span>
-                          <span className="rounded-lg bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-600 dark:bg-white/10 dark:text-slate-300">
+                          <span className="rounded-md bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                             {ord.delivery_method}
                           </span>
                           <span className="text-xs text-slate-400">
@@ -788,7 +936,7 @@ export default function AdminEKantinPage() {
 
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-slate-400">{ord.payment_method} •</span>
-                          <span className="text-base font-extrabold text-[#2563EB] dark:text-[#38BDF8]">
+                          <span className="text-base font-extrabold text-slate-900 dark:text-white">
                             {formatRupiah(ord.total)}
                           </span>
                         </div>
@@ -796,9 +944,9 @@ export default function AdminEKantinPage() {
 
                       <div className="mt-3.5 grid gap-4 lg:grid-cols-12 lg:items-center">
                         <div className="lg:col-span-4">
-                          <p className="text-sm font-extrabold">{ord.buyer_name}</p>
-                          <p className="text-xs font-semibold text-[#2563EB] dark:text-[#38BDF8]">
-                            Kelas / Ruangan: {ord.buyer_class}
+                          <p className="text-sm font-bold text-slate-900 dark:text-white">{ord.buyer_name}</p>
+                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                            Kelas / Ruangan: <span className="text-slate-700 dark:text-slate-200">{ord.buyer_class}</span>
                           </p>
                           {ord.notes && (
                             <p className="mt-1 text-xs italic text-slate-500 dark:text-slate-400">
@@ -806,8 +954,8 @@ export default function AdminEKantinPage() {
                             </p>
                           )}
                           {ord.admin_notes && (
-                            <p className="mt-1 text-xs font-semibold text-emerald-400">
-                              Catatan Koperasi: {ord.admin_notes}
+                            <p className="mt-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                              Catatan Petugas: {ord.admin_notes}
                             </p>
                           )}
                         </div>
@@ -817,23 +965,23 @@ export default function AdminEKantinPage() {
                             {ord.items.map((item, idx) => (
                               <span
                                 key={idx}
-                                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold dark:border-white/10 dark:bg-[#1E293B]"
+                                className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300"
                               >
                                 {item.qty}x {item.name}{" "}
-                                <span className="font-normal text-slate-400">({item.variant})</span>
+                                <span className="text-slate-400">({item.variant})</span>
                               </span>
                             ))}
                           </div>
                         </div>
 
-                        {/* Quick Action Buttons */}
+                        {/* Order Workflow Action Buttons */}
                         <div className="flex flex-wrap items-center justify-end gap-2 lg:col-span-4">
                           {ord.status === "Menunggu Konfirmasi" && (
                             <button
                               type="button"
                               disabled={isBusy}
                               onClick={() => void handleUpdateOrderStatus(ord.invoice, "Diproses Koperasi")}
-                              className="rounded-xl bg-sky-600 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-sky-500 disabled:opacity-50"
+                              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
                             >
                               Proses Pesanan
                             </button>
@@ -845,9 +993,9 @@ export default function AdminEKantinPage() {
                               onClick={() =>
                                 void handleUpdateOrderStatus(ord.invoice, "Siap Diambil / Diantar")
                               }
-                              className="rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-indigo-500 disabled:opacity-50"
+                              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-50"
                             >
-                              Siap Diambil / Diantar
+                              Siap Diambil
                             </button>
                           )}
                           {ord.status !== "Selesai" && ord.status !== "Dibatalkan" && (
@@ -855,9 +1003,9 @@ export default function AdminEKantinPage() {
                               type="button"
                               disabled={isBusy}
                               onClick={() => void handleUpdateOrderStatus(ord.invoice, "Selesai")}
-                              className="rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-emerald-500 disabled:opacity-50"
+                              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50"
                             >
-                              ✓ Selesai
+                              Selesaikan
                             </button>
                           )}
                           <button
@@ -866,17 +1014,19 @@ export default function AdminEKantinPage() {
                               setSelectedOrderModal(ord);
                               setAdminNotesInput(ord.admin_notes || "");
                             }}
-                            className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold hover:border-[#2563EB] dark:border-white/15"
+                            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                           >
-                            Detail & Ubah
+                            Detail
                           </button>
                           <button
                             type="button"
                             disabled={isBusy}
                             onClick={() => void handleDeleteOrder(ord.invoice)}
-                            className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-400 hover:bg-rose-500/20"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-rose-500/40 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+                            title="Hapus Pesanan"
+                            aria-label={`Hapus invoice ${ord.invoice}`}
                           >
-                            Hapus
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </div>
@@ -891,19 +1041,23 @@ export default function AdminEKantinPage() {
         {/* TAB 2: PRODUCTS CATALOG MANAGEMENT */}
         {activeTab === "products" && (
           <section className="mt-6">
+            {/* Search & Category Filter Toolbar */}
             <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div className="flex flex-1 flex-col gap-3 sm:flex-row">
-                <input
-                  type="text"
-                  value={productSearch}
-                  onChange={(e) => setProductSearch(e.target.value)}
-                  placeholder="Cari nama produk, ID, atau unit koperasi..."
-                  className="w-full max-w-md rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs outline-none focus:border-[#2563EB] dark:border-white/10 dark:bg-[#0F172A] dark:text-white"
-                />
+                <div className="relative w-full max-w-md">
+                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    placeholder="Cari nama produk, kategori, atau unit..."
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-xs text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+                  />
+                </div>
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold outline-none focus:border-[#2563EB] dark:border-white/10 dark:bg-[#0F172A] dark:text-white"
+                  className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                 >
                   <option value="Semua">Semua Kategori</option>
                   {CATEGORIES.map((c) => (
@@ -914,24 +1068,8 @@ export default function AdminEKantinPage() {
                 </select>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  disabled={seedingCatalog}
-                  onClick={() => void handleSeedDefaultCatalog()}
-                  className="rounded-xl border border-[#38BDF8]/40 bg-[#38BDF8]/10 px-4 py-2.5 text-xs font-bold text-[#38BDF8] transition hover:bg-[#38BDF8]/20 disabled:opacity-50"
-                >
-                  {seedingCatalog
-                    ? "Menyimpan ke Firebase..."
-                    : "⚡ Muat 8 Produk Standar ke Firebase"}
-                </button>
-                <button
-                  type="button"
-                  onClick={openAddProductModal}
-                  className="rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-extrabold text-white shadow-md shadow-[#2563EB]/25 transition hover:bg-[#1D4ED8]"
-                >
-                  + Tambah Produk Baru
-                </button>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                Menampilkan <span className="font-bold text-slate-900 dark:text-white">{filteredProducts.length}</span> dari {products.length} produk
               </div>
             </div>
 
@@ -940,120 +1078,148 @@ export default function AdminEKantinPage() {
                 {[1, 2, 3, 4].map((n) => (
                   <div
                     key={n}
-                    className="h-80 animate-pulse rounded-2xl border border-white/10 bg-white/5"
+                    className="h-80 animate-pulse rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
                   />
                 ))}
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center dark:border-white/10 dark:bg-[#0F172A]">
-                <p className="text-base font-extrabold">
-                  Katalog Produk di Firebase Masih Kosong
+              <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-base font-bold text-slate-900 dark:text-white">
+                  Katalog Produk Masih Kosong
                 </p>
                 <p className="mx-auto mt-1.5 max-w-md text-xs text-slate-500 dark:text-slate-400">
-                  Klik tombol di bawah untuk mengimpor 8 produk standar Koperasi SMK Bani Ma&apos;sum ke
-                  Firebase Firestore atau tambahkan produk baru secara manual beserta fotonya.
+                  Tambahkan produk baru ke dalam katalog atau impor 8 data contoh standar Koperasi SMK Bani Masum.
                 </p>
                 <div className="mt-5 flex flex-wrap justify-center gap-3">
                   <button
                     type="button"
                     disabled={seedingCatalog}
                     onClick={() => void handleSeedDefaultCatalog()}
-                    className="rounded-xl bg-[#2563EB] px-5 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-[#2563EB]/25"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300"
                   >
-                    {seedingCatalog
-                      ? "Menyimpan ke Firebase..."
-                      : "⚡ Muat 8 Produk Standar ke Firebase"}
+                    <Layers size={14} />
+                    <span>{seedingCatalog ? "Menyimpan..." : "Muat 8 Produk Standar"}</span>
                   </button>
                   <button
                     type="button"
                     onClick={openAddProductModal}
-                    className="rounded-xl border border-white/15 px-5 py-2.5 text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-500"
                   >
-                    + Tambah Produk Manual
+                    <Plus size={14} strokeWidth={2.5} />
+                    <span>Tambah Produk Manual</span>
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5">
                 {filteredProducts.map((prod) => (
                   <div
                     key={prod.id}
-                    className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0F172A]"
+                    className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs transition-all hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
                   >
-                    <div className="relative h-44 w-full bg-slate-900">
+                    {/* Product Image & Badges */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
                       {prod.image_url ? (
                         <img
                           src={prod.image_url}
                           alt={prod.name}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-slate-500">
+                        <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">
                           Tanpa Foto
                         </div>
                       )}
-                      <span className="absolute left-3 top-3 rounded-lg bg-[#0F172A]/85 px-2.5 py-1 text-[10px] font-bold uppercase text-[#38BDF8] backdrop-blur-sm">
+                      {/* Category Badge */}
+                      <span className="absolute left-2.5 top-2.5 rounded-md bg-slate-900/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-xs">
                         {prod.category}
                       </span>
+                      {/* Stock Badge */}
                       <span
-                        className={`absolute right-3 top-3 rounded-lg px-2.5 py-1 text-[10px] font-extrabold ${
-                          prod.stock > 0
-                            ? "bg-emerald-600/90 text-white"
-                            : "bg-rose-600/90 text-white"
+                        className={`absolute right-2.5 top-2.5 rounded-md px-2 py-0.5 text-[10px] font-bold backdrop-blur-xs ${
+                          prod.stock === 0
+                            ? "bg-rose-600/90 text-white"
+                            : prod.stock <= 5
+                            ? "bg-amber-600/90 text-white"
+                            : "bg-slate-900/80 text-emerald-400"
                         }`}
                       >
-                        Stok: {prod.stock}
+                        {prod.stock === 0 ? "Habis" : `Stok: ${prod.stock}`}
                       </span>
                     </div>
 
+                    {/* Product Details */}
                     <div className="flex flex-1 flex-col p-4">
-                      <p className="text-[11px] font-semibold text-[#2563EB] dark:text-[#38BDF8]">
+                      <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">
                         {prod.seller}
                       </p>
-                      <h3 className="mt-0.5 text-sm font-extrabold leading-snug">{prod.name}</h3>
-                      <p className="mt-1 text-base font-extrabold text-[#2563EB] dark:text-[#38BDF8]">
-                        {formatRupiah(prod.price)}
-                      </p>
-                      <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                        Terjual: {prod.sold} • Varian: {prod.variants.join(", ")}
+                      <h3 className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-slate-900 dark:text-white">
+                        {prod.name}
+                      </h3>
+
+                      <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-base font-extrabold text-slate-900 dark:text-white">
+                          {formatRupiah(prod.price)}
+                        </span>
+                        {prod.original_price && prod.original_price > prod.price && (
+                          <span className="text-xs text-slate-400 line-through">
+                            {formatRupiah(prod.original_price)}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="mt-1 truncate text-[11px] text-slate-500 dark:text-slate-400">
+                        Terjual {prod.sold} • {prod.variants.length} varian
                       </p>
 
                       {/* Quick Stock Controls */}
-                      <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-200 px-3 py-1.5 text-xs dark:border-white/10">
-                        <span className="font-semibold text-slate-400">Atur Stok:</span>
-                        <div className="flex items-center gap-2">
+                      <div className="mt-3 flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50/60 px-2.5 py-1.5 text-xs dark:border-slate-800 dark:bg-slate-800/40">
+                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                          Ubah Stok
+                        </span>
+                        <div className="flex items-center gap-1.5">
                           <button
                             type="button"
                             onClick={() => void handleQuickStockChange(prod, prod.stock - 1)}
-                            className="rounded-md bg-slate-200 px-2 py-0.5 font-bold dark:bg-white/10"
+                            className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-white text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                            title="Kurang 1 stok"
+                            aria-label="Kurang 1 stok"
                           >
-                            −
+                            -1
                           </button>
-                          <span className="font-extrabold">{prod.stock}</span>
+                          <span className="min-w-6 text-center font-bold text-slate-900 dark:text-white">
+                            {prod.stock}
+                          </span>
                           <button
                             type="button"
                             onClick={() => void handleQuickStockChange(prod, prod.stock + 5)}
-                            className="rounded-md bg-slate-200 px-2 py-0.5 font-bold dark:bg-white/10"
+                            className="inline-flex h-6 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-[11px] font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                            title="Tambah 5 stok"
+                            aria-label="Tambah 5 stok"
                           >
                             +5
                           </button>
                         </div>
                       </div>
 
-                      <div className="mt-3 grid grid-cols-2 gap-2 pt-2">
+                      {/* Card Action Buttons */}
+                      <div className="mt-3 flex items-center gap-2 pt-1">
                         <button
                           type="button"
                           onClick={() => openEditProductModal(prod)}
-                          className="rounded-xl bg-[#2563EB] py-2 text-xs font-bold text-white transition hover:bg-[#1D4ED8]"
+                          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
                         >
-                          Edit Produk
+                          <Edit3 size={13} />
+                          <span>Edit</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => void handleDeleteProduct(prod)}
-                          className="rounded-xl border border-rose-500/30 bg-rose-500/10 py-2 text-xs font-bold text-rose-400 transition hover:bg-rose-500/20"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-rose-500/40 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+                          title="Hapus Produk"
+                          aria-label={`Hapus produk ${prod.name}`}
                         >
-                          Hapus
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
@@ -1068,10 +1234,10 @@ export default function AdminEKantinPage() {
       {/* Order Detail & Status Edit Modal */}
       {selectedOrderModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-white/10 bg-white p-6 shadow-2xl dark:bg-[#1E293B] sm:rounded-3xl">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#1E293B] sm:rounded-3xl">
             <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-white/10">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">
+                <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-[#38BDF8]">
                   Kelola Pesanan Siswa
                 </span>
                 <h3 className="text-xl font-extrabold">{selectedOrderModal.invoice}</h3>
@@ -1079,16 +1245,17 @@ export default function AdminEKantinPage() {
               <button
                 type="button"
                 onClick={() => setSelectedOrderModal(null)}
-                className="rounded-full bg-white/10 p-2 text-sm"
+                className="rounded-full bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/20 dark:hover:text-white"
+                aria-label="Tutup detail pesanan"
               >
-                ✕
+                <X size={16} />
               </button>
             </div>
 
             <div className="mt-4 space-y-3 text-xs">
               <div className="rounded-2xl bg-slate-100 p-4 dark:bg-[#0F172A]">
                 <p className="font-bold text-sm">{selectedOrderModal.buyer_name}</p>
-                <p className="text-[#38BDF8]">
+                <p className="text-blue-600 dark:text-[#38BDF8]">
                   Kelas: {selectedOrderModal.buyer_class} • {selectedOrderModal.delivery_method}
                 </p>
                 {selectedOrderModal.buyer_phone && (
@@ -1168,11 +1335,11 @@ export default function AdminEKantinPage() {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 p-0 backdrop-blur-sm sm:items-center sm:p-4">
           <form
             onSubmit={handleSaveProduct}
-            className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl border border-white/10 bg-white p-6 shadow-2xl dark:bg-[#1E293B] sm:rounded-3xl"
+            className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#1E293B] sm:rounded-3xl"
           >
             <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-white/10">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">
+                <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-[#38BDF8]">
                   Firebase Firestore Katalog
                 </span>
                 <h3 className="text-xl font-extrabold">
@@ -1182,9 +1349,10 @@ export default function AdminEKantinPage() {
               <button
                 type="button"
                 onClick={() => setIsProductModalOpen(false)}
-                className="rounded-full bg-white/10 p-2 text-sm"
+                className="rounded-full bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/20 dark:hover:text-white"
+                aria-label="Tutup form produk"
               >
-                ✕
+                <X size={16} />
               </button>
             </div>
 
@@ -1345,7 +1513,7 @@ export default function AdminEKantinPage() {
               <button
                 type="button"
                 onClick={() => setIsProductModalOpen(false)}
-                className="rounded-xl border border-slate-200 px-5 py-3 text-xs font-bold dark:border-white/15"
+                className="rounded-xl border border-slate-200 bg-slate-100 px-5 py-3 text-xs font-bold text-slate-700 transition hover:bg-slate-200 dark:border-white/15 dark:bg-transparent dark:text-white dark:hover:bg-white/10"
               >
                 Batal
               </button>
@@ -1366,39 +1534,55 @@ export default function AdminEKantinPage() {
       )}
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-white/10 bg-[#0F172A]/95 py-2.5 text-[11px] font-bold text-slate-300 backdrop-blur-md sm:hidden">
-        <button
-          type="button"
-          onClick={() => setActiveTab("orders")}
-          className={`flex flex-col items-center gap-0.5 ${
-            activeTab === "orders" ? "text-[#38BDF8]" : "text-slate-400"
-          }`}
-        >
-          <span>📦</span>
-          <span>Pesanan ({orders.length})</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("products")}
-          className={`flex flex-col items-center gap-0.5 ${
-            activeTab === "products" ? "text-[#38BDF8]" : "text-slate-400"
-          }`}
-        >
-          <span>🍱</span>
-          <span>Produk ({products.length})</span>
-        </button>
-        <button
-          type="button"
-          onClick={openAddProductModal}
-          className="flex flex-col items-center gap-0.5 text-emerald-400"
-        >
-          <span>＋</span>
-          <span>Tambah</span>
-        </button>
-        <Link href="/admin" className="flex flex-col items-center gap-0.5 text-slate-400">
-          <span>🎓</span>
-          <span>Admin PPDB</span>
-        </Link>
+      <nav
+        aria-label="Navigasi Cepat Mobile E-Kantin"
+        className="pb-safe fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 px-2 py-1.5 text-slate-700 shadow-[0_-8px_24px_rgba(2,6,23,0.06)] backdrop-blur-md dark:border-slate-800 dark:bg-[#0F172A]/95 dark:text-white dark:shadow-[0_-8px_24px_rgba(2,6,23,0.35)] sm:hidden"
+      >
+        <div className="mx-auto grid max-w-md grid-cols-4 items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab("orders")}
+            className={`flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium transition-colors ${
+              activeTab === "orders"
+                ? "bg-blue-50 text-blue-700 font-bold dark:bg-slate-800 dark:text-blue-400"
+                : "text-slate-500 hover:text-slate-800 active:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:active:bg-slate-800 dark:active:text-white"
+            }`}
+            title="Daftar Pesanan"
+          >
+            <Package size={17} />
+            <span>Pesanan ({orders.length})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("products")}
+            className={`flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium transition-colors ${
+              activeTab === "products"
+                ? "bg-blue-50 text-blue-700 font-bold dark:bg-slate-800 dark:text-blue-400"
+                : "text-slate-500 hover:text-slate-800 active:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:active:bg-slate-800 dark:active:text-white"
+            }`}
+            title="Katalog Produk"
+          >
+            <UtensilsCrossed size={17} />
+            <span>Produk ({products.length})</span>
+          </button>
+          <button
+            type="button"
+            onClick={openAddProductModal}
+            className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold text-blue-600 transition-colors hover:text-blue-700 active:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:active:bg-slate-800"
+            title="Tambah Produk Baru"
+          >
+            <Plus size={17} strokeWidth={2.5} />
+            <span>Tambah</span>
+          </button>
+          <Link
+            href="/admin"
+            className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium text-slate-500 transition-colors hover:text-slate-800 active:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:active:bg-slate-800 dark:active:text-white"
+            title="Ke Panel Admin PPDB"
+          >
+            <GraduationCap size={17} />
+            <span>Admin PPDB</span>
+          </Link>
+        </div>
       </nav>
     </div>
   );

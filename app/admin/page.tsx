@@ -54,8 +54,10 @@ import {
     StickyNote,
     Ticket,
     Save,
+    UtensilsCrossed,
 } from "lucide-react";
 import { ThemeToggle } from "@/app/components/theme-toggle";
+import { defaultSchedule } from "@/app/lib/ppdb-data";
 
 type Registration = {
     registration_number: string;
@@ -355,6 +357,9 @@ export default function AdminPage() {
     const [selectedTplIdx, setSelectedTplIdx] = useState(0);
     const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
     const [showScheduleModal, setShowScheduleModal] = useState(false);
+    const [scheduleItems, setScheduleItems] = useState<Array<[string, string, string]>>(defaultSchedule);
+    const [isSavingSchedule, setIsSavingSchedule] = useState(false);
+    const [scheduleFeedback, setScheduleFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showActivityModal, setShowActivityModal] = useState(false);
     const [activityLogs, setActivityLogs] = useState<ActivityLogItem[]>([]);
@@ -377,6 +382,100 @@ export default function AdminPage() {
             } catch {}
             return next;
         });
+    };
+
+    useEffect(() => {
+        try {
+            const local = localStorage.getItem("ppdb:schedule");
+            if (local) {
+                const parsed = JSON.parse(local);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setScheduleItems(parsed);
+                }
+            }
+        } catch {}
+
+        fetch("/api/schedule", { cache: "no-store" })
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+                if (data?.schedule && Array.isArray(data.schedule) && data.schedule.length > 0) {
+                    setScheduleItems(data.schedule);
+                    try {
+                        localStorage.setItem("ppdb:schedule", JSON.stringify(data.schedule));
+                    } catch {}
+                }
+            })
+            .catch(() => {});
+    }, []);
+
+    const handleUpdateStage = (idx: number, colIndex: 0 | 1 | 2, value: string) => {
+        setScheduleItems((prev) => {
+            const next = [...prev];
+            const updatedRow = [...next[idx]] as [string, string, string];
+            updatedRow[colIndex] = value;
+            next[idx] = updatedRow;
+            return next;
+        });
+    };
+
+    const handleAddStage = () => {
+        setScheduleItems((prev) => [...prev, ["", "", ""]]);
+    };
+
+    const handleRemoveStage = (idx: number) => {
+        if (scheduleItems.length <= 1) return;
+        setScheduleItems((prev) => prev.filter((_, i) => i !== idx));
+    };
+
+    const handleResetSchedule = () => {
+        if (window.confirm("Kembalikan jadwal gelombang seleksi ke standar bawaan?")) {
+            setScheduleItems(defaultSchedule);
+            setScheduleFeedback(null);
+        }
+    };
+
+    const handleSaveSchedule = async () => {
+        setScheduleFeedback(null);
+        const hasEmptyStage = scheduleItems.some(([stage]) => !stage.trim());
+        if (hasEmptyStage) {
+            setScheduleFeedback({
+                type: "error",
+                message: "Nama tahapan seleksi tidak boleh kosong. Mohon periksa kembali formulir.",
+            });
+            return;
+        }
+
+        setIsSavingSchedule(true);
+        try {
+            const response = await fetch("/api/schedule", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ schedule: scheduleItems }),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Gagal menyimpan jadwal seleksi.");
+            }
+
+            const savedSchedule = data.schedule || scheduleItems;
+            try {
+                localStorage.setItem("ppdb:schedule", JSON.stringify(savedSchedule));
+                window.dispatchEvent(new Event("ppdb:schedule-updated"));
+            } catch {}
+
+            logActivity("Perbarui Jadwal PPDB", `${savedSchedule.length} tahapan gelombang seleksi`);
+            setScheduleFeedback({
+                type: "success",
+                message: "Jadwal dan gelombang seleksi berhasil disimpan!",
+            });
+            setNotice("Jadwal gelombang seleksi berhasil diperbarui.");
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : "Terjadi kesalahan saat menyimpan jadwal.";
+            setScheduleFeedback({ type: "error", message: msg });
+        } finally {
+            setIsSavingSchedule(false);
+        }
     };
 
     useEffect(() => {
@@ -869,13 +968,13 @@ export default function AdminPage() {
                 </div>
             )}
 
-            {/* Flutter AppBar (#0F172A Deep Navy) */}
-            <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0F172A] text-white">
-                <div className="mx-auto flex h-15 max-w-6xl items-center justify-between gap-2 px-3.5 sm:h-16 sm:gap-3 sm:px-6">
+            {/* Admin Header Bar */}
+            <header className="sticky top-0 z-40 border-b border-slate-800 bg-[#0F172A] text-white">
+                <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-3.5 sm:px-6">
+                    {/* School Identity */}
                     <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
                         <div
-                            className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#38BDF8] p-1 sm:h-10 sm:w-10"
-                            style={{ backgroundColor: "#ffffff" }}
+                            className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-sky-400/40 bg-white p-1 shadow-xs sm:h-10 sm:w-10"
                         >
                             <Image
                                 src="/logo.png"
@@ -883,112 +982,150 @@ export default function AdminPage() {
                                 fill
                                 sizes="40px"
                                 className="object-contain p-0.5"
+                                priority
                             />
                         </div>
                         <div className="min-w-0">
-                            <div className="truncate font-black tracking-[0.4px] text-[13px] sm:text-base text-white leading-tight">
+                            <div className="truncate font-black tracking-tight text-[13px] sm:text-base text-white leading-tight">
                                 SMK BANI MASUM
                             </div>
-                            <div className="truncate text-[9.5px] sm:text-[10px] font-bold tracking-wider text-[#38BDF8] uppercase">
-                                PANITIA PPDB 2026/2027
+                            <div className="truncate text-[9.5px] sm:text-[10px] font-semibold tracking-wider text-sky-400 uppercase">
+                                Panitia PPDB 2026/2027
                             </div>
                         </div>
                     </div>
 
+                    {/* Compact Segmented Control Bar */}
                     <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setAddError("");
-                                setAddDialogOpen(true);
-                            }}
-                            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-[#2563EB] px-3 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-[#1D4ED8]"
-                            style={{ color: "#ffffff" }}
-                            title="Tambah Pendaftar Manual"
-                        >
-                            <Plus size={15} />
-                            <span>Tambah</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowBroadcastModal(true)}
-                            className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-[#4ADE80] transition-colors hover:bg-white/20 sm:w-auto sm:px-3"
-                            title="Pusat Siaran & Template WA"
-                        >
-                            <Megaphone size={16} />
-                            <span className="ml-1.5 hidden text-xs font-bold text-white md:inline">
-                                Siaran WA
-                            </span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowReportModal(true)}
-                            className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-[#FBBF24] transition-colors hover:bg-white/20 sm:w-auto sm:px-3"
-                            title="Laporan Rekapitulasi Resmi (Cetak / PDF)"
-                        >
-                            <Printer size={16} />
-                            <span className="ml-1.5 hidden text-xs font-bold text-white lg:inline">
-                                Laporan
-                            </span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => exportCsv(false)}
-                            disabled={!filteredRegistrations.length}
-                            className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-[#38BDF8] transition-colors hover:bg-white/20 disabled:opacity-40 sm:w-auto sm:px-3"
-                            title="Export Data ke CSV"
-                        >
-                            <Download size={16} />
-                            <span className="ml-1.5 hidden text-xs font-bold text-white md:inline">
-                                CSV
-                            </span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowActivityModal(true)}
-                            className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-[#C084FC] transition-colors hover:bg-white/20"
-                            title="Riwayat Aktivitas Panitia"
-                        >
-                            <History size={16} />
-                            {activityLogs.length > 0 && (
-                                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#2563EB] px-1 text-[9px] font-black text-white">
-                                    {activityLogs.length > 9 ? "9+" : activityLogs.length}
-                                </span>
-                            )}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setReload((v) => v + 1)}
-                            disabled={loading}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 disabled:opacity-50"
-                            title="Muat Ulang Data"
-                        >
-                            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-                        </button>
-                        <Link
-                            href="/admin/ekantin"
-                            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-[#38BDF8]/40 bg-[#38BDF8]/15 px-2.5 text-xs font-bold text-[#38BDF8] transition-colors hover:bg-[#38BDF8]/25 sm:px-3"
-                            title="Buka Dashboard Admin E-Kantin"
-                        >
-                            <span>🍱</span>
-                            <span className="hidden xs:inline sm:inline">E-Kantin</span>
-                        </Link>
-                        <Link
-                            href="/"
-                            className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20"
-                            title="Lihat Beranda Website"
-                        >
-                            <Home size={16} />
-                        </Link>
-                        <ThemeToggle />
-                        <button
-                            type="button"
-                            onClick={() => setShowLogoutConfirm(true)}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-400/30 bg-red-500/15 text-red-300 transition-colors hover:bg-red-500/25"
-                            title="Keluar Akun"
-                        >
-                            <LogOut size={16} />
-                        </button>
+                        {/* Segment 1: Operasional & Aksi Pendaftar */}
+                        <div className="flex items-center gap-1.5">
+                            {/* Primary Action Button */}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setAddError("");
+                                    setAddDialogOpen(true);
+                                }}
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-blue-500 active:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                                title="Tambah Pendaftar Manual"
+                                aria-label="Tambah Pendaftar Manual"
+                            >
+                                <Plus size={15} strokeWidth={2.5} />
+                                <span className="hidden sm:inline">Tambah</span>
+                            </button>
+
+                            {/* Broadcast WA */}
+                            <button
+                                type="button"
+                                onClick={() => setShowBroadcastModal(true)}
+                                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                title="Pusat Siaran & Template WhatsApp"
+                                aria-label="Siaran WhatsApp"
+                            >
+                                <Megaphone size={15} className="text-slate-300" />
+                                <span className="hidden md:inline">Siaran WA</span>
+                            </button>
+
+                            {/* Laporan Rekap */}
+                            <button
+                                type="button"
+                                onClick={() => setShowReportModal(true)}
+                                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                title="Laporan Rekapitulasi Resmi (Cetak / PDF)"
+                                aria-label="Laporan Rekapitulasi"
+                            >
+                                <Printer size={15} className="text-slate-300" />
+                                <span className="hidden lg:inline">Laporan</span>
+                            </button>
+
+                            {/* Export CSV */}
+                            <button
+                                type="button"
+                                onClick={() => exportCsv(false)}
+                                disabled={!filteredRegistrations.length}
+                                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-slate-700/80 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                title="Export Data Pendaftar ke CSV"
+                                aria-label="Export Data ke CSV"
+                            >
+                                <Download size={15} className="text-slate-300" />
+                                <span className="hidden md:inline">CSV</span>
+                            </button>
+                        </div>
+
+                        {/* Divider 1 */}
+                        <div className="h-5 w-px bg-slate-700/80" aria-hidden="true" />
+
+                        {/* Segment 2: Sinkronisasi & Riwayat */}
+                        <div className="flex items-center gap-1.5">
+                            {/* Refresh Data */}
+                            <button
+                                type="button"
+                                onClick={() => setReload((v) => v + 1)}
+                                disabled={loading}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700/80 bg-slate-800/80 text-slate-300 transition-colors hover:bg-slate-700/80 hover:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                title="Muat Ulang Data (Sinkronisasi)"
+                                aria-label="Muat Ulang Data"
+                            >
+                                <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+                            </button>
+
+                            {/* Activity Log */}
+                            <button
+                                type="button"
+                                onClick={() => setShowActivityModal(true)}
+                                className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700/80 bg-slate-800/80 text-slate-300 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                title="Riwayat Aktivitas Panitia"
+                                aria-label="Riwayat Aktivitas Panitia"
+                            >
+                                <History size={15} />
+                                {activityLogs.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[9px] font-bold text-white shadow-xs">
+                                        {activityLogs.length > 9 ? "9+" : activityLogs.length}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Divider 2 */}
+                        <div className="h-5 w-px bg-slate-700/80" aria-hidden="true" />
+
+                        {/* Segment 3: Navigasi Sistem & Sesi */}
+                        <div className="flex items-center gap-1.5">
+                            {/* E-Kantin Link (Clean icon, no emoji) */}
+                            <Link
+                                href="/admin/ekantin"
+                                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 px-2.5 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 sm:px-3"
+                                title="Buka Dashboard Admin E-Kantin"
+                                aria-label="Admin E-Kantin"
+                            >
+                                <UtensilsCrossed size={14} className="text-slate-300" />
+                                <span className="hidden xs:inline">E-Kantin</span>
+                            </Link>
+
+                            {/* Public Website */}
+                            <Link
+                                href="/"
+                                className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700/80 bg-slate-800/80 text-slate-300 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                title="Lihat Beranda Website Publik"
+                                aria-label="Beranda Website Publik"
+                            >
+                                <Home size={15} />
+                            </Link>
+
+                            {/* Theme Toggle */}
+                            <ThemeToggle />
+
+                            {/* Logout */}
+                            <button
+                                type="button"
+                                onClick={() => setShowLogoutConfirm(true)}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-300 transition-colors hover:bg-rose-500/20 hover:text-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                                title="Keluar Akun Admin"
+                                aria-label="Keluar dari Akun Admin"
+                            >
+                                <LogOut size={15} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -3125,59 +3262,203 @@ export default function AdminPage() {
             )}
 
             {/* =====================================================================
-                MODAL 7: JADWAL & GELOMBANG (Flutter _showScheduleAndWavesModal)
+                MODAL 7: JADWAL & GELOMBANG (EDITABLE)
                ===================================================================== */}
             {showScheduleModal && (
                 <div
-                    className="fixed inset-0 z-50 flex items-end justify-center bg-[#0F172A]/60 p-0 backdrop-blur-xs sm:items-center sm:p-3"
-                    onClick={() => setShowScheduleModal(false)}
+                    className="fixed inset-0 z-50 flex items-end justify-center bg-[#0F172A]/65 p-0 backdrop-blur-xs sm:items-center sm:p-4"
+                    onClick={() => {
+                        setShowScheduleModal(false);
+                        setScheduleFeedback(null);
+                    }}
                 >
                     <div
-                        className="w-full max-w-md rounded-t-[24px] bg-white p-5 text-[#0F172A] shadow-2xl sm:rounded-[24px]"
+                        className="flex max-h-[92dvh] w-full max-w-2xl flex-col rounded-t-[24px] bg-white text-[#0F172A] shadow-2xl sm:rounded-[24px]"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E2E8F0] sm:hidden" />
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2.5">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EFF6FF] text-[#1D4ED8]">
+                        {/* Mobile grab handle */}
+                        <div className="mx-auto mt-3 h-1 w-10 shrink-0 rounded-full bg-[#E2E8F0] sm:hidden" />
+
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between border-b border-[#E2E8F0] px-5 py-4">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EFF6FF] text-[#1D4ED8]">
                                     <Calendar size={20} />
                                 </div>
                                 <div>
                                     <h3 className="text-base font-extrabold text-[#0F172A]">
-                                        Jadwal & Gelombang PPDB
+                                        Jadwal & Gelombang Seleksi
                                     </h3>
                                     <p className="text-xs text-[#64748B]">
-                                        Tahun Ajaran 2026/2027
+                                        Ubah tanggal tahapan pendaftaran untuk Gelombang 1 dan Gelombang 2
                                     </p>
                                 </div>
                             </div>
                             <button
                                 type="button"
-                                onClick={() => setShowScheduleModal(false)}
-                                className="rounded-lg p-1 text-[#64748B] hover:bg-slate-100"
+                                onClick={() => {
+                                    setShowScheduleModal(false);
+                                    setScheduleFeedback(null);
+                                }}
+                                className="rounded-lg p-1.5 text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A] transition-colors"
+                                aria-label="Tutup modal jadwal"
                             >
                                 <X size={18} />
                             </button>
                         </div>
 
-                        <div className="mt-4 space-y-2.5 text-xs">
-                            {[
-                                ["Pendaftaran Online", "2 Feb – 28 Feb", "3 Mar – 30 Apr"],
-                                ["Verifikasi Berkas", "1 Mar – 5 Mar", "1 Mei – 5 Mei"],
-                                ["Pengumuman Resmi", "10 Mar", "10 Mei"],
-                                ["Daftar Ulang Siswa", "11 – 15 Mar", "11 – 15 Mei"],
-                            ].map(([stage, g1, g2]) => (
+                        {/* Modal Body (Scrollable) */}
+                        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3.5">
+                            {/* Alert Feedback */}
+                            {scheduleFeedback && (
                                 <div
-                                    key={stage}
-                                    className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3"
+                                    className={`flex items-start gap-2.5 rounded-xl border p-3 text-xs font-semibold ${
+                                        scheduleFeedback.type === "success"
+                                            ? "border-[#BBF7D0] bg-[#F0FDF4] text-[#166534]"
+                                            : "border-[#FECDD3] bg-[#FFF1F2] text-[#9F1239]"
+                                    }`}
                                 >
-                                    <div className="font-extrabold text-[#0F172A]">{stage}</div>
-                                    <div className="mt-1.5 flex justify-between text-[11px] font-semibold text-[#64748B]">
-                                        <span>Gelombang 1: {g1}</span>
-                                        <span className="text-[#1D4ED8]">Gelombang 2: {g2}</span>
-                                    </div>
+                                    {scheduleFeedback.type === "success" ? (
+                                        <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-[#16A34A]" />
+                                    ) : (
+                                        <AlertTriangle size={16} className="shrink-0 mt-0.5 text-[#E11D48]" />
+                                    )}
+                                    <div className="flex-1 leading-relaxed">{scheduleFeedback.message}</div>
                                 </div>
-                            ))}
+                            )}
+
+                            {/* Info Helper Note */}
+                            <div className="flex items-start gap-2 rounded-xl border border-[#DBEAFE] bg-[#EFF6FF]/60 px-3.5 py-2.5 text-xs text-[#1E40AF]">
+                                <Info size={15} className="shrink-0 mt-0.5 text-[#2563EB]" />
+                                <span className="leading-relaxed">
+                                    Jadwal yang tersimpan di sini akan langsung tampil pada tabel halaman utama (&quot;Jangan Sampai Kelewat Tanggal&quot;) dan portal alur PPDB publik.
+                                </span>
+                            </div>
+
+                            {/* List of Stages */}
+                            <div className="space-y-3">
+                                {scheduleItems.map(([stage, g1, g2], idx) => (
+                                    <div
+                                        key={idx}
+                                        className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3.5 transition-colors focus-within:border-[#94A3B8]"
+                                    >
+                                        <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-[#E2E8F0]">
+                                            <div className="flex items-center gap-2">
+                                                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#1D4ED8] text-[10px] font-black text-white">
+                                                    {idx + 1}
+                                                </span>
+                                                <span className="text-xs font-bold text-[#0F172A]">
+                                                    Tahapan {idx + 1}
+                                                </span>
+                                            </div>
+                                            {scheduleItems.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveStage(idx)}
+                                                    className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold text-[#DC2626] hover:bg-rose-50 transition-colors"
+                                                    title="Hapus tahapan ini"
+                                                >
+                                                    <Trash2 size={12} />
+                                                    <span>Hapus</span>
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-[#475569] mb-1">
+                                                    Nama Tahap Seleksi
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={stage}
+                                                    onChange={(e) => handleUpdateStage(idx, 0, e.target.value)}
+                                                    placeholder="cth: Pendaftaran online"
+                                                    className="w-full rounded-lg border border-[#CBD5E1] bg-white px-3 py-2 text-xs font-semibold text-[#0F172A] placeholder-[#94A3B8] focus:border-[#2563EB] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-[#0284C7] mb-1">
+                                                    Gelombang 1
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={g1}
+                                                    onChange={(e) => handleUpdateStage(idx, 1, e.target.value)}
+                                                    placeholder="cth: 2 Feb - 28 Feb"
+                                                    className="w-full rounded-lg border border-[#CBD5E1] bg-white px-3 py-2 text-xs font-semibold text-[#0F172A] placeholder-[#94A3B8] focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-[#16A34A] mb-1">
+                                                    Gelombang 2
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={g2}
+                                                    onChange={(e) => handleUpdateStage(idx, 2, e.target.value)}
+                                                    placeholder="cth: 3 Mar - 30 Apr"
+                                                    className="w-full rounded-lg border border-[#CBD5E1] bg-white px-3 py-2 text-xs font-semibold text-[#0F172A] placeholder-[#94A3B8] focus:border-[#16A34A] focus:outline-none focus:ring-1 focus:ring-[#16A34A]"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Additional Stage & Reset Controls */}
+                            <div className="flex flex-wrap items-center gap-2 pt-1">
+                                <button
+                                    type="button"
+                                    onClick={handleAddStage}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[#94A3B8] bg-white px-3 py-2 text-xs font-bold text-[#1D4ED8] hover:border-[#1D4ED8] hover:bg-[#EFF6FF] transition-colors"
+                                >
+                                    <Plus size={14} />
+                                    <span>Tambah Tahapan</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleResetSchedule}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-xs font-bold text-[#64748B] hover:border-[#CBD5E1] hover:text-[#0F172A] hover:bg-slate-50 transition-colors"
+                                >
+                                    <RotateCcw size={13} />
+                                    <span>Reset ke Standar</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer (Fixed) */}
+                        <div className="flex items-center justify-end gap-2.5 border-t border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3.5 rounded-b-[24px]">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowScheduleModal(false);
+                                    setScheduleFeedback(null);
+                                }}
+                                disabled={isSavingSchedule}
+                                className="rounded-xl border border-[#CBD5E1] bg-white px-4 py-2 text-xs font-bold text-[#475569] hover:bg-slate-50 hover:text-[#0F172A] transition-colors disabled:opacity-50"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSaveSchedule}
+                                disabled={isSavingSchedule}
+                                className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#1D4ED8] transition-colors disabled:opacity-60"
+                                style={{ color: "#ffffff" }}
+                            >
+                                {isSavingSchedule ? (
+                                    <>
+                                        <RefreshCw size={13} className="animate-spin" />
+                                        <span>Menyimpan...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save size={14} />
+                                        <span>Simpan Jadwal</span>
+                                    </>
+                                )}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -3745,12 +4026,13 @@ export default function AdminPage() {
                ===================================================================== */}
             <nav
                 aria-label="Navigasi Cepat Mobile Admin"
-                className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#0F172A]/95 px-2 pt-1.5 text-white shadow-[0_-8px_24px_rgba(2,6,23,0.35)] backdrop-blur-md sm:hidden"
+                className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-slate-800 bg-[#0F172A]/95 px-2 pt-1.5 text-white shadow-[0_-8px_24px_rgba(2,6,23,0.35)] backdrop-blur-md sm:hidden"
             >
                 <div className="mx-auto grid max-w-md grid-cols-5 items-center gap-1">
                     <Link
                         href="/"
-                        className="flex flex-col items-center justify-center gap-1 rounded-xl py-1.5 text-[10px] font-bold text-[#94A3B8] transition-colors active:bg-white/10 active:text-white"
+                        className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium text-slate-400 transition-colors active:bg-slate-800 active:text-white"
+                        title="Lihat Beranda Website"
                     >
                         <Home size={17} />
                         <span>Beranda</span>
@@ -3759,7 +4041,8 @@ export default function AdminPage() {
                     <button
                         type="button"
                         onClick={() => setShowBroadcastModal(true)}
-                        className="flex flex-col items-center justify-center gap-1 rounded-xl py-1.5 text-[10px] font-bold text-[#4ADE80] transition-colors active:bg-white/10"
+                        className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium text-slate-400 transition-colors active:bg-slate-800 active:text-white"
+                        title="Siaran WhatsApp"
                     >
                         <Megaphone size={17} />
                         <span>Siaran WA</span>
@@ -3768,8 +4051,8 @@ export default function AdminPage() {
                     <button
                         type="button"
                         onClick={() => setAddDialogOpen(true)}
-                        className="-mt-4 flex flex-col items-center justify-center gap-0.5 rounded-2xl bg-[#2563EB] py-2 text-[10px] font-extrabold text-white shadow-lg shadow-blue-600/40 transition-transform active:scale-95"
-                        style={{ color: "#ffffff" }}
+                        className="-mt-4 flex flex-col items-center justify-center gap-0.5 rounded-2xl bg-blue-600 py-2.5 text-[10px] font-bold text-white shadow-lg shadow-blue-900/40 transition-transform active:scale-95"
+                        title="Tambah Pendaftar Baru"
                     >
                         <Plus size={19} strokeWidth={2.5} />
                         <span>Tambah</span>
@@ -3778,7 +4061,8 @@ export default function AdminPage() {
                     <button
                         type="button"
                         onClick={() => setShowReportModal(true)}
-                        className="flex flex-col items-center justify-center gap-1 rounded-xl py-1.5 text-[10px] font-bold text-[#38BDF8] transition-colors active:bg-white/10"
+                        className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium text-slate-400 transition-colors active:bg-slate-800 active:text-white"
+                        title="Laporan Rekapitulasi"
                     >
                         <Printer size={17} />
                         <span>Laporan</span>
@@ -3787,7 +4071,8 @@ export default function AdminPage() {
                     <button
                         type="button"
                         onClick={() => exportCsv(false)}
-                        className="flex flex-col items-center justify-center gap-1 rounded-xl py-1.5 text-[10px] font-bold text-[#94A3B8] transition-colors active:bg-white/10 active:text-white"
+                        className="flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium text-slate-400 transition-colors active:bg-slate-800 active:text-white"
+                        title="Export Data ke CSV"
                     >
                         <Download size={17} />
                         <span>CSV</span>

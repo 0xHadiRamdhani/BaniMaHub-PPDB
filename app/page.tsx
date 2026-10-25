@@ -4,6 +4,9 @@ import { Float, Reveal } from "@/app/components/motion";
 import TechBackground from "@/app/components/tech-background";
 import MajorSelector from "./components/major-selector";
 import Header from "./components/header";
+import ScheduleTable from "./components/schedule-table";
+import { getSchedule } from "@/app/lib/firebase-server";
+import { defaultSchedule } from "@/app/lib/ppdb-data";
 import { cookies } from "next/headers";
 import {
     CheckCircle2,
@@ -78,6 +81,14 @@ function StudentArt() {
 export default async function Home() {
     const cookieStore = await cookies();
     const registrationNumber = cookieStore.get("registration_number")?.value;
+
+    let initialSchedule = defaultSchedule;
+    try {
+        const fetched = await getSchedule();
+        if (fetched && fetched.length > 0) {
+            initialSchedule = fetched;
+        }
+    } catch {}
 
     return (
         <main className="min-h-screen bg-paper-soft">
@@ -299,40 +310,8 @@ export default async function Home() {
                         </h2>
                     </Reveal>
                     <Reveal delay={0.08}>
-                        <div className="mt-8 overflow-hidden rounded-2xl border border-neutral-300 bg-paper shadow-[0_2px_10px_rgba(15,23,42,0.03)]">
-                            <div className="overflow-x-auto">
-                                <table className="w-full min-w-[540px] border-collapse text-left text-sm">
-                                    <thead className="bg-[#0F172A] text-white">
-                                        <tr>
-                                            <th className="px-5 py-4 font-extrabold text-sm text-white">Tahapan Seleksi</th>
-                                            <th className="px-5 py-4 font-extrabold text-sm text-[#38BDF8]">Gelombang 1</th>
-                                            <th className="px-5 py-4 font-extrabold text-sm text-[#10B981]">Gelombang 2</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-neutral-300">
-                                        {[
-                                            ["Pendaftaran online", "2 Feb – 28 Feb", "3 Mar – 30 Apr"],
-                                            ["Verifikasi berkas", "1 Mar – 5 Mar", "1 Mei – 5 Mei"],
-                                            ["Pengumuman kelulusan", "10 Mar", "10 Mei"],
-                                            ["Daftar ulang & seragam", "11 – 15 Mar", "11 – 15 Mei"],
-                                        ].map((row) => (
-                                            <tr key={row[0]} className="hover:bg-paper-soft transition-colors">
-                                                <td className="px-5 py-4 font-bold text-ink">{row[0]}</td>
-                                                <td className="px-5 py-4">
-                                                    <span className="inline-flex rounded-lg bg-primary-soft px-2.5 py-1 text-xs font-bold text-primary">
-                                                        {row[1]}
-                                                    </span>
-                                                </td>
-                                                <td className="px-5 py-4">
-                                                    <span className="inline-flex rounded-lg bg-[#DCFCE7] px-2.5 py-1 text-xs font-bold text-[#15803D]">
-                                                        {row[2]}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div className="mt-8">
+                            <ScheduleTable initialSchedule={initialSchedule} />
                         </div>
                     </Reveal>
                 </div>

@@ -1,8 +1,8 @@
-export const defaultSchedule = [
-    ["Pendaftaran online", "2 Februari - 28 Februari", "3 Maret - 30 April"],
-    ["Verifikasi berkas", "1 Maret - 5 Maret", "1 Mei - 5 Mei"],
-    ["Pengumuman", "10 Maret", "10 Mei"],
-    ["Daftar ulang", "11 - 15 Maret", "11 - 15 Mei"],
+export const defaultSchedule: Array<[string, string, string]> = [
+    ["Pendaftaran online", "2 Feb - 28 Feb", "3 Mar - 30 Apr"],
+    ["Verifikasi berkas", "1 Mar - 5 Mar", "1 Mei - 5 Mei"],
+    ["Pengumuman kelulusan", "10 Mar", "10 Mei"],
+    ["Daftar ulang & seragam", "11 - 15 Mar", "11 - 15 Mei"],
 ];
 
 export const majors = [

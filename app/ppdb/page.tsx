@@ -7,9 +7,49 @@ import { Panel, SubpageShell } from "@/app/components/subpage-shell";
 
 export default function PpdbPage() {
     const [schedule, setSchedule] = useState(defaultSchedule);
+
     useEffect(() => {
-        const saved = localStorage.getItem("ppdb:schedule");
-        if (saved) setSchedule(JSON.parse(saved));
+        try {
+            const saved = localStorage.getItem("ppdb:schedule");
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setSchedule(parsed);
+                }
+            }
+        } catch {}
+
+        fetch("/api/schedule")
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+                if (data?.schedule && Array.isArray(data.schedule) && data.schedule.length > 0) {
+                    setSchedule(data.schedule);
+                    try {
+                        localStorage.setItem("ppdb:schedule", JSON.stringify(data.schedule));
+                    } catch {}
+                }
+            })
+            .catch(() => {});
+
+        const handleUpdate = () => {
+            try {
+                const current = localStorage.getItem("ppdb:schedule");
+                if (current) {
+                    const parsed = JSON.parse(current);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        setSchedule(parsed);
+                    }
+                }
+            } catch {}
+        };
+
+        window.addEventListener("ppdb:schedule-updated", handleUpdate);
+        window.addEventListener("storage", handleUpdate);
+
+        return () => {
+            window.removeEventListener("ppdb:schedule-updated", handleUpdate);
+            window.removeEventListener("storage", handleUpdate);
+        };
     }, []);
 
     return (
