@@ -249,6 +249,42 @@ function isApprovedStatus(status?: string) {
     return status === "Lulus verifikasi" || status === "Diterima";
 }
 
+function getStatusBadgeClass(status?: string) {
+    switch (status) {
+        case "Lulus verifikasi":
+        case "Diterima":
+            return "border border-emerald-300/80 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300";
+        case "Menunggu verifikasi":
+            return "border border-amber-300/80 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-300";
+        case "Berkas tidak lengkap":
+        case "Berkas dikembalikan":
+        case "Revisi berkas":
+            return "border border-orange-300/80 bg-orange-50 text-orange-800 dark:border-orange-500/30 dark:bg-orange-500/15 dark:text-orange-300";
+        case "Tidak lulus verifikasi":
+            return "border border-rose-300/80 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/15 dark:text-rose-300";
+        default:
+            return "border border-blue-300/80 bg-blue-50 text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/15 dark:text-blue-300";
+    }
+}
+
+function getStatusDotClass(status?: string) {
+    switch (status) {
+        case "Lulus verifikasi":
+        case "Diterima":
+            return "bg-emerald-500";
+        case "Menunggu verifikasi":
+            return "bg-amber-500";
+        case "Berkas tidak lengkap":
+        case "Berkas dikembalikan":
+        case "Revisi berkas":
+            return "bg-orange-500";
+        case "Tidak lulus verifikasi":
+            return "bg-rose-500";
+        default:
+            return "bg-blue-500";
+    }
+}
+
 function isProblematicStatus(status?: string) {
     return (
         status === "Berkas tidak lengkap" ||
@@ -969,12 +1005,12 @@ export default function AdminPage() {
             )}
 
             {/* Admin Header Bar */}
-            <header className="sticky top-0 z-40 border-b border-slate-800 bg-[#0F172A] text-white">
+            <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 text-slate-900 shadow-xs backdrop-blur-md dark:border-slate-800 dark:bg-[#0B1120]/95 dark:text-white">
                 <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-3.5 sm:px-6">
                     {/* School Identity */}
                     <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
                         <div
-                            className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-sky-400/40 bg-white p-1 shadow-xs sm:h-10 sm:w-10"
+                            className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-xs dark:border-slate-700 dark:bg-slate-800 sm:h-10 sm:w-10"
                         >
                             <Image
                                 src="/logo.png"
@@ -986,10 +1022,10 @@ export default function AdminPage() {
                             />
                         </div>
                         <div className="min-w-0">
-                            <div className="truncate font-black tracking-tight text-[13px] sm:text-base text-white leading-tight">
+                            <div className="truncate font-black tracking-tight text-[13px] sm:text-base text-slate-900 dark:text-white leading-tight">
                                 SMK BANI MASUM
                             </div>
-                            <div className="truncate text-[9.5px] sm:text-[10px] font-semibold tracking-wider text-sky-400 uppercase">
+                            <div className="truncate text-[9.5px] sm:text-[10px] font-bold tracking-wider text-blue-600 dark:text-sky-400 uppercase">
                                 Panitia PPDB 2026/2027
                             </div>
                         </div>
@@ -1006,7 +1042,8 @@ export default function AdminPage() {
                                     setAddError("");
                                     setAddDialogOpen(true);
                                 }}
-                                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-blue-500 active:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1D4ED8] px-3.5 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-[#2563EB] active:scale-[0.98]"
+                                style={{ color: "#ffffff" }}
                                 title="Tambah Pendaftar Manual"
                                 aria-label="Tambah Pendaftar Manual"
                             >
@@ -1018,11 +1055,11 @@ export default function AdminPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowBroadcastModal(true)}
-                                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
                                 title="Pusat Siaran & Template WhatsApp"
                                 aria-label="Siaran WhatsApp"
                             >
-                                <Megaphone size={15} className="text-slate-300" />
+                                <Megaphone size={14} className="text-slate-500 dark:text-slate-300" />
                                 <span className="hidden md:inline">Siaran WA</span>
                             </button>
 
@@ -1030,11 +1067,11 @@ export default function AdminPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowReportModal(true)}
-                                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
                                 title="Laporan Rekapitulasi Resmi (Cetak / PDF)"
                                 aria-label="Laporan Rekapitulasi"
                             >
-                                <Printer size={15} className="text-slate-300" />
+                                <Printer size={14} className="text-slate-500 dark:text-slate-300" />
                                 <span className="hidden lg:inline">Laporan</span>
                             </button>
 
@@ -1043,17 +1080,17 @@ export default function AdminPage() {
                                 type="button"
                                 onClick={() => exportCsv(false)}
                                 disabled={!filteredRegistrations.length}
-                                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-slate-700/80 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
                                 title="Export Data Pendaftar ke CSV"
                                 aria-label="Export Data ke CSV"
                             >
-                                <Download size={15} className="text-slate-300" />
+                                <Download size={14} className="text-slate-500 dark:text-slate-300" />
                                 <span className="hidden md:inline">CSV</span>
                             </button>
                         </div>
 
                         {/* Divider 1 */}
-                        <div className="h-5 w-px bg-slate-700/80" aria-hidden="true" />
+                        <div className="h-5 w-px bg-slate-200 dark:bg-slate-700/80 mx-0.5" aria-hidden="true" />
 
                         {/* Segment 2: Sinkronisasi & Riwayat */}
                         <div className="flex items-center gap-1.5">
@@ -1062,24 +1099,24 @@ export default function AdminPage() {
                                 type="button"
                                 onClick={() => setReload((v) => v + 1)}
                                 disabled={loading}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700/80 bg-slate-800/80 text-slate-300 transition-colors hover:bg-slate-700/80 hover:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white disabled:opacity-50"
                                 title="Muat Ulang Data (Sinkronisasi)"
                                 aria-label="Muat Ulang Data"
                             >
-                                <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+                                <RefreshCw size={14} className={loading ? "animate-spin text-blue-600" : ""} />
                             </button>
 
                             {/* Activity Log */}
                             <button
                                 type="button"
                                 onClick={() => setShowActivityModal(true)}
-                                className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700/80 bg-slate-800/80 text-slate-300 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
                                 title="Riwayat Aktivitas Panitia"
                                 aria-label="Riwayat Aktivitas Panitia"
                             >
-                                <History size={15} />
+                                <History size={14} />
                                 {activityLogs.length > 0 && (
-                                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[9px] font-bold text-white shadow-xs">
+                                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[9px] font-black text-white shadow-xs">
                                         {activityLogs.length > 9 ? "9+" : activityLogs.length}
                                     </span>
                                 )}
@@ -1087,25 +1124,25 @@ export default function AdminPage() {
                         </div>
 
                         {/* Divider 2 */}
-                        <div className="h-5 w-px bg-slate-700/80" aria-hidden="true" />
+                        <div className="h-5 w-px bg-slate-200 dark:bg-slate-700/80 mx-0.5" aria-hidden="true" />
 
                         {/* Segment 3: Navigasi Sistem & Sesi */}
                         <div className="flex items-center gap-1.5">
-                            {/* E-Kantin Link (Clean icon, no emoji) */}
+                            {/* E-Kantin Link */}
                             <Link
                                 href="/admin/ekantin"
-                                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 px-2.5 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 sm:px-3"
+                                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-blue-200/90 bg-blue-50/80 px-2.5 text-xs font-bold text-blue-700 transition hover:bg-blue-100 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20 sm:px-3"
                                 title="Buka Dashboard Admin E-Kantin"
                                 aria-label="Admin E-Kantin"
                             >
-                                <UtensilsCrossed size={14} className="text-slate-300" />
+                                <UtensilsCrossed size={14} />
                                 <span className="hidden xs:inline">E-Kantin</span>
                             </Link>
 
                             {/* Public Website */}
                             <Link
                                 href="/"
-                                className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700/80 bg-slate-800/80 text-slate-300 transition-colors hover:bg-slate-700/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                                className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
                                 title="Lihat Beranda Website Publik"
                                 aria-label="Beranda Website Publik"
                             >
@@ -1119,7 +1156,7 @@ export default function AdminPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowLogoutConfirm(true)}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-300 transition-colors hover:bg-rose-500/20 hover:text-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200/90 bg-rose-50 text-rose-700 transition hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
                                 title="Keluar Akun Admin"
                                 aria-label="Keluar dari Akun Admin"
                             >
@@ -1130,53 +1167,90 @@ export default function AdminPage() {
                 </div>
             </header>
 
-            {/* Top Stats & Greeting Banner (1:1 with Flutter DashboardScreen SliverToBoxAdapter) */}
-            <section className="rounded-b-[26px] bg-[#0F172A] px-3.5 pt-3.5 pb-4 text-white shadow-md sm:px-6 sm:pt-5 sm:pb-6">
-                <div className="mx-auto max-w-6xl">
-                    {/* Greeting Row */}
-                    <div className="flex items-center justify-between gap-3">
+            {/* Top Stats & Greeting Command Center */}
+            <section className="border-b border-slate-200/80 bg-white/70 px-3.5 pt-5 pb-6 backdrop-blur-xs dark:border-slate-800 dark:bg-[#0B1120]/80 sm:px-6">
+                <div className="mx-auto max-w-6xl space-y-4 sm:space-y-5">
+                    {/* Greeting & Live Status Row */}
+                    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                         <div className="min-w-0">
-                            <h1 className="truncate text-[15px] font-extrabold text-white sm:text-lg">
-                                {getGreeting()}, Administrator 👋
-                            </h1>
-                            <p className="mt-0.5 text-[11px] font-medium text-[#94A3B8] sm:text-xs">
-                                Portal Administrasi PPDB SMK Bani Masum
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                                    {getGreeting()}, Administrator
+                                </h1>
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    Live Firestore
+                                </span>
+                            </div>
+                            <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                                Portal Administrasi & Verifikasi Berkas Calon Siswa Baru SMK Bani Masum
                             </p>
                         </div>
-                        <div className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#10B981]/40 bg-[#10B981]/15 px-2.5 py-1">
-                            <span className="h-2 w-2 rounded-full bg-[#10B981]" />
-                            <span className="text-[10px] font-bold text-[#10B981]">Live Sync</span>
+
+                        {/* Quick Command Action Shortcuts */}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setShowScheduleModal(true)}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                title="Kelola Jadwal Gelombang Seleksi"
+                            >
+                                <Calendar size={13} className="text-blue-600 dark:text-sky-400" />
+                                <span>Jadwal Gelombang</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowAnalyticsModal(true)}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                title="Lihat Statistik & Analisis Minat"
+                            >
+                                <BarChart3 size={13} className="text-indigo-600 dark:text-indigo-400" />
+                                <span>Analisis Minat</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowReportModal(true)}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                title="Cetak Rekapitulasi Berkas / PDF"
+                            >
+                                <Printer size={13} className="text-emerald-600 dark:text-emerald-400" />
+                                <span>Rekap Cetak</span>
+                            </button>
                         </div>
                     </div>
 
                     {/* Interactive 4 Stat Cards Grid */}
-                    <div className="mt-3.5 grid grid-cols-2 gap-2 sm:mt-4 sm:grid-cols-4 sm:gap-3">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                         {[
                             {
-                                title: "Total",
+                                title: "Total Pendaftar",
+                                subtitle: "Seluruh berkas online",
                                 count: loading ? "..." : String(totalCount),
                                 color: "#2563EB",
                                 filterKey: "Semua",
                                 icon: Users,
                             },
                             {
-                                title: "Menunggu",
+                                title: "Menunggu Verifikasi",
+                                subtitle: "Antrean berkas masuk",
                                 count: loading ? "..." : String(pendingCount),
-                                color: "#F59E0B",
+                                color: "#D97706",
                                 filterKey: "Menunggu verifikasi",
                                 icon: Clock,
                             },
                             {
-                                title: "Lulus",
+                                title: "Lulus Verifikasi",
+                                subtitle: "Diterima sebagai siswa",
                                 count: loading ? "..." : String(approvedCount),
-                                color: "#10B981",
+                                color: "#15803D",
                                 filterKey: "Lulus verifikasi",
                                 icon: CheckCircle2,
                             },
                             {
-                                title: "Masalah",
+                                title: "Berkas Bermasalah",
+                                subtitle: "Kurang / perlu revisi",
                                 count: loading ? "..." : String(problematicCount),
-                                color: "#EF4444",
+                                color: "#DC2626",
                                 filterKey: "Berkas bermasalah",
                                 icon: AlertTriangle,
                             },
@@ -1195,164 +1269,147 @@ export default function AdminPage() {
                                                 : card.filterKey
                                         )
                                     }
-                                    className="flex flex-col items-start rounded-[14px] px-3 py-2.5 text-left transition-all active:scale-[0.98]"
-                                    style={{
-                                        backgroundColor: isSelected
-                                            ? `color-mix(in srgb, ${card.color} 22%, #1E293B)`
-                                            : "#1E293B",
-                                        border: `1.5px solid ${
-                                            isSelected ? card.color : "rgba(255,255,255,0.08)"
-                                        }`,
-                                    }}
+                                    className={`group relative flex flex-col items-start rounded-2xl border p-4 text-left transition-all hover:shadow-md active:scale-[0.98] ${
+                                        isSelected
+                                            ? "border-blue-600 bg-white ring-2 ring-blue-500/20 shadow-md dark:border-sky-400 dark:bg-slate-800"
+                                            : "border-slate-200/90 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900/90 dark:hover:border-slate-700"
+                                    }`}
                                 >
                                     <div className="flex w-full items-center justify-between gap-1">
-                                        <span
-                                            className={`truncate text-[11px] ${
-                                                isSelected
-                                                    ? "font-bold text-white"
-                                                    : "font-semibold text-[#94A3B8]"
-                                            }`}
-                                        >
+                                        <span className="truncate text-xs font-bold text-slate-500 dark:text-slate-400">
                                             {card.title}
                                         </span>
-                                        <Icon size={14} style={{ color: card.color }} />
+                                        <div
+                                            className="flex h-8 w-8 items-center justify-center rounded-xl"
+                                            style={{ backgroundColor: `${card.color}15`, color: card.color }}
+                                        >
+                                            <Icon size={16} />
+                                        </div>
                                     </div>
-                                    <span className="mt-1 text-xl font-black text-white sm:mt-1.5 sm:text-2xl">
+                                    <span className="mt-2 text-2xl font-black text-slate-900 sm:text-3xl dark:text-white">
                                         {card.count}
+                                    </span>
+                                    <span className="mt-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                                        {card.subtitle}
                                     </span>
                                 </button>
                             );
                         })}
                     </div>
 
-                    {/* Quota & Major Distribution Card (Expandable) */}
-                    <div className="mt-2.5 rounded-[16px] border border-white/10 bg-[#1E293B] p-3 sm:mt-3">
+                    {/* Quota & Major Distribution Card (Expandable with Smooth Collapse/Expand Animation) */}
+                    <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900/90">
                         <button
                             type="button"
+                            id="target-kuota-header"
+                            aria-expanded={isStatsExpanded}
+                            aria-controls="target-kuota-content"
                             onClick={() => setIsStatsExpanded(!isStatsExpanded)}
-                            className="flex w-full items-center justify-between py-0.5 text-left"
+                            className="group flex w-full items-center justify-between text-left"
                         >
-                            <div className="flex items-center gap-2">
-                                <PieChart size={15} className="text-[#38BDF8]" />
-                                <span className="text-xs font-bold text-white">
-                                    Target Kuota Penerimaan ({approvedCount}/{TARGET_QUOTA})
-                                </span>
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-100 dark:bg-blue-500/15 dark:text-sky-300 dark:group-hover:bg-blue-500/25">
+                                    <PieChart size={16} />
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                                            Target Kuota Penerimaan
+                                        </span>
+                                        <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10.5px] font-black text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                            {quotaPercentage}% Terpenuhi
+                                        </span>
+                                    </div>
+                                    <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                                        {approvedCount} dari {TARGET_QUOTA} kuota siswa telah lulus verifikasi
+                                    </span>
+                                </div>
                             </div>
-                            <ChevronUp
-                                size={18}
-                                className={`text-[#38BDF8] transition-transform duration-300 ${
-                                    isStatsExpanded ? "rotate-0" : "rotate-180"
-                                }`}
-                            />
-                        </button>
-
-                        {isStatsExpanded && (
-                            <div className="mt-2.5 space-y-2.5">
-                                {/* Quota Progress Bar */}
-                                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-                                    <div
-                                        className="h-full rounded-full bg-[#10B981] transition-all duration-500"
-                                        style={{ width: `${quotaPercentage}%` }}
+                            <div className="flex items-center gap-2">
+                                <span className="hidden sm:inline-block text-[11px] font-bold text-slate-400 dark:text-slate-500 transition-colors group-hover:text-slate-600 dark:group-hover:text-slate-300">
+                                    {isStatsExpanded ? "Sembunyikan" : "Tampilkan"}
+                                </span>
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 transition-all duration-300 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-slate-700">
+                                    <ChevronUp
+                                        size={16}
+                                        className={`transition-transform duration-300 ease-in-out ${
+                                            isStatsExpanded ? "rotate-0" : "rotate-180"
+                                        }`}
                                     />
                                 </div>
+                            </div>
+                        </button>
 
-                                {/* Mini Department Pills */}
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setSelectedMajorFilter(
-                                                selectedMajorFilter === "RPL" ? "Semua" : "RPL"
-                                            )
-                                        }
-                                        className="flex items-center justify-between rounded-[10px] px-3 py-2 text-xs transition-all"
-                                        style={{
-                                            backgroundColor:
+                        {/* Expandable Accordion Body with Smooth Minimize/Maximize Animation */}
+                        <div
+                            id="target-kuota-content"
+                            role="region"
+                            aria-labelledby="target-kuota-header"
+                            className={`grid transition-all duration-300 ease-in-out ${
+                                isStatsExpanded
+                                    ? "grid-rows-[1fr] opacity-100"
+                                    : "grid-rows-[0fr] opacity-0 pointer-events-none"
+                            }`}
+                        >
+                            <div className="overflow-hidden">
+                                <div className="mt-3.5 space-y-3 border-t border-slate-100 pt-3 dark:border-slate-800">
+                                    {/* Quota Progress Bar */}
+                                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                                        <div
+                                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                                            style={{ width: `${quotaPercentage}%` }}
+                                        />
+                                    </div>
+
+                                    {/* Mini Department Pills */}
+                                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setSelectedMajorFilter(
+                                                    selectedMajorFilter === "RPL" ? "Semua" : "RPL"
+                                                )
+                                            }
+                                            className={`flex items-center justify-between rounded-xl border p-3 text-xs transition-all ${
                                                 selectedMajorFilter === "RPL"
-                                                    ? "color-mix(in srgb, #2563EB 22%, #1E293B)"
-                                                    : "rgba(255,255,255,0.05)",
-                                            border: `1.5px solid ${
-                                                selectedMajorFilter === "RPL"
-                                                    ? "#2563EB"
-                                                    : "rgba(255,255,255,0.1)"
-                                            }`,
-                                        }}
-                                    >
-                                        <span className="font-bold text-white">💻 RPL</span>
-                                        <span
-                                            className={`font-bold ${
-                                                selectedMajorFilter === "RPL"
-                                                    ? "text-white"
-                                                    : "text-[#94A3B8]"
+                                                    ? "border-blue-500 bg-blue-50 text-blue-900 ring-2 ring-blue-500/20 hover:bg-blue-100/80 dark:border-sky-500 dark:bg-sky-950/50 dark:text-sky-100 dark:ring-sky-500/30 dark:hover:bg-sky-900/50"
+                                                    : "border-slate-200 bg-slate-50/70 text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-900 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:border-sky-700/60 dark:hover:bg-slate-800 dark:hover:text-white"
                                             }`}
                                         >
-                                            {rplTotal} ({rplApproved}✓)
-                                        </span>
-                                    </button>
+                                            <div className="flex items-center gap-2">
+                                                <Laptop size={15} className="text-blue-600 dark:text-sky-400" />
+                                                <span className="font-bold">Rekayasa Perangkat Lunak (RPL)</span>
+                                            </div>
+                                            <span className="font-black">
+                                                {rplTotal} siswa ({rplApproved} diterima)
+                                            </span>
+                                        </button>
 
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setSelectedMajorFilter(
-                                                selectedMajorFilter === "TBSM" ? "Semua" : "TBSM"
-                                            )
-                                        }
-                                        className="flex items-center justify-between rounded-[10px] px-3 py-2 text-xs transition-all"
-                                        style={{
-                                            backgroundColor:
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setSelectedMajorFilter(
+                                                    selectedMajorFilter === "TBSM" ? "Semua" : "TBSM"
+                                                )
+                                            }
+                                            className={`flex items-center justify-between rounded-xl border p-3 text-xs transition-all ${
                                                 selectedMajorFilter === "TBSM"
-                                                    ? "color-mix(in srgb, #F97316 22%, #1E293B)"
-                                                    : "rgba(255,255,255,0.05)",
-                                            border: `1.5px solid ${
-                                                selectedMajorFilter === "TBSM"
-                                                    ? "#F97316"
-                                                    : "rgba(255,255,255,0.1)"
-                                            }`,
-                                        }}
-                                    >
-                                        <span className="font-bold text-white">🏍️ TBSM</span>
-                                        <span
-                                            className={`font-bold ${
-                                                selectedMajorFilter === "TBSM"
-                                                    ? "text-white"
-                                                    : "text-[#94A3B8]"
+                                                    ? "border-amber-500 bg-amber-50 text-amber-900 ring-2 ring-amber-500/20 hover:bg-amber-100/80 dark:border-amber-500 dark:bg-amber-950/50 dark:text-amber-100 dark:ring-amber-500/30 dark:hover:bg-amber-900/50"
+                                                    : "border-slate-200 bg-slate-50/70 text-slate-700 hover:border-amber-300 hover:bg-amber-50/50 hover:text-amber-900 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:border-amber-700/60 dark:hover:bg-slate-800 dark:hover:text-white"
                                             }`}
                                         >
-                                            {tbsmTotal} ({tbsmApproved}✓)
-                                        </span>
-                                    </button>
+                                            <div className="flex items-center gap-2">
+                                                <Wrench size={15} className="text-amber-600 dark:text-amber-400" />
+                                                <span className="font-bold">Teknik & Bisnis Sepeda Motor (TBSM)</span>
+                                            </div>
+                                            <span className="font-black">
+                                                {tbsmTotal} siswa ({tbsmApproved} diterima)
+                                            </span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        )}
-                    </div>
-
-                    {/* Action Bar: Jadwal & Gelombang, Analisis Detail, Laporan Rekap */}
-                    <div className="mt-2.5 grid grid-cols-3 gap-1.5 sm:gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setShowScheduleModal(true)}
-                            className="flex items-center justify-center gap-1 rounded-[10px] border border-white/25 bg-white/5 px-2 py-2 text-[11px] font-bold text-white transition-colors hover:bg-white/10 sm:gap-1.5 sm:text-xs"
-                        >
-                            <Calendar size={13} className="shrink-0 text-[#38BDF8]" />
-                            <span className="truncate">Jadwal</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowAnalyticsModal(true)}
-                            className="flex items-center justify-center gap-1 rounded-[10px] bg-[#1D4ED8] px-2 py-2 text-[11px] font-bold text-white transition-colors hover:bg-[#2563EB] sm:gap-1.5 sm:text-xs"
-                            style={{ color: "#ffffff" }}
-                        >
-                            <BarChart3 size={13} className="shrink-0" />
-                            <span className="truncate">Analisis</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowReportModal(true)}
-                            className="flex items-center justify-center gap-1 rounded-[10px] border border-[#38BDF8]/40 bg-[#38BDF8]/15 px-2 py-2 text-[11px] font-bold text-[#38BDF8] transition-colors hover:bg-[#38BDF8]/25 sm:gap-1.5 sm:text-xs"
-                        >
-                            <Printer size={13} className="shrink-0" />
-                            <span className="truncate">Rekap PDF</span>
-                        </button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1815,18 +1872,13 @@ export default function AdminPage() {
                                                 >
                                                     <button
                                                         type="button"
-                                                        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-extrabold transition-opacity hover:opacity-85"
-                                                        style={{
-                                                            backgroundColor: statusBgColor,
-                                                            color: statusColor,
-                                                        }}
+                                                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-opacity hover:opacity-85 ${getStatusBadgeClass(status)}`}
                                                     >
                                                         <span
-                                                            className="h-1.5 w-1.5 rounded-full"
-                                                            style={{ backgroundColor: statusColor }}
+                                                            className={`h-1.5 w-1.5 rounded-full ${getStatusDotClass(status)}`}
                                                         />
                                                         <span>{status}</span>
-                                                        <Edit3 size={10} />
+                                                        <Edit3 size={10} className="opacity-70" />
                                                     </button>
                                                 </td>
                                                 <td className="max-w-44 px-3.5 py-3">
@@ -2050,29 +2102,24 @@ export default function AdminPage() {
                                     )}
 
                                     {/* Bottom Row: Status Pill Badge + Date */}
-                                    <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#F1F5F9] pt-2.5">
+                                    <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-800 pt-2.5">
                                         <button
                                             type="button"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setQuickStatusTarget(reg);
                                             }}
-                                            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-extrabold transition-opacity hover:opacity-85"
-                                            style={{
-                                                backgroundColor: statusBgColor,
-                                                color: statusColor,
-                                            }}
+                                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-opacity hover:opacity-85 ${getStatusBadgeClass(status)}`}
                                             title="Klik untuk ubah status cepat"
                                         >
                                             <span
-                                                className="h-1.5 w-1.5 rounded-full"
-                                                style={{ backgroundColor: statusColor }}
+                                                className={`h-1.5 w-1.5 rounded-full ${getStatusDotClass(status)}`}
                                             />
                                             <span>{status}</span>
-                                            <Edit3 size={10} />
+                                            <Edit3 size={10} className="opacity-70" />
                                         </button>
 
-                                        <span className="text-[11px] font-medium text-[#64748B]">
+                                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                                             {formatFlutterDate(reg.created_at)}
                                         </span>
                                     </div>
