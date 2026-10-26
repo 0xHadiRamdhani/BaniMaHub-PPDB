@@ -1,5 +1,6 @@
 import { createHash, createSign } from "node:crypto";
 import { firebaseServiceAccount, imgbbApiKey } from "@/app/lib/private-config";
+import type { MediaItem } from "@/app/lib/ppdb-data";
 
 const projectId = "ppdb-smk-bm";
 const bucketName = "ppdb-smk-bm.firebasestorage.app";
@@ -440,5 +441,83 @@ export async function saveSchedule(items: Array<[string, string, string]>): Prom
         console.error("Failed to save schedule to Firebase:", e);
         return false;
     }
+}
+
+export type ShowcaseData = {
+    achievements: MediaItem[];
+    activities: MediaItem[];
+};
+
+export async function getShowcase(): Promise<ShowcaseData | null> {
+    try {
+        const doc = await firebaseRequest<{ name: string; fields?: Record<string, FirestoreValue> }>(
+            `${firestoreBase}/settings/showcase`
+        );
+        if (!doc) return null;
+        const decoded = decodeDocument(doc);
+        return {
+            achievements: Array.isArray(decoded.achievements) ? (decoded.achievements as MediaItem[]) : [],
+            activities: Array.isArray(decoded.activities) ? (decoded.activities as MediaItem[]) : [],
+        };
+    } catch (e) {
+        console.error("Failed to fetch showcase from Firebase:", e);
+        return null;
+    }
+}
+
+export async function saveShowcase(data: { achievements: MediaItem[]; activities: MediaItem[] }): Promise<boolean> {
+    try {
+        const fields = {
+            achievements: encodeValue(data.achievements),
+            activities: encodeValue(data.activities),
+            updated_at: encodeValue(new Date().toISOString()),
+        };
+        await firebaseRequest(`${firestoreBase}/settings/showcase`, {
+            method: "PATCH",
+            body: JSON.stringify({ fields }),
+        });
+        return true;
+    } catch (e) {
+        console.error("Failed to save showcase to Firebase:", e);
+        return false;
+    }
+}
+
+export async function uploadMediaImage(file: File): Promise<string> {
+    const apiKey = imgbbApiKey;
+    const fileName = file.name || "showcase.jpg";
+    const cleanName = `showcase-${Date.now()}-${fileName.replace(/\.[^/.]+$/, "")}`;
+
+    const form = new FormData();
+    form.append("image", file, fileName);
+    form.append("name", cleanName);
+
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(apiKey)}`, {
+        method: "POST",
+        body: form,
+        cache: "no-store",
+    });
+
+    const result = (await response.json()) as {
+        success?: boolean;
+        data?: {
+            url?: string;
+            display_url?: string;
+            image?: { url?: string };
+        };
+        error?: { message?: string };
+    };
+
+    if (response.ok && result.success && result.data) {
+        let imageUrl = result.data.url ?? result.data.image?.url ?? result.data.display_url;
+        if (imageUrl) {
+            if (imageUrl.startsWith("https://i.ibb.co/")) {
+                imageUrl = imageUrl.replace("https://i.ibb.co/", "https://i.ibb.co.com/");
+            }
+            return imageUrl;
+        }
+    }
+
+    throw new Error(result.error?.message || "Gagal mengunggah foto ke penyimpanan gambar.");
 }
 

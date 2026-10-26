@@ -5,8 +5,8 @@ import TechBackground from "@/app/components/tech-background";
 import MajorSelector from "./components/major-selector";
 import Header from "./components/header";
 import ScheduleTable from "./components/schedule-table";
-import { getSchedule } from "@/app/lib/firebase-server";
-import { defaultSchedule } from "@/app/lib/ppdb-data";
+import { getSchedule, getShowcase } from "@/app/lib/firebase-server";
+import { defaultSchedule, defaultAchievements, defaultActivities } from "@/app/lib/ppdb-data";
 import { cookies } from "next/headers";
 import {
     CheckCircle2,
@@ -21,21 +21,6 @@ const advantages = [
     ["02", "Praktik Langsung", "Jam praktik lebih banyak, plus kesempatan magang di perusahaan mitra."],
     ["03", "Fasilitas Lengkap", "Lab komputer, bengkel, dan ruang praktik yang terus diperbarui."],
     ["04", "Alumni Terserap Kerja", "Jaringan alumni dan mitra industri membantu lulusan mendapat pekerjaan."],
-];
-const achievements = [
-    ["Juara 2 Bahasa Indonesia tingkat nasional", "Prestasi siswa dalam kompetisi Bahasa Indonesia.", "/juara2bindo.jpeg"],
-    ["Juara 2 Sains tingkat nasional", "Prestasi siswa dalam kompetisi sains.", "/juara2sains.jpeg"],
-    ["Juara 3 Bahasa Indonesia tingkat nasional", "Prestasi siswa dalam kompetisi Bahasa Indonesia.", "/juara3bindo.jpeg"],
-    ["Gema Pramuka", "Prestasi siswa dalam kegiatan Gema Pramuka.", "/gema.jpeg"],
-];
-const activities = [
-    ["Kumpul Pagi", "Kegiatan apel pagi untuk membangun kedisiplinan dan semangat siswa.", "/kumpul_pagi.jpeg"],
-    ["Kegiatan Literasi", "Membiasakan siswa membaca untuk memperluas wawasan dan pengetahuan.", "/literasi.jpeg"],
-    ["Pembelajaran di Kelas", "Suasana belajar yang interaktif dan nyaman di ruang kelas.", "/pembelajaran.jpeg"],
-    ["Kegiatan Pembelajaran OOP", "Siswa belajar kerja secara tim dan mengembangkan suatu software.", "/kegiatan1.jpeg"],
-    ["Praktik Jurusan RPL", "Praktik langsung di lab komputer untuk jurusan Rekayasa Perangkat Lunak.", "/praktek_rpl.jpeg"],
-    ["Praktik Jurusan TBSM", "Pembelajaran membongkar dan merakit mesin sepeda motor secara profesional.", "/praktek_tbsm.jpeg"],
-    ["Praktik Perbengkelan", "Mengasah keterampilan mekanik untuk siap terjun ke dunia kerja.", "/praktek_tbsm2.jpeg"],
 ];
 const steps = [
     ["01", "Isi Formulir", "Lengkapi data diri, data orang tua, dan pilih jurusan."],
@@ -89,6 +74,20 @@ export default async function Home() {
             initialSchedule = fetched;
         }
     } catch {}
+
+    let achievementsList = defaultAchievements;
+    let activitiesList = defaultActivities;
+    try {
+        const showcase = await getShowcase();
+        if (showcase?.achievements && showcase.achievements.length > 0) {
+            achievementsList = showcase.achievements;
+        }
+        if (showcase?.activities && showcase.activities.length > 0) {
+            activitiesList = showcase.activities;
+        }
+    } catch (e) {
+        console.error("Failed to load showcase for homepage:", e);
+    }
 
     return (
         <main className="min-h-screen bg-paper-soft">
@@ -195,24 +194,25 @@ export default async function Home() {
                             </div>
                         </Reveal>
                         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            {achievements.map(([title, description, src], index) => (
-                                <Reveal key={title} className="h-full" delay={index * 0.08}>
+                            {achievementsList.map((item, index) => (
+                                <Reveal key={item.id || item.title} className="h-full" delay={index * 0.08}>
                                     <article className="h-full overflow-hidden rounded-2xl border border-neutral-300 bg-paper shadow-[0_2px_10px_rgba(15,23,42,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-                                        <div className="relative aspect-[4/3]">
+                                        <div className="relative aspect-[4/3] bg-slate-100">
                                             <Image
-                                                src={src}
-                                                alt={title}
+                                                src={item.imageUrl}
+                                                alt={item.title}
                                                 fill
                                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
                                                 className="object-cover"
+                                                unoptimized={item.imageUrl.startsWith("http")}
                                             />
                                         </div>
                                         <div className="p-4">
                                             <span className="inline-block rounded-md bg-[#DCFCE7] px-2 py-0.5 text-[10px] font-extrabold text-[#15803D] uppercase">
                                                 Prestasi
                                             </span>
-                                            <h4 className="mt-2 text-sm font-extrabold text-ink sm:text-base">{title}</h4>
-                                            <p className="mt-1.5 text-xs leading-relaxed text-neutral-700">{description}</p>
+                                            <h4 className="mt-2 text-sm font-extrabold text-ink sm:text-base">{item.title}</h4>
+                                            <p className="mt-1.5 text-xs leading-relaxed text-neutral-700">{item.description}</p>
                                         </div>
                                     </article>
                                 </Reveal>
@@ -230,24 +230,25 @@ export default async function Home() {
                             </div>
                         </Reveal>
                         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            {activities.map(([title, description, src], index) => (
-                                <Reveal key={title} className="h-full" delay={index * 0.08}>
+                            {activitiesList.map((item, index) => (
+                                <Reveal key={item.id || item.title} className="h-full" delay={index * 0.08}>
                                     <article className="h-full overflow-hidden rounded-2xl border border-neutral-300 bg-paper shadow-[0_2px_10px_rgba(15,23,42,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-                                        <div className="relative aspect-[4/3]">
+                                        <div className="relative aspect-[4/3] bg-slate-100">
                                             <Image
-                                                src={src}
-                                                alt={title}
+                                                src={item.imageUrl}
+                                                alt={item.title}
                                                 fill
                                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
                                                 className="object-cover"
+                                                unoptimized={item.imageUrl.startsWith("http")}
                                             />
                                         </div>
                                         <div className="p-4">
                                             <span className="inline-block rounded-md bg-primary-soft px-2 py-0.5 text-[10px] font-extrabold text-primary uppercase">
                                                 Kegiatan
                                             </span>
-                                            <h4 className="mt-2 text-sm font-extrabold text-ink sm:text-base">{title}</h4>
-                                            <p className="mt-1.5 text-xs leading-relaxed text-neutral-700">{description}</p>
+                                            <h4 className="mt-2 text-sm font-extrabold text-ink sm:text-base">{item.title}</h4>
+                                            <p className="mt-1.5 text-xs leading-relaxed text-neutral-700">{item.description}</p>
                                         </div>
                                     </article>
                                 </Reveal>

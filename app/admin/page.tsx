@@ -55,9 +55,20 @@ import {
     Ticket,
     Save,
     UtensilsCrossed,
+    Sparkles,
+    UploadCloud,
+    MoveUp,
+    MoveDown,
+    Image as ImageIcon,
+    Layers,
 } from "lucide-react";
 import { ThemeToggle } from "@/app/components/theme-toggle";
-import { defaultSchedule } from "@/app/lib/ppdb-data";
+import {
+    defaultSchedule,
+    defaultAchievements,
+    defaultActivities,
+    type MediaItem,
+} from "@/app/lib/ppdb-data";
 
 type Registration = {
     registration_number: string;
@@ -396,6 +407,21 @@ export default function AdminPage() {
     const [scheduleItems, setScheduleItems] = useState<Array<[string, string, string]>>(defaultSchedule);
     const [isSavingSchedule, setIsSavingSchedule] = useState(false);
     const [scheduleFeedback, setScheduleFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+    // Showcase (Prestasi Siswa & Kegiatan Sekolah) State
+    const [showShowcaseModal, setShowShowcaseModal] = useState(false);
+    const [showcaseTab, setShowcaseTab] = useState<"achievements" | "activities">("achievements");
+    const [achievementsItems, setAchievementsItems] = useState<MediaItem[]>(defaultAchievements);
+    const [activitiesItems, setActivitiesItems] = useState<MediaItem[]>(defaultActivities);
+    const [isSavingShowcase, setIsSavingShowcase] = useState(false);
+    const [showcaseFeedback, setShowcaseFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+    const [showAddShowcaseDialog, setShowAddShowcaseDialog] = useState(false);
+    const [editingShowcaseItem, setEditingShowcaseItem] = useState<MediaItem | null>(null);
+    const [formShowcaseTitle, setFormShowcaseTitle] = useState("");
+    const [formShowcaseDescription, setFormShowcaseDescription] = useState("");
+    const [formShowcaseImageUrl, setFormShowcaseImageUrl] = useState("");
+    const [isUploadingShowcaseImage, setIsUploadingShowcaseImage] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<{ tab: "achievements" | "activities"; id: string; title: string } | null>(null);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showActivityModal, setShowActivityModal] = useState(false);
     const [activityLogs, setActivityLogs] = useState<ActivityLogItem[]>([]);
@@ -440,6 +466,34 @@ export default function AdminPage() {
                         localStorage.setItem("ppdb:schedule", JSON.stringify(data.schedule));
                     } catch {}
                 }
+            })
+            .catch(() => {});
+
+        try {
+            const localShowcase = localStorage.getItem("ppdb:showcase");
+            if (localShowcase) {
+                const parsed = JSON.parse(localShowcase);
+                if (Array.isArray(parsed?.achievements) && parsed.achievements.length > 0) {
+                    setAchievementsItems(parsed.achievements);
+                }
+                if (Array.isArray(parsed?.activities) && parsed.activities.length > 0) {
+                    setActivitiesItems(parsed.activities);
+                }
+            }
+        } catch {}
+
+        fetch("/api/showcase", { cache: "no-store" })
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+                if (data?.achievements && Array.isArray(data.achievements)) {
+                    setAchievementsItems(data.achievements);
+                }
+                if (data?.activities && Array.isArray(data.activities)) {
+                    setActivitiesItems(data.activities);
+                }
+                try {
+                    localStorage.setItem("ppdb:showcase", JSON.stringify(data));
+                } catch {}
             })
             .catch(() => {});
     }, []);
@@ -511,6 +565,212 @@ export default function AdminPage() {
             setScheduleFeedback({ type: "error", message: msg });
         } finally {
             setIsSavingSchedule(false);
+        }
+    };
+
+    const SHOWCASE_PRESETS = [
+        { label: "Juara 2 B. Indo", url: "/juara2bindo.jpeg" },
+        { label: "Juara 2 Sains", url: "/juara2sains.jpeg" },
+        { label: "Juara 3 B. Indo", url: "/juara3bindo.jpeg" },
+        { label: "Gema Pramuka", url: "/gema.jpeg" },
+        { label: "Kumpul Pagi", url: "/kumpul_pagi.jpeg" },
+        { label: "Literasi", url: "/literasi.jpeg" },
+        { label: "Pembelajaran", url: "/pembelajaran.jpeg" },
+        { label: "Pembelajaran OOP", url: "/kegiatan1.jpeg" },
+        { label: "Praktik RPL", url: "/praktek_rpl.jpeg" },
+        { label: "Praktik TBSM", url: "/praktek_tbsm.jpeg" },
+        { label: "Perbengkelan", url: "/praktek_tbsm2.jpeg" },
+        { label: "Siswa Berseragam", url: "/siswa-berseragam.png" },
+    ];
+
+    const handleOpenAddShowcase = () => {
+        setEditingShowcaseItem(null);
+        setFormShowcaseTitle("");
+        setFormShowcaseDescription("");
+        setFormShowcaseImageUrl("");
+        setShowAddShowcaseDialog(true);
+    };
+
+    const handleOpenEditShowcase = (item: MediaItem) => {
+        setEditingShowcaseItem(item);
+        setFormShowcaseTitle(item.title);
+        setFormShowcaseDescription(item.description);
+        setFormShowcaseImageUrl(item.imageUrl);
+        setShowAddShowcaseDialog(true);
+    };
+
+    const handleUploadShowcaseFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploadingShowcaseImage(true);
+        setShowcaseFeedback(null);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const res = await fetch("/api/showcase/upload", {
+                method: "POST",
+                body: formData,
+            });
+            const data = await res.json();
+            if (!res.ok || !data.imageUrl) {
+                throw new Error(data.error || "Gagal mengunggah foto.");
+            }
+            setFormShowcaseImageUrl(data.imageUrl);
+            setShowcaseFeedback({ type: "success", message: "Foto berhasil diunggah!" });
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : "Gagal mengunggah foto.";
+            setShowcaseFeedback({ type: "error", message: msg });
+        } finally {
+            setIsUploadingShowcaseImage(false);
+            e.target.value = "";
+        }
+    };
+
+    const handleSaveShowcaseItem = () => {
+        if (!formShowcaseTitle.trim()) {
+            setShowcaseFeedback({ type: "error", message: "Judul foto tidak boleh kosong." });
+            return;
+        }
+        if (!formShowcaseImageUrl.trim()) {
+            setShowcaseFeedback({ type: "error", message: "Silakan unggah atau pilih foto terlebih dahulu." });
+            return;
+        }
+
+        if (showcaseTab === "achievements") {
+            if (editingShowcaseItem) {
+                setAchievementsItems((prev) =>
+                    prev.map((item) =>
+                        item.id === editingShowcaseItem.id
+                            ? {
+                                  ...item,
+                                  title: formShowcaseTitle.trim(),
+                                  description: formShowcaseDescription.trim(),
+                                  imageUrl: formShowcaseImageUrl.trim(),
+                              }
+                            : item
+                    )
+                );
+            } else {
+                const newItem: MediaItem = {
+                    id: `ach-${Date.now()}`,
+                    title: formShowcaseTitle.trim(),
+                    description: formShowcaseDescription.trim(),
+                    imageUrl: formShowcaseImageUrl.trim(),
+                };
+                setAchievementsItems((prev) => [...prev, newItem]);
+            }
+        } else {
+            if (editingShowcaseItem) {
+                setActivitiesItems((prev) =>
+                    prev.map((item) =>
+                        item.id === editingShowcaseItem.id
+                            ? {
+                                  ...item,
+                                  title: formShowcaseTitle.trim(),
+                                  description: formShowcaseDescription.trim(),
+                                  imageUrl: formShowcaseImageUrl.trim(),
+                              }
+                            : item
+                    )
+                );
+            } else {
+                const newItem: MediaItem = {
+                    id: `act-${Date.now()}`,
+                    title: formShowcaseTitle.trim(),
+                    description: formShowcaseDescription.trim(),
+                    imageUrl: formShowcaseImageUrl.trim(),
+                };
+                setActivitiesItems((prev) => [...prev, newItem]);
+            }
+        }
+
+        setShowAddShowcaseDialog(false);
+        setEditingShowcaseItem(null);
+        setShowcaseFeedback({
+            type: "success",
+            message: `Foto ${showcaseTab === "achievements" ? "prestasi" : "kegiatan"} berhasil ditambahkan ke daftar. Klik 'Simpan ke Website' untuk menerapkan ke publik.`,
+        });
+    };
+
+    const handleMoveShowcaseItem = (idx: number, direction: "up" | "down") => {
+        const targetList = showcaseTab === "achievements" ? achievementsItems : activitiesItems;
+        const targetIdx = direction === "up" ? idx - 1 : idx + 1;
+        if (targetIdx < 0 || targetIdx >= targetList.length) return;
+
+        const next = [...targetList];
+        const temp = next[idx];
+        next[idx] = next[targetIdx];
+        next[targetIdx] = temp;
+
+        if (showcaseTab === "achievements") {
+            setAchievementsItems(next);
+        } else {
+            setActivitiesItems(next);
+        }
+    };
+
+    const handleConfirmDeleteShowcaseItem = () => {
+        if (!itemToDelete) return;
+        if (itemToDelete.tab === "achievements") {
+            setAchievementsItems((prev) => prev.filter((i) => i.id !== itemToDelete.id));
+        } else {
+            setActivitiesItems((prev) => prev.filter((i) => i.id !== itemToDelete.id));
+        }
+        setShowcaseFeedback({
+            type: "success",
+            message: `Foto "${itemToDelete.title}" telah dihapus. Klik 'Simpan ke Website' untuk menerapkan ke publik.`,
+        });
+        setItemToDelete(null);
+    };
+
+    const handleResetShowcase = () => {
+        if (showcaseTab === "achievements") {
+            if (window.confirm("Kembalikan daftar Prestasi Siswa ke data bawaan sekolah?")) {
+                setAchievementsItems(defaultAchievements);
+                setShowcaseFeedback({ type: "success", message: "Foto Prestasi Siswa dikembalikan ke bawaan sekolah." });
+            }
+        } else {
+            if (window.confirm("Kembalikan daftar Kegiatan Sekolah ke data bawaan sekolah?")) {
+                setActivitiesItems(defaultActivities);
+                setShowcaseFeedback({ type: "success", message: "Foto Kegiatan Sekolah dikembalikan ke bawaan sekolah." });
+            }
+        }
+    };
+
+    const handleSaveShowcaseToFirebase = async () => {
+        setShowcaseFeedback(null);
+        setIsSavingShowcase(true);
+        try {
+            const res = await fetch("/api/showcase", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    achievements: achievementsItems,
+                    activities: activitiesItems,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || "Gagal menyimpan ke Firebase.");
+            }
+            try {
+                localStorage.setItem("ppdb:showcase", JSON.stringify(data));
+                window.dispatchEvent(new Event("ppdb:showcase-updated"));
+            } catch {}
+
+            logActivity("Perbarui Prestasi & Kegiatan", `${achievementsItems.length} prestasi, ${activitiesItems.length} kegiatan`);
+            setShowcaseFeedback({
+                type: "success",
+                message: "Foto prestasi & kegiatan berhasil disimpan dan langsung tayang di halaman depan!",
+            });
+            setNotice("Prestasi dan kegiatan sekolah berhasil diperbarui.");
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : "Gagal menyimpan perubahan.";
+            setShowcaseFeedback({ type: "error", message: msg });
+        } finally {
+            setIsSavingShowcase(false);
         }
     };
 
@@ -1197,6 +1457,18 @@ export default function AdminPage() {
                             >
                                 <Calendar size={13} className="text-blue-600 dark:text-sky-400" />
                                 <span>Jadwal Gelombang</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowcaseFeedback(null);
+                                    setShowShowcaseModal(true);
+                                }}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                title="Kelola Foto Prestasi Siswa & Kegiatan Sekolah"
+                            >
+                                <Sparkles size={13} className="text-amber-500 dark:text-amber-400" />
+                                <span>Prestasi & Kegiatan</span>
                             </button>
                             <button
                                 type="button"
@@ -3509,6 +3781,544 @@ export default function AdminPage() {
                                         <span>Simpan Jadwal</span>
                                     </>
                                 )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* =====================================================================
+                MODAL: KELOLA PRESTASI SISWA & KEGIATAN SEKOLAH
+               ===================================================================== */}
+            {showShowcaseModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-end justify-center bg-[#0F172A]/70 p-0 backdrop-blur-xs sm:items-center sm:p-4"
+                    onClick={() => {
+                        setShowShowcaseModal(false);
+                        setShowcaseFeedback(null);
+                    }}
+                >
+                    <div
+                        className="flex max-h-[92dvh] w-full max-w-4xl flex-col overflow-hidden rounded-t-[28px] bg-white text-slate-900 shadow-2xl dark:bg-[#0B1120] dark:text-white sm:rounded-[28px] border border-slate-200 dark:border-slate-800"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/80 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60 sm:px-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 dark:bg-amber-500/20">
+                                    <Sparkles size={20} />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-black tracking-tight text-slate-900 dark:text-white sm:text-lg">
+                                        Kelola Foto Prestasi & Kegiatan Sekolah
+                                    </h2>
+                                    <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                                        Tambah, edit, atau hapus foto dokumentasi yang tampil di halaman depan website PPDB.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowShowcaseModal(false);
+                                    setShowcaseFeedback(null);
+                                }}
+                                className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                                aria-label="Tutup modal"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        {/* Tab Switcher & Action Bar */}
+                        <div className="border-b border-slate-200/80 bg-white px-5 py-3 dark:border-slate-800 dark:bg-[#0B1120] sm:px-6">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                {/* Segmented Tabs */}
+                                <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowcaseTab("achievements");
+                                            setShowcaseFeedback(null);
+                                        }}
+                                        className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
+                                            showcaseTab === "achievements"
+                                                ? "bg-white text-emerald-700 shadow-xs dark:bg-slate-900 dark:text-emerald-400"
+                                                : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                        }`}
+                                    >
+                                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                                        <span>Prestasi Siswa</span>
+                                        <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-black text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                            {achievementsItems.length}
+                                        </span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowcaseTab("activities");
+                                            setShowcaseFeedback(null);
+                                        }}
+                                        className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
+                                            showcaseTab === "activities"
+                                                ? "bg-white text-blue-700 shadow-xs dark:bg-slate-900 dark:text-sky-300"
+                                                : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                        }`}
+                                    >
+                                        <span className="h-2 w-2 rounded-full bg-blue-500" />
+                                        <span>Kegiatan Sekolah</span>
+                                        <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-black text-blue-800 dark:bg-blue-950/60 dark:text-sky-300">
+                                            {activitiesItems.length}
+                                        </span>
+                                    </button>
+                                </div>
+
+                                {/* Add Button */}
+                                <button
+                                    type="button"
+                                    onClick={handleOpenAddShowcase}
+                                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700 active:scale-[0.98]"
+                                    style={{ color: "#ffffff" }}
+                                >
+                                    <Plus size={15} strokeWidth={2.5} />
+                                    <span>
+                                        Tambah Foto {showcaseTab === "achievements" ? "Prestasi" : "Kegiatan"}
+                                    </span>
+                                </button>
+                            </div>
+
+                            {/* Feedback Banner */}
+                            {showcaseFeedback && (
+                                <div
+                                    className={`mt-3 flex items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-xs font-bold ${
+                                        showcaseFeedback.type === "success"
+                                            ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+                                            : "border-rose-300 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        {showcaseFeedback.type === "success" ? (
+                                            <CheckCircle2 size={16} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                        ) : (
+                                            <AlertTriangle size={16} className="shrink-0 text-rose-600 dark:text-rose-400" />
+                                        )}
+                                        <span className="truncate">{showcaseFeedback.message}</span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowcaseFeedback(null)}
+                                        className="shrink-0 rounded-md p-1 hover:bg-black/5 dark:hover:bg-white/5"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Body: Grid of Cards */}
+                        <div className="flex-1 overflow-y-auto p-5 sm:p-6">
+                            {(showcaseTab === "achievements" ? achievementsItems : activitiesItems).length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-16 text-center">
+                                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                                        <ImageIcon size={32} />
+                                    </div>
+                                    <h3 className="mt-4 text-sm font-bold text-slate-800 dark:text-slate-200">
+                                        Belum Ada Foto {showcaseTab === "achievements" ? "Prestasi Siswa" : "Kegiatan Sekolah"}
+                                    </h3>
+                                    <p className="mt-1 max-w-sm text-xs text-slate-500 dark:text-slate-400">
+                                        Klik tombol di atas untuk mengunggah foto baru atau reset ke foto bawaan sekolah.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={handleOpenAddShowcase}
+                                        className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700"
+                                        style={{ color: "#ffffff" }}
+                                    >
+                                        <Plus size={14} />
+                                        <span>Tambah Sekarang</span>
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    {(showcaseTab === "achievements" ? achievementsItems : activitiesItems).map((item, idx, arr) => (
+                                        <div
+                                            key={item.id}
+                                            className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xs transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90"
+                                        >
+                                            {/* Image Preview with Overlay Badge */}
+                                            <div className="relative aspect-[4/3] w-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                                <Image
+                                                    src={item.imageUrl}
+                                                    alt={item.title}
+                                                    fill
+                                                    sizes="(max-width: 640px) 100vw, 300px"
+                                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                                    unoptimized={item.imageUrl.startsWith("http")}
+                                                />
+                                                <span
+                                                    className={`absolute top-2.5 left-2.5 inline-block rounded-md px-2 py-0.5 text-[10px] font-black uppercase shadow-xs ${
+                                                        showcaseTab === "achievements"
+                                                            ? "bg-emerald-500 text-white"
+                                                            : "bg-blue-600 text-white"
+                                                    }`}
+                                                >
+                                                    {showcaseTab === "achievements" ? "Prestasi" : "Kegiatan"}
+                                                </span>
+                                                <span className="absolute top-2.5 right-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-[10px] font-black text-white backdrop-blur-xs">
+                                                    #{idx + 1}
+                                                </span>
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="flex flex-1 flex-col p-3.5">
+                                                <h4 className="font-extrabold text-xs text-slate-900 dark:text-white line-clamp-2">
+                                                    {item.title}
+                                                </h4>
+                                                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 flex-1">
+                                                    {item.description || "Tidak ada deskripsi."}
+                                                </p>
+
+                                                {/* Card Footer Toolbar */}
+                                                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5 dark:border-slate-800">
+                                                    {/* Move Up/Down Controls */}
+                                                    <div className="flex items-center gap-1">
+                                                        <button
+                                                            type="button"
+                                                            disabled={idx === 0}
+                                                            onClick={() => handleMoveShowcaseItem(idx, "up")}
+                                                            title="Geser ke kiri / atas"
+                                                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 disabled:opacity-30 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                                        >
+                                                            <MoveUp size={12} />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            disabled={idx === arr.length - 1}
+                                                            onClick={() => handleMoveShowcaseItem(idx, "down")}
+                                                            title="Geser ke kanan / bawah"
+                                                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 disabled:opacity-30 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                                        >
+                                                            <MoveDown size={12} />
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Edit & Delete Action Buttons */}
+                                                    <div className="flex items-center gap-1.5">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleOpenEditShowcase(item)}
+                                                            className="inline-flex h-7 items-center gap-1 rounded-lg border border-slate-200 px-2 text-[11px] font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                                            title="Edit data foto ini"
+                                                        >
+                                                            <Edit3 size={11} />
+                                                            <span>Edit</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setItemToDelete({
+                                                                    tab: showcaseTab,
+                                                                    id: item.id,
+                                                                    title: item.title,
+                                                                })
+                                                            }
+                                                            className="inline-flex h-7 items-center gap-1 rounded-lg border border-rose-200 bg-rose-50/50 px-2 text-[11px] font-bold text-rose-600 transition hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
+                                                            title="Hapus foto ini"
+                                                        >
+                                                            <Trash2 size={11} />
+                                                            <span>Hapus</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 bg-slate-50/80 px-5 py-3.5 dark:border-slate-800 dark:bg-slate-900/60 sm:px-6">
+                            <button
+                                type="button"
+                                onClick={handleResetShowcase}
+                                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+                            >
+                                <RotateCcw size={13} />
+                                <span>Reset ke Bawaan Sekolah</span>
+                            </button>
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowShowcaseModal(false);
+                                        setShowcaseFeedback(null);
+                                    }}
+                                    disabled={isSavingShowcase}
+                                    className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                                >
+                                    Tutup
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleSaveShowcaseToFirebase}
+                                    disabled={isSavingShowcase}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors disabled:opacity-60"
+                                    style={{ color: "#ffffff" }}
+                                >
+                                    {isSavingShowcase ? (
+                                        <>
+                                            <RefreshCw size={13} className="animate-spin" />
+                                            <span>Menyimpan ke Website...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save size={14} />
+                                            <span>Simpan ke Website</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* =====================================================================
+                SUB-MODAL: TAMBAH / EDIT FOTO PRESTASI ATAU KEGIATAN
+               ===================================================================== */}
+            {showAddShowcaseDialog && (
+                <div
+                    className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-3 backdrop-blur-xs"
+                    onClick={() => setShowAddShowcaseDialog(false)}
+                >
+                    <div
+                        className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-5 text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white border border-slate-200 dark:border-slate-800"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                            <div className="flex items-center gap-2">
+                                <span
+                                    className={`flex h-8 w-8 items-center justify-center rounded-xl text-white ${
+                                        showcaseTab === "achievements" ? "bg-emerald-600" : "bg-blue-600"
+                                    }`}
+                                >
+                                    <ImageIcon size={16} />
+                                </span>
+                                <div>
+                                    <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                                        {editingShowcaseItem ? "Edit Foto" : "Tambah Foto Baru"} (
+                                        {showcaseTab === "achievements" ? "Prestasi Siswa" : "Kegiatan Sekolah"})
+                                    </h3>
+                                    <p className="text-[10.5px] text-slate-500 dark:text-slate-400">
+                                        Isi detail judul, deskripsi, dan unggah foto dokumentasi sekolah.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowAddShowcaseDialog(false)}
+                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+
+                        <div className="mt-4 space-y-3.5">
+                            {/* Judul Field */}
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    Judul {showcaseTab === "achievements" ? "Prestasi" : "Kegiatan"} <span className="text-rose-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formShowcaseTitle}
+                                    onChange={(e) => setFormShowcaseTitle(e.target.value)}
+                                    placeholder={
+                                        showcaseTab === "achievements"
+                                            ? "Contoh: Juara 1 Lomba Web Design Tingkat Provinsi"
+                                            : "Contoh: Praktik Perakitan Mesin TBSM"
+                                    }
+                                    className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                />
+                            </div>
+
+                            {/* Deskripsi Field */}
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    Deskripsi Singkat
+                                </label>
+                                <textarea
+                                    rows={2}
+                                    value={formShowcaseDescription}
+                                    onChange={(e) => setFormShowcaseDescription(e.target.value)}
+                                    placeholder="Jelaskan secara singkat tentang prestasi atau kegiatan ini..."
+                                    className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white resize-none"
+                                />
+                            </div>
+
+                            {/* Upload Foto Section */}
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    Unggah File Foto (Disimpan di ImgBB) <span className="text-rose-500">*</span>
+                                </label>
+
+                                {/* File Input Box */}
+                                <div className="mt-1.5 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-4 text-center hover:border-blue-500 dark:border-slate-700 dark:hover:border-sky-500 transition-colors">
+                                    {isUploadingShowcaseImage ? (
+                                        <div className="flex flex-col items-center py-2">
+                                            <RefreshCw size={24} className="animate-spin text-blue-600 dark:text-sky-400" />
+                                            <span className="mt-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                                                Mengunggah foto ke ImgBB Cloud...
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <UploadCloud size={24} className="text-blue-600 dark:text-sky-400" />
+                                            <p className="mt-1 text-xs font-bold text-slate-700 dark:text-slate-200">
+                                                Klik untuk pilih foto dari perangkat
+                                            </p>
+                                            <p className="text-[10px] text-slate-400">
+                                                Foto otomatis di-host di ImgBB & tautan disimpan di Firestore (Maks. 10MB)
+                                            </p>
+                                            <label className="mt-2.5 cursor-pointer rounded-xl bg-blue-50 px-3.5 py-1.5 text-xs font-bold text-blue-700 transition hover:bg-blue-100 dark:bg-blue-950/40 dark:text-sky-300">
+                                                <span>Pilih File Gambar</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={handleUploadShowcaseFile}
+                                                />
+                                            </label>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Preset Image Picker */}
+                                <div className="mt-3">
+                                    <span className="block text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                                        Atau pilih dari foto bawaan sekolah:
+                                    </span>
+                                    <div className="no-scrollbar mt-1.5 flex items-center gap-1.5 overflow-x-auto pb-1">
+                                        {SHOWCASE_PRESETS.map((preset) => (
+                                            <button
+                                                key={preset.url}
+                                                type="button"
+                                                onClick={() => setFormShowcaseImageUrl(preset.url)}
+                                                className={`shrink-0 rounded-lg border px-2 py-1 text-[10.5px] font-bold transition-all ${
+                                                    formShowcaseImageUrl === preset.url
+                                                        ? "border-blue-600 bg-blue-50 text-blue-700 dark:border-sky-500 dark:bg-sky-950/60 dark:text-sky-300"
+                                                        : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300"
+                                                }`}
+                                            >
+                                                {preset.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Direct Image URL (Manual Input) */}
+                                <div className="mt-2.5">
+                                    <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                                        URL Foto Langsung
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formShowcaseImageUrl}
+                                        onChange={(e) => setFormShowcaseImageUrl(e.target.value)}
+                                        placeholder="https://... atau /juara2bindo.jpeg"
+                                        className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                    />
+                                </div>
+
+                                {/* Live Image Preview */}
+                                {formShowcaseImageUrl && (
+                                    <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-2.5">
+                                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                                            <span>Pratinjau Foto:</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormShowcaseImageUrl("")}
+                                                className="text-rose-500 hover:underline"
+                                            >
+                                                Hapus Foto
+                                            </button>
+                                        </div>
+                                        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800">
+                                            <Image
+                                                src={formShowcaseImageUrl}
+                                                alt="Pratinjau Foto"
+                                                fill
+                                                sizes="(max-width: 640px) 100vw, 400px"
+                                                className="object-cover"
+                                                unoptimized={formShowcaseImageUrl.startsWith("http")}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Sub-Dialog Footer */}
+                        <div className="mt-5 flex items-center justify-end gap-2 border-t border-slate-100 pt-3.5 dark:border-slate-800">
+                            <button
+                                type="button"
+                                onClick={() => setShowAddShowcaseDialog(false)}
+                                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSaveShowcaseItem}
+                                className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors"
+                                style={{ color: "#ffffff" }}
+                            >
+                                <CheckCircle2 size={14} />
+                                <span>Simpan Item</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* =====================================================================
+                SUB-MODAL: KONFIRMASI HAPUS FOTO
+               ===================================================================== */}
+            {itemToDelete && (
+                <div
+                    className="fixed inset-0 z-60 flex items-center justify-center bg-black/65 p-3 backdrop-blur-xs"
+                    onClick={() => setItemToDelete(null)}
+                >
+                    <div
+                        className="w-full max-w-sm rounded-3xl bg-white p-5 text-center text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white border border-slate-200 dark:border-slate-800"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400">
+                            <Trash2 size={24} />
+                        </div>
+                        <h3 className="mt-3 text-sm font-black text-slate-900 dark:text-white">
+                            Hapus Foto Ini?
+                        </h3>
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            Foto <span className="font-bold text-slate-700 dark:text-slate-200">&ldquo;{itemToDelete.title}&rdquo;</span> akan dihapus dari daftar {itemToDelete.tab === "achievements" ? "Prestasi Siswa" : "Kegiatan Sekolah"}.
+                        </p>
+                        <div className="mt-5 flex items-center justify-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setItemToDelete(null)}
+                                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmDeleteShowcaseItem}
+                                className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-rose-700"
+                                style={{ color: "#ffffff" }}
+                            >
+                                Ya, Hapus Foto
                             </button>
                         </div>
                     </div>

@@ -1,270 +1,205 @@
 # PPDB SMK Bani Masum
 
-Sistem informasi penerimaan peserta didik baru untuk SMK Bani Masum. Aplikasi ini menangani seluruh alur pendaftaran secara online — mulai dari pengisian formulir, upload dokumen, hingga pengecekan status — serta dilengkapi panel admin untuk mengelola data pendaftar.
+Sistem informasi Penerimaan Peserta Didik Baru (PPDB) dan portal layanan digital untuk SMK Bani Masum. Aplikasi ini menangani seluruh alur pendaftaran siswa baru secara online, pencetakan kartu tanda peserta resmi, sistem pesanan digital E-Kantin sekolah, hingga panel admin untuk verifikasi berkas dan pengelolaan konten website.
 
 ---
 
-## Stack
+## Teknologi
 
-Dibangun di atas **Next.js 16** dengan App Router dan dikompilasi ke mode `standalone` agar mudah di-deploy menggunakan Docker. Bahasa yang digunakan TypeScript di seluruh codebase.
-
-Untuk styling menggunakan **Tailwind CSS 4** dengan animasi dari **Framer Motion**. Data pendaftar disimpan di **Cloud Firestore**, berkas gambar di **ImgBB**, dokumen PDF di **Firebase Cloud Storage**, dan akun admin diverifikasi dengan **Firebase Authentication**. Endpoint server memakai service account Firebase melalui REST API. Sesi admin menggunakan cookie httpOnly bertanda tangan HMAC-SHA256.
+- **Framework**: Next.js 16 (App Router, mode standalone untuk Docker)
+- **Bahasa**: TypeScript di seluruh codebase
+- **Styling**: Tailwind CSS 4 dengan dukungan tema terang dan gelap
+- **Animasi**: Framer Motion dan transisi CSS native
+- **Database Utama**: Google Cloud Firestore (data pendaftar, pesanan kantin, jadwal gelombang, galeri dokumentasi)
+- **Penyimpanan Berkas Gambar**: ImgBB API (CDN global untuk foto berkas pendaftar dan dokumentasi kegiatan)
+- **Penyimpanan Berkas PDF**: Firebase Cloud Storage (dokumen pendaftaran format PDF dengan signed URL)
+- **Autentikasi Admin**: Firebase Authentication dengan verifikasi server-side dan sesi cookie httpOnly HMAC-SHA256
 
 ---
 
-## Struktur Aplikasi
+## Struktur Direktori
 
 ```
-ppdb_smk_bani_masum/
+BaniMaHub-PPDB/
 ├── app/
-│   ├── admin/              # Halaman admin (dashboard, login, pendaftar)
+│   ├── admin/                  # Dashboard admin utama, login, dan manajemen pendaftar
+│   │   ├── dashboard/          # Ringkasan analitik dan kuota
+│   │   ├── ekantin/            # POS dan manajemen pesanan E-Kantin admin
+│   │   ├── login/              # Form autentikasi panitia
+│   │   └── pendaftar/          # Tabel detail data pendaftar
 │   ├── api/
 │   │   ├── admin/
-│   │   │   ├── login/      # POST login, DELETE logout
-│   │   │   └── pendaftar/  # GET list pendaftar (admin only)
-│   │   └── pendaftaran/    # GET cek status, POST daftar baru
-│   ├── components/         # Shared UI components
+│   │   │   ├── login/          # POST login sesi, DELETE logout
+│   │   │   └── pendaftar/      # REST endpoint data pendaftar (admin only)
+│   │   ├── ekantin/
+│   │   │   ├── orders/         # CRUD pesanan kantin digital
+│   │   │   └── products/       # Katalog menu kantin
+│   │   ├── pendaftaran/        # GET cek status registrasi, POST formulir pendaftar baru
+│   │   ├── schedule/           # GET dan POST jadwal gelombang seleksi (Firestore)
+│   │   └── showcase/           # GET dan POST galeri prestasi serta kegiatan sekolah
+│   │       └── upload/         # POST upload gambar ke ImgBB
+│   ├── components/             # Komponen UI bersama (header, theme toggle, motion)
+│   ├── ekantin/                # Katalog menu dan keranjang belanja siswa
+│   ├── faq/                    # Halaman tanya jawab seputar PPDB
+│   ├── jurusan/                # Profil kompetensi keahlian (RPL dan TBSM)
 │   ├── lib/
-│   │   ├── admin-auth.ts   # HMAC session + credential verification
-│   │   └── ppdb-data.ts    # Data statis: jadwal, jurusan, galeri
-│   ├── ppdb/               # Alur PPDB publik
-│   └── layout.tsx
-├── firestore.rules
-├── firestore.indexes.json
-├── storage.rules
-├── public/
-├── Dockerfile
-├── docker-compose.yml
-└── .dockerignore
+│   │   ├── admin-auth.ts       # Verifikasi sesi HMAC-SHA256 dan hak akses admin
+│   │   ├── firebase-server.ts  # Klien REST Firestore, Storage, dan ImgBB via Service Account
+│   │   ├── private-config.ts   # Kredensial server tertanam
+│   │   └── ppdb-data.ts        # Data default jadwal, jurusan, prestasi, dan kegiatan
+│   ├── ppdb/
+│   │   ├── cek-status/         # Pencarian status verifikasi mandiri oleh siswa
+│   │   ├── daftar/             # Formulir pendaftaran online multi-tahap
+│   │   ├── kartu/              # Tampilan kartu peserta
+│   │   ├── pembayaran/         # Informasi biaya dan panduan pembayaran
+│   │   ├── pengumuman/         # Pengumuman kelulusan hasil seleksi
+│   │   ├── ranking/            # Peringkat nilai pendaftar
+│   │   └── tiket/              # Cetak resmi Kartu Tanda Peserta PPDB (standar kertas putih)
+│   ├── tentang/                # Profil sekolah, visi-misi, dan lokasi
+│   ├── layout.tsx              # Root layout aplikasi
+│   └── page.tsx                # Halaman beranda publik
+├── firestore.rules             # Aturan keamanan Cloud Firestore
+├── storage.rules               # Aturan keamanan Firebase Cloud Storage
+├── next.config.ts              # Konfigurasi Next.js dan remote image patterns
+├── Dockerfile                  # Multi-stage Docker build
+└── docker-compose.yml          # Konfigurasi deployment container
 ```
 
 ---
 
-## Arsitektur
+## Modul dan Fitur Utama
 
-### Gambaran Sistem
+### 1. Alur Pendaftaran Siswa (PPDB Online)
+- Formulir pendaftaran multi-langkah dengan validasi NISN, tanggal lahir, data orang tua, dan pilihan program keahlian.
+- Upload berkas persyaratan: Kartu Keluarga (KK), Ijazah/SKL, dan Pas Foto 3x4 (mendukung format gambar via ImgBB dan dokumen PDF via Firebase Storage).
+- Pembuatan nomor registrasi unik otomatis dengan format `BM26-[HEX16]`.
+- Pencarian status berkas mandiri (`/ppdb/cek-status`) tanpa mengekspos data pribadi siswa lain.
+
+### 2. Cetak Kartu Tanda Peserta Resmi (`/ppdb/tiket`)
+- Dokumen credential resmi sekolah dengan Kop Surat SMK Bani Masum lengkap dengan alamat, NPSN, dan kontak.
+- Pas Foto siswa ukuran 3x4 dengan frame resmi.
+- Validasi QR Code untuk verifikasi keaslian berkas registrasi.
+- Tampilan strict white paper layout (`#ffffff`) baik di layar maupun saat dicetak (`@media print` standar A4/F4), bebas dari elemen dark mode saat masuk mode cetak.
+
+### 3. Executive Admin Command Center (`/admin`)
+- Header adaptif dark mode / light mode dengan kontrol tema terintegrasi.
+- Quick Actions: Kelola Jadwal Gelombang, Prestasi & Kegiatan, Analisis Minat, Rekapitulasi Cetak PDF, dan Siaran WhatsApp.
+- Kartu Target Kuota Penerimaan interaktif dengan animasi transisi halus (CSS Grid accordion) saat di-minimize atau di-expand.
+- Filter jurusan RPL dan TBSM dengan rasio kontras tinggi standar WCAG AA di dark mode.
+- Tabel dan kartu pendaftar dengan filter kelengkapan berkas, ubah status cepat, catatan panitia, batch action, dan export data ke format CSV.
+
+### 4. Manajemen Dinamis Prestasi & Kegiatan Sekolah
+- Admin dapat menambah, mengubah, menggeser urutan, dan menghapus dokumentasi Prestasi Siswa dan Kegiatan Sekolah & Praktik.
+- Foto fisik otomatis diunggah ke ImgBB Cloud Storage dengan CDN berkecepatan tinggi.
+- Metadata lengkap (judul, deskripsi, urutan, dan URL foto) disimpan langsung di Cloud Firestore pada path dokumen `settings/showcase`.
+- Data tersinkronisasi otomatis ke halaman beranda (`app/page.tsx`).
+
+### 5. Jadwal Gelombang Seleksi Dinamis
+- Pengaturan tahapan seleksi (pendaftaran, verifikasi, pengumuman, daftar ulang) dapat diubah langsung oleh panitia dari panel admin tanpa menyentuh kode program.
+- Data tersimpan di Cloud Firestore pada path dokumen `settings/schedule`.
+
+### 6. Sistem E-Kantin Sekolah (`/ekantin` & `/admin/ekantin`)
+- Katalog produk makanan dan minuman kantin sekolah dengan sistem keranjang belanja interaktif.
+- Struk nota pesanan digital dengan rincian item, nomor pesanan, dan total bayar.
+- Panel POS Admin E-Kantin dengan filter status pesanan (Semua, Menunggu, Diproses, Selesai, Dibatalkan), kartu KPI pendapatan harian, dan tombol chat WhatsApp instan ke nomor pemesan.
+
+---
+
+## Arsitektur Data dan Integrasi
 
 ```mermaid
 flowchart TD
-    Browser["Browser / Client"]
-    Next["Next.js App\n(Port 8080)"]
-    Firestore["Cloud Firestore\n(registrations)"]
-    ImgBB["ImgBB\n(image files)"]
-    Storage["Firebase Storage\n(PDF files)"]
+    Browser["Klien / Browser"]
+    Next["Next.js Server (Port 8080)"]
+    Firestore[("Google Cloud Firestore")]
+    ImgBB["ImgBB CDN (Gambar)"]
+    Storage["Firebase Storage (PDF)"]
     Auth["Firebase Authentication"]
 
-    Browser -->|HTTP| Next
-    Next -->|"Service account OAuth"| Firestore
-    Next -->|"IMGBB_API_KEY (server only)"| ImgBB
-    Next -->|"Service account OAuth"| Storage
-    Next -->|"Identity Toolkit API"| Auth
+    Browser -->|HTTP / HTTPS| Next
+    Next -->|"Service Account OAuth2"| Firestore
+    Next -->|"ImgBB API Key"| ImgBB
+    Next -->|"Service Account OAuth2"| Storage
+    Next -->|"Identity Toolkit REST API"| Auth
 ```
 
-### Rute Aplikasi
+### Penyimpanan Dokumen dan Gambar
 
-```mermaid
-flowchart LR
-    Root["/"]
-
-    Root --> Jurusan["/jurusan"]
-    Root --> Tentang["/tentang"]
-    Root --> FAQ["/faq"]
-
-    Root --> PPDB["/ppdb"]
-    PPDB --> Daftar["/ppdb/daftar"]
-    PPDB --> CekStatus["/ppdb/cek-status"]
-    PPDB --> Kartu["/ppdb/kartu"]
-    PPDB --> Pembayaran["/ppdb/pembayaran"]
-    PPDB --> Pengumuman["/ppdb/pengumuman"]
-    PPDB --> Ranking["/ppdb/ranking"]
-
-    Root --> Admin["/admin"]
-    Admin --> AdminLogin["/admin/login"]
-    Admin --> AdminDashboard["/admin/dashboard"]
-    Admin --> AdminPendaftar["/admin/pendaftar"]
-```
-
-### Alur Pendaftaran
-
-```mermaid
-sequenceDiagram
-    actor Siswa
-    participant Form as /ppdb/daftar
-    participant API as POST /api/pendaftaran
-    participant DB as Cloud Firestore
-    participant ImgBB as ImgBB
-    participant Storage as Firebase Storage
-
-    Siswa->>Form: Isi data + upload KK, Ijazah, Foto
-    Form->>API: multipart/form-data
-    API->>API: Validasi field + file type/size (maks 2 MB)
-    API->>DB: INSERT registrations
-    DB-->>API: registration_number (BM26-XXXXXXXXXXXXXXXX)
-    API->>ImgBB: Upload berkas gambar
-    ImgBB-->>API: Image URL
-    API->>Storage: Upload berkas PDF (jika ada)
-    API->>DB: Simpan URL gambar / path PDF
-    API-->>Form: 201 { number }
-    Form-->>Siswa: Tampilkan nomor pendaftaran
-```
-
-### Alur Login Admin
-
-```mermaid
-sequenceDiagram
-    actor Admin
-    participant Login as /admin/login
-    participant API as POST /api/admin/login
-    participant Auth as admin-auth.ts
-    participant FirebaseAuth as Firebase Authentication
-
-    Admin->>Login: Input email + password
-    Login->>API: POST { email, password }
-    API->>API: Rate limit check (5 attempts / 15 min per IP)
-    API->>Auth: Verifikasi email dan password di Firebase Authentication
-    API->>FirebaseAuth: accounts:signInWithPassword(email, password)
-
-    alt Kredensial valid
-        FirebaseAuth-->>API: Akun Auth valid
-        API->>API: createAdminSession() — HMAC-SHA256 token
-        API-->>Login: Set httpOnly cookie (TTL 8 jam)
-        Login-->>Admin: Redirect ke /admin/dashboard
-    else Kredensial salah
-        API-->>Login: 401 Unauthorized
-    end
-```
-
-### Docker Build
-
-```mermaid
-flowchart TD
-    Src["Source Code"]
-    Src --> S1["Stage 1: deps\nnode:22-alpine — npm ci"]
-    S1 --> S2["Stage 2: builder\nnext build"]
-    S2 --> S3["Stage 3: runner\nnode:22-alpine, non-root user"]
-    S3 --> Container["Container berjalan di port 8080"]
-```
+| Jenis Data | Tempat Penyimpanan | Keterangan |
+| :--- | :--- | :--- |
+| Data Pendaftar | Firestore (`registrations/{id}`) | Lengkap, diakses server dengan Service Account |
+| Status Publik | Firestore (`registration_status/{id}`) | Hanya memuat nomor, nama, dan status verifikasi |
+| Jadwal Seleksi | Firestore (`settings/schedule`) | Array tahapan gelombang seleksi |
+| Galeri Prestasi & Kegiatan | Firestore (`settings/showcase`) | Array metadata prestasi dan kegiatan sekolah |
+| Foto Berkas & Dokumentasi | ImgBB Cloud Storage | URL permanen format CDN (`https://i.ibb.co.com/...`) |
+| Dokumen PDF Berkas | Firebase Cloud Storage | Path `BM26-.../` dengan link signed URL sementara |
+| Pesanan E-Kantin | Firestore (`orders/{orderId}`) | Transaksi pemesanan dan status kantin |
 
 ---
 
-## Setup Development
+## Panduan Menjalankan Project
 
-Pastikan sudah punya Node.js 22+ dan npm 10+.
+### Persyaratan Lingkungan
+- Node.js versi 20 atau 22 LTS
+- Package manager npm versi 10 ke atas
+
+### Instalasi Dependensi
 
 ```bash
-# Clone dan install
-npm install
+# Clone repository
+git clone https://github.com/0xHadiRamdhani/BaniMaHub-PPDB.git
+cd BaniMaHub-PPDB
 
-# Jalankan dev server
+# Install paket dependensi
+npm install
+```
+
+### Menjalankan Server Development
+
+```bash
 npm run dev
 ```
 
-Buka `http://localhost:8080`.
+Aplikasi berjalan pada alamat `http://localhost:8080`.
 
-Konfigurasi Firebase web, service account Firebase, dan API key ImgBB disimpan di kode. `.env.local` tidak diperlukan saat menjalankan atau men-deploy aplikasi. Nilai konfigurasi server berada di `app/lib/private-config.ts` dan hanya boleh diimpor oleh kode server.
-
-Aktifkan **Email/Password** pada Firebase Authentication dan buat akun yang akan digunakan oleh panitia. Semua akun Firebase Authentication yang berhasil login dapat membuka area admin, jadi jangan aktifkan pendaftaran akun publik jika tidak semua pengguna boleh mengakses data pendaftar. Buat Firestore default database di project `ppdb-smk-bm`, lalu terapkan `firestore.rules`. Service account di konfigurasi harus memiliki role `Cloud Datastore User` (`roles/datastore.user`) dan `Storage Object Admin`.
-
-### Deploy ke Vercel
-
-Vercel tidak memerlukan environment variable untuk konfigurasi aplikasi ini. Kredensial server tertanam di source dan hanya digunakan route handler server; pastikan repository dan akses deployment dibatasi. Jika repository pernah dibuat publik atau kredensial pernah terekspos, cabut dan ganti service account key serta API key ImgBB.
-
-`ADMIN_SESSION_SECRET` opsional. Tanpanya, server membuat secret acak untuk sesi yang berlaku sampai server dimulai ulang. Untuk sesi yang bertahan saat restart, atur secret sebagai environment variable deployment dengan:
+### Membangun Versi Produksi
 
 ```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+npm run build
+npm run start
 ```
 
 ---
 
-## Database dan dokumen
+## Deployment
 
-Pendaftar disimpan sebagai dokumen Cloud Firestore `registrations/{nomor-pendaftaran}`. Formulir publik menulis data melalui Firebase web API key dan aturan Firestore hanya mengizinkan pembuatan dokumen pendaftaran dengan skema valid. Ringkasan nama/status disimpan terpisah agar pencarian status tidak membuka NISN, nomor telepon, atau data dokumen. Terapkan aturan dari `firestore.rules` ke project Firebase sebelum menerima pendaftaran. Admin tetap memakai service account melalui IAM untuk membaca dan mengelola data. Gambar disimpan di ImgBB dan URL-nya dicatat di Firestore; berkas PDF disimpan di Firebase Storage. Dokumen yang diunggah ke ImgBB tersedia melalui URL publik.
+### 1. Deployment via Docker
 
-```
-Firebase Storage (PDF)/
-└── BM26-<16-hex>/
-    ├── kk-<uuid>
-    ├── ijazah-<uuid>
-    └── photo-<uuid>
-```
-
----
-
-## API
-
-### Pendaftaran
-
-**`POST /api/pendaftaran`** — Submit formulir pendaftaran. Menerima `multipart/form-data` dengan field teks (nama, NISN, tanggal lahir, telepon, nama orang tua, telepon orang tua, jurusan) dan tiga file dokumen (KK, ijazah, foto). Setiap file harus berformat PDF, JPG, atau PNG dengan ukuran maksimal 2 MB. Tidak memerlukan autentikasi.
-
-Jika berhasil, API merespons `201` dengan nomor pendaftaran:
-```json
-{ "number": "BM26-XXXXXXXXXXXXXXXX" }
-```
-
-**`GET /api/pendaftaran?number=BM26-...`** — Cek status pendaftaran. Nomor harus sesuai pola `BM26-[A-F0-9]{16}`.
-
-```json
-{
-  "registration": {
-    "number": "BM26-XXXXXXXXXXXXXXXX",
-    "name": "Nama Siswa",
-    "status": "pending"
-  }
-}
-```
-
-### Admin
-
-**`POST /api/admin/login`** — Login dengan `{ email, password }`; Firebase Authentication memverifikasi kredensial. Setiap akun Firebase Auth yang berhasil masuk mendapat akses admin. Rate limited 5 percobaan per IP per 15 menit. Jika berhasil, set cookie sesi httpOnly dengan TTL 8 jam.
-
-**`DELETE /api/admin/login`** — Logout, menghapus cookie sesi.
-
-**`GET /api/admin/pendaftar`** — Ambil seluruh data pendaftar. Memerlukan cookie sesi admin yang valid.
-
----
-
-## Deploy dengan Docker
+Aplikasi telah dikonfigurasi untuk mode `standalone` dengan multi-stage Docker build:
 
 ```bash
-# Build dan jalankan
+# Build image dan jalankan container di background
 docker compose up --build -d
 
-# Cek status
+# Periksa status container
 docker compose ps
 
-# Lihat log
+# Memantau log aplikasi
 docker compose logs -f
 
-# Hentikan
+# Menghentikan container
 docker compose down
 ```
 
-Aplikasi berjalan di `http://localhost:8080`.
+Container berjalan secara aman menggunakan user non-root `nextjs:nodejs` pada port internal 8080.
 
-### Deploy ke VPS
+### 2. Reverse Proxy Nginx (Server VPS)
 
-Upload project ke server, lalu pastikan `.env.local` tersedia di sana:
-
-```bash
-rsync -avz --exclude=node_modules --exclude=.next --exclude=.git \
-  . user@server:/srv/ppdb
-
-scp .env.local user@server:/srv/ppdb/.env.local
-```
-
-Kemudian di server:
-
-```bash
-cd /srv/ppdb
-docker compose up --build -d
-```
-
-Arahkan traffic HTTPS dari Nginx atau Caddy ke port 8080. Contoh konfigurasi Nginx:
+Gunakan Nginx untuk menangani sertifikat SSL/TLS dan meneruskan traffic ke container port 8080:
 
 ```nginx
 server {
-    listen 443 ssl;
+    listen 443 ssl http2;
     server_name ppdb.smkbanimasum.sch.id;
 
     ssl_certificate     /etc/letsencrypt/live/ppdb.smkbanimasum.sch.id/fullchain.pem;
@@ -273,6 +208,8 @@ server {
     location / {
         proxy_pass         http://127.0.0.1:8080;
         proxy_http_version 1.1;
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        "upgrade";
         proxy_set_header   Host              $host;
         proxy_set_header   X-Real-IP         $remote_addr;
         proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
@@ -281,27 +218,26 @@ server {
 }
 ```
 
+### 3. Deployment ke Vercel
+
+Aplikasi siap di-deploy langsung ke Vercel. Kredensial server tersimpan aman di modul server. Untuk menjaga masa aktif sesi admin tetap konsisten saat server restart, atur environment variable `ADMIN_SESSION_SECRET` pada pengaturan project Vercel:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
 ---
 
-## Catatan Keamanan
+## Keamanan Sistem
 
-Beberapa hal yang perlu diperhatikan saat deploy:
-
-- Kredensial akun admin diverifikasi oleh Firebase Authentication. Akun Firebase Auth yang dapat login juga dapat mengakses area admin.
-- Firebase Authentication memverifikasi email dan password; cookie sesi aplikasi ditandatangani dengan HMAC-SHA256.
-- Token sesi ditandatangani dengan HMAC-SHA256 menggunakan `ADMIN_SESSION_SECRET` jika dikonfigurasi, atau secret acak per proses jika tidak.
-- Cookie sesi bersifat `httpOnly`, `secure`, dan `sameSite=strict` — tidak bisa dibaca JavaScript dan hanya dikirim lewat HTTPS.
-- Cloud Firestore dan Firebase Storage diakses server side dengan service account. PDF disajikan admin melalui signed URL berumur 5 menit; gambar diunggah ke ImgBB dari server dan URL-nya disimpan di Firestore.
-- Firestore mengizinkan formulir publik membuat pendaftaran dengan skema terbatas dan hanya mengizinkan pencarian dokumen ringkasan status satu per satu. Data pendaftar lengkap tetap privat; Firebase Storage menolak akses langsung dari browser.
-- Container berjalan sebagai user non-root (`nextjs:nodejs`).
-- File `.env.local` tidak boleh di-commit ke repository.
+- **Sesi Admin Terproteksi**: Token sesi ditandatangani menggunakan algoritma HMAC-SHA256 dan disimpan dalam cookie berflag `httpOnly`, `secure`, dan `sameSite=strict` sehingga tidak dapat diakses melalui JavaScript browser.
+- **Rate Limiting Login**: Endpoint autentikasi admin menerapkan pembatasan maksimal 5 kali percobaan login per alamat IP dalam rentang 15 menit untuk mencegah serangan brute-force.
+- **Pemisahan Hak Akses Firestore**: Berkas `firestore.rules` membatasi hak akses publik hanya pada pembuatan formulir baru dan pembacaan ringkasan status registrasi. Data pribadi lengkap pendaftar (NISN, nomor HP orang tua, berkas dokumen) hanya dapat dibaca melalui Service Account sisi server.
+- **Isolasi Berkas PDF**: Dokumen PDF di Firebase Storage tidak memiliki izin baca publik langsung dari browser, melainkan hanya dapat diakses melalui signed URL bertempo terbatas (5 menit) yang dibuat khusus untuk sesi panitia yang sah.
 
 ---
 
 ## Program Keahlian
 
-**RPL — Teknik Komputer dan Jaringan**
-Fokus pada pengembangan aplikasi, website, dan solusi digital untuk industri.
-
-**TBSM — Teknik dan Bisnis Sepeda Motor**
-Mencakup perawatan mesin, kelistrikan, dan diagnosis kendaraan modern.
+- **Rekayasa Perangkat Lunak (RPL)**: Fokus pada pemrograman web, aplikasi mobile, basis data, dan rekayasa perangkat lunak berstandar industri digital.
+- **Teknik dan Bisnis Sepeda Motor (TBSM)**: Fokus pada pemeliharaan mesin sepeda motor, sistem kelistrikan, tata kelola bengkel resmi, dan diagnosis kendaraan modern.
