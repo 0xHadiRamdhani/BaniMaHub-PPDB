@@ -61,6 +61,11 @@ import {
     MoveDown,
     Image as ImageIcon,
     Layers,
+    ShieldCheck,
+    UserPlus,
+    KeyRound,
+    EyeOff,
+    Check,
 } from "lucide-react";
 import { ThemeToggle } from "@/app/components/theme-toggle";
 import {
@@ -98,6 +103,18 @@ type ActivityLogItem = {
     action: string;
     target: string;
     timestamp: string;
+};
+
+type AdminUser = {
+    uid: string;
+    email: string;
+    name: string;
+    role: "Super Admin" | "Administrator" | "Petugas Koperasi" | string;
+    status: "Aktif" | "Nonaktif";
+    phone?: string;
+    created_at: string;
+    last_login_at?: string;
+    disabled?: boolean;
 };
 
 const ACTIVITY_LOG_KEY = "ppdb:admin_activity_log";
@@ -430,6 +447,31 @@ export default function AdminPage() {
     const [savingNewRegistration, setSavingNewRegistration] = useState(false);
     const [addError, setAddError] = useState("");
 
+    // Admin Management State
+    const [showAdminModal, setShowAdminModal] = useState(false);
+    const [adminList, setAdminList] = useState<AdminUser[]>([]);
+    const [loadingAdmins, setLoadingAdmins] = useState(false);
+    const [adminTab, setAdminTab] = useState<"list" | "create">("list");
+    const [adminSearchQuery, setAdminSearchQuery] = useState("");
+    const [adminFormName, setAdminFormName] = useState("");
+    const [adminFormEmail, setAdminFormEmail] = useState("");
+    const [adminFormPassword, setAdminFormPassword] = useState("");
+    const [adminFormConfirmPassword, setAdminFormConfirmPassword] = useState("");
+    const [adminFormRole, setAdminFormRole] = useState<"Super Admin" | "Administrator" | "Petugas Koperasi">("Administrator");
+    const [adminFormPhone, setAdminFormPhone] = useState("");
+    const [adminFormShowPassword, setAdminFormShowPassword] = useState(false);
+    const [adminSubmitting, setAdminSubmitting] = useState(false);
+    const [adminFormError, setAdminFormError] = useState("");
+    const [adminSuccessCredential, setAdminSuccessCredential] = useState<{
+        name: string;
+        email: string;
+        password?: string;
+        role: string;
+    } | null>(null);
+    const [adminToDelete, setAdminToDelete] = useState<AdminUser | null>(null);
+    const [adminDeleting, setAdminDeleting] = useState(false);
+    const [copiedCredential, setCopiedCredential] = useState(false);
+
     const logActivity = (action: string, target: string) => {
         const newEntry: ActivityLogItem = {
             id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -496,6 +538,8 @@ export default function AdminPage() {
                 } catch {}
             })
             .catch(() => {});
+
+        fetchAdminList();
     }, []);
 
     const handleUpdateStage = (idx: number, colIndex: 0 | 1 | 2, value: string) => {
@@ -771,6 +815,134 @@ export default function AdminPage() {
             setShowcaseFeedback({ type: "error", message: msg });
         } finally {
             setIsSavingShowcase(false);
+        }
+    };
+
+    const fetchAdminList = async () => {
+        setLoadingAdmins(true);
+        try {
+            const res = await fetch("/api/admin/users", { cache: "no-store" });
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data.admins)) {
+                    setAdminList(data.admins);
+                }
+            }
+        } catch (err) {
+            console.error("Gagal mengambil data admin:", err);
+        } finally {
+            setLoadingAdmins(false);
+        }
+    };
+
+    const handleCreateAdmin = async (e: FormEvent) => {
+        e.preventDefault();
+        setAdminFormError("");
+
+        if (!adminFormName.trim()) {
+            setAdminFormError("Nama lengkap admin wajib diisi.");
+            return;
+        }
+        if (!adminFormEmail.trim() || !adminFormEmail.includes("@")) {
+            setAdminFormError("Alamat email dinas tidak valid.");
+            return;
+        }
+        if (!adminFormPassword || adminFormPassword.length < 6) {
+            setAdminFormError("Password minimal 6 karakter.");
+            return;
+        }
+        if (adminFormPassword !== adminFormConfirmPassword) {
+            setAdminFormError("Konfirmasi password tidak cocok.");
+            return;
+        }
+
+        setAdminSubmitting(true);
+        try {
+            const res = await fetch("/api/admin/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: adminFormName.trim(),
+                    email: adminFormEmail.trim().toLowerCase(),
+                    password: adminFormPassword,
+                    role: adminFormRole,
+                    phone: adminFormPhone.trim(),
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setAdminFormError(data.error || "Gagal membuat akun admin.");
+                setAdminSubmitting(false);
+                return;
+            }
+
+            setAdminSuccessCredential({
+                name: adminFormName.trim(),
+                email: adminFormEmail.trim().toLowerCase(),
+                password: adminFormPassword,
+                role: adminFormRole,
+            });
+
+            logActivity("Menambah Admin", `${adminFormName.trim()} (${adminFormRole})`);
+
+            setAdminFormName("");
+            setAdminFormEmail("");
+            setAdminFormPassword("");
+            setAdminFormConfirmPassword("");
+            setAdminFormPhone("");
+            setAdminFormRole("Administrator");
+
+            await fetchAdminList();
+        } catch {
+            setAdminFormError("Terjadi kesalahan jaringan saat membuat admin.");
+        } finally {
+            setAdminSubmitting(false);
+        }
+    };
+
+    const handleToggleAdminStatus = async (admin: AdminUser) => {
+        const nextStatus = admin.status === "Aktif" ? "Nonaktif" : "Aktif";
+        try {
+            const res = await fetch("/api/admin/users", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    uid: admin.uid,
+                    status: nextStatus,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                alert(data.error || "Gagal memperbarui status admin.");
+                return;
+            }
+            logActivity(`Ubah Status Admin (${nextStatus})`, `${admin.name} (${admin.email})`);
+            await fetchAdminList();
+        } catch {
+            alert("Terjadi kesalahan jaringan.");
+        }
+    };
+
+    const handleConfirmDeleteAdmin = async () => {
+        if (!adminToDelete) return;
+        setAdminDeleting(true);
+        try {
+            const res = await fetch(`/api/admin/users?uid=${encodeURIComponent(adminToDelete.uid)}`, {
+                method: "DELETE",
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                alert(data.error || "Gagal menghapus akun admin.");
+                setAdminDeleting(false);
+                return;
+            }
+            logActivity("Menghapus Admin", `${adminToDelete.name} (${adminToDelete.email})`);
+            setAdminToDelete(null);
+            await fetchAdminList();
+        } catch {
+            alert("Terjadi kesalahan jaringan.");
+        } finally {
+            setAdminDeleting(false);
         }
     };
 
@@ -1347,6 +1519,27 @@ export default function AdminPage() {
                                 <Download size={14} className="text-slate-500 dark:text-slate-300" />
                                 <span className="hidden md:inline">CSV</span>
                             </button>
+
+                            {/* Kelola Admin Button */}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    fetchAdminList();
+                                    setAdminTab("list");
+                                    setShowAdminModal(true);
+                                }}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-violet-200/90 bg-violet-50/80 px-2.5 py-2 text-xs font-bold text-violet-700 transition hover:bg-violet-100 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:bg-violet-500/20 active:scale-[0.98]"
+                                title="Kelola & Tambah Akun Administrator"
+                                aria-label="Kelola Admin"
+                            >
+                                <ShieldCheck size={14} className="text-violet-600 dark:text-violet-400" />
+                                <span className="hidden sm:inline">Admin</span>
+                                {adminList.length > 0 && (
+                                    <span className="ml-0.5 rounded-full bg-violet-200 px-1.5 py-0.2 text-[10px] font-black text-violet-800 dark:bg-violet-900/60 dark:text-violet-200">
+                                        {adminList.length}
+                                    </span>
+                                )}
+                            </button>
                         </div>
 
                         {/* Divider 1 */}
@@ -1487,6 +1680,24 @@ export default function AdminPage() {
                             >
                                 <Printer size={13} className="text-emerald-600 dark:text-emerald-400" />
                                 <span>Rekap Cetak</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    fetchAdminList();
+                                    setAdminTab("list");
+                                    setShowAdminModal(true);
+                                }}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                title="Kelola & Tambah Akun Administrator Sekolah"
+                            >
+                                <ShieldCheck size={13} className="text-violet-600 dark:text-violet-400" />
+                                <span>Kelola Admin</span>
+                                {adminList.length > 0 && (
+                                    <span className="rounded-full bg-slate-100 px-1.5 py-0.2 text-[10px] font-extrabold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                                        {adminList.length}
+                                    </span>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -4878,6 +5089,568 @@ export default function AdminPage() {
                                 </button>
                             </div>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* =====================================================================
+                MODAL 13: KELOLA & TAMBAH ADMINISTRATOR SISTEM
+               ===================================================================== */}
+            {showAdminModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/70 p-3 sm:p-4 backdrop-blur-xs"
+                    onClick={() => setShowAdminModal(false)}
+                >
+                    <div
+                        className="relative flex flex-col w-full max-w-3xl max-h-[92vh] rounded-[24px] border border-slate-200 bg-white text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-[#0F172A] dark:text-white overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="flex shrink-0 items-center justify-between border-b border-slate-200/80 bg-slate-50/70 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-700 dark:bg-violet-950/70 dark:text-violet-300">
+                                    <ShieldCheck size={22} />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">
+                                        Kelola Administrator Sistem
+                                    </h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        Manajemen akun admin, hak akses PPDB & E-Kantin SMK Bani Masum
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowAdminModal(false)}
+                                className="rounded-xl p-1.5 text-slate-400 transition hover:bg-slate-200/60 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+                                aria-label="Tutup Modal Kelola Admin"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Tab Switcher */}
+                        <div className="flex shrink-0 border-b border-slate-200 bg-white px-5 pt-2.5 dark:border-slate-800 dark:bg-[#0F172A]">
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setAdminTab("list")}
+                                    className={`relative flex items-center gap-2 px-3.5 py-2 text-xs font-bold transition-colors ${
+                                        adminTab === "list"
+                                            ? "text-violet-600 dark:text-violet-400"
+                                            : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                    }`}
+                                >
+                                    <Users size={14} />
+                                    <span>Daftar Admin</span>
+                                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-extrabold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                                        {adminList.length}
+                                    </span>
+                                    {adminTab === "list" && (
+                                        <div className="absolute inset-x-0 bottom-0 h-0.5 rounded-t-full bg-violet-600 dark:bg-violet-400" />
+                                    )}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setAdminFormError("");
+                                        setAdminTab("create");
+                                    }}
+                                    className={`relative flex items-center gap-2 px-3.5 py-2 text-xs font-bold transition-colors ${
+                                        adminTab === "create"
+                                            ? "text-violet-600 dark:text-violet-400"
+                                            : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                    }`}
+                                >
+                                    <UserPlus size={14} />
+                                    <span>Tambah Admin Baru</span>
+                                    {adminTab === "create" && (
+                                        <div className="absolute inset-x-0 bottom-0 h-0.5 rounded-t-full bg-violet-600 dark:bg-violet-400" />
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                            {/* Credential Card on Successful Admin Creation */}
+                            {adminSuccessCredential && (
+                                <div className="rounded-2xl border border-emerald-300 bg-emerald-50/90 p-4 text-emerald-950 dark:border-emerald-600/40 dark:bg-emerald-950/40 dark:text-emerald-100">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white">
+                                                <Check size={16} strokeWidth={3} />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-black text-emerald-900 dark:text-emerald-200">
+                                                    Akun Admin Baru Berhasil Dibuat!
+                                                </h4>
+                                                <p className="text-xs text-emerald-800 dark:text-emerald-300">
+                                                    Kredensial login berikut dapat langsung diserahkan kepada admin terkait:
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAdminSuccessCredential(null)}
+                                            className="rounded-lg p-1 text-emerald-700 hover:bg-emerald-100 dark:text-emerald-300 dark:hover:bg-emerald-900/60"
+                                            title="Tutup Notifikasi"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+
+                                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono bg-white/80 dark:bg-[#0B1120]/80 p-3 rounded-xl border border-emerald-200/80 dark:border-emerald-800/60">
+                                        <div>
+                                            <span className="text-slate-500 dark:text-slate-400 font-sans">Nama: </span>
+                                            <span className="font-bold text-slate-800 dark:text-slate-100">{adminSuccessCredential.name}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-slate-500 dark:text-slate-400 font-sans">Peran: </span>
+                                            <span className="font-bold text-violet-700 dark:text-violet-300">{adminSuccessCredential.role}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-slate-500 dark:text-slate-400 font-sans">Email: </span>
+                                            <span className="font-bold text-slate-800 dark:text-slate-100">{adminSuccessCredential.email}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-slate-500 dark:text-slate-400 font-sans">Password: </span>
+                                            <span className="font-bold text-slate-800 dark:text-slate-100">{adminSuccessCredential.password}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const text = `Halo ${adminSuccessCredential.name}, berikut adalah akun akses portal Panitia SMK Bani Masum:\n\nEmail: ${adminSuccessCredential.email}\nPassword: ${adminSuccessCredential.password}\nHak Akses: ${adminSuccessCredential.role}\nPortal Admin: ${typeof window !== "undefined" ? window.location.origin : ""}/admin/login\n\nHarap simpan dengan baik.`;
+                                                navigator.clipboard.writeText(text);
+                                                setCopiedCredential(true);
+                                                setTimeout(() => setCopiedCredential(false), 2500);
+                                            }}
+                                            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-800 transition"
+                                        >
+                                            {copiedCredential ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} />}
+                                            <span>{copiedCredential ? "Kredensial Tersalin!" : "Salin Format WhatsApp"}</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAdminSuccessCredential(null)}
+                                            className="rounded-xl border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
+                                        >
+                                            Tutup Info
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* TAB 1: DAFTAR ADMIN */}
+                            {adminTab === "list" && (
+                                <div className="space-y-3">
+                                    {/* Toolbar Pencarian & Muat Ulang */}
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                                        <div className="relative flex-1">
+                                            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input
+                                                type="text"
+                                                value={adminSearchQuery}
+                                                onChange={(e) => setAdminSearchQuery(e.target.value)}
+                                                placeholder="Cari berdasarkan nama, email, atau peran..."
+                                                className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-2 pl-9 pr-3.5 text-xs text-slate-800 placeholder-slate-400 transition focus:border-violet-500 focus:bg-white focus:outline-hidden dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-violet-400 dark:focus:bg-slate-900"
+                                            />
+                                            {adminSearchQuery && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAdminSearchQuery("")}
+                                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={fetchAdminList}
+                                                disabled={loadingAdmins}
+                                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 disabled:opacity-50"
+                                                title="Sinkronisasi Akun Admin"
+                                            >
+                                                <RefreshCw size={13} className={loadingAdmins ? "animate-spin text-violet-600" : ""} />
+                                                <span>Muat Ulang</span>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setAdminFormError("");
+                                                    setAdminTab("create");
+                                                }}
+                                                className="inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-violet-700 active:scale-[0.98] transition"
+                                            >
+                                                <UserPlus size={14} />
+                                                <span>Tambah Admin</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* List Cards */}
+                                    <div className="space-y-2.5 pt-1">
+                                        {adminList
+                                            .filter((a) => {
+                                                const q = adminSearchQuery.toLowerCase();
+                                                return (
+                                                    a.name.toLowerCase().includes(q) ||
+                                                    a.email.toLowerCase().includes(q) ||
+                                                    a.role.toLowerCase().includes(q) ||
+                                                    (a.phone && a.phone.includes(q))
+                                                );
+                                            })
+                                            .map((admin) => {
+                                                const isMasterSuperAdmin = admin.email === "smkbm@ppdb.admin";
+                                                const isSuperAdmin = admin.role === "Super Admin";
+                                                const isKoperasi = admin.role === "Petugas Koperasi";
+                                                const isActive = admin.status === "Aktif";
+
+                                                return (
+                                                    <div
+                                                        key={admin.uid}
+                                                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-slate-700"
+                                                    >
+                                                        {/* Info Kiri */}
+                                                        <div className="flex items-start gap-3 min-w-0">
+                                                            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl font-black text-sm text-white ${
+                                                                isSuperAdmin ? "bg-violet-600 shadow-violet-500/20 shadow-md" : isKoperasi ? "bg-amber-600 shadow-amber-500/20 shadow-md" : "bg-blue-600 shadow-blue-500/20 shadow-md"
+                                                            }`}>
+                                                                {admin.name.charAt(0).toUpperCase()}
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                    <span className="font-extrabold text-sm text-slate-900 dark:text-white truncate">
+                                                                        {admin.name}
+                                                                    </span>
+                                                                    {/* Role Badge */}
+                                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${
+                                                                        isSuperAdmin
+                                                                            ? "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/60 dark:text-violet-300"
+                                                                            : isKoperasi
+                                                                            ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                                                                            : "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
+                                                                    }`}>
+                                                                        {admin.role}
+                                                                    </span>
+                                                                    {/* Status Badge */}
+                                                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                                                        isActive
+                                                                            ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                                                            : "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                                                                    }`}>
+                                                                        <span className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`} />
+                                                                        {admin.status}
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                                                                    <span className="font-mono text-slate-700 dark:text-slate-300 truncate">
+                                                                        {admin.email}
+                                                                    </span>
+                                                                    {admin.phone && (
+                                                                        <a
+                                                                            href={`https://wa.me/${admin.phone.replace(/^0/, "62").replace(/\D/g, "")}`}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                            className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 font-semibold"
+                                                                        >
+                                                                            <Phone size={11} />
+                                                                            <span>{admin.phone}</span>
+                                                                        </a>
+                                                                    )}
+                                                                </div>
+
+                                                                {admin.last_login_at && (
+                                                                    <div className="mt-1 text-[10.5px] text-slate-400 dark:text-slate-500">
+                                                                        Login terakhir: {formatFlutterDate(admin.last_login_at)}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Aksi Kanan */}
+                                                        <div className="flex shrink-0 items-center gap-2 self-end sm:self-center">
+                                                            {isMasterSuperAdmin ? (
+                                                                <span className="rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[11px] font-bold text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+                                                                    Super Admin Utama
+                                                                </span>
+                                                            ) : (
+                                                                <>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleToggleAdminStatus(admin)}
+                                                                        className={`rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
+                                                                            isActive
+                                                                                ? "border-amber-200 bg-amber-50/70 text-amber-700 hover:bg-amber-100 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300"
+                                                                                : "border-emerald-200 bg-emerald-50/70 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                                                        }`}
+                                                                        title={isActive ? "Nonaktifkan Akses Akun" : "Aktifkan Kembali Akun"}
+                                                                    >
+                                                                        {isActive ? "Nonaktifkan" : "Aktifkan"}
+                                                                    </button>
+
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setAdminToDelete(admin)}
+                                                                        className="rounded-xl border border-rose-200 bg-rose-50/70 p-2 text-rose-600 hover:bg-rose-100 dark:border-rose-800/60 dark:bg-rose-950/40 dark:text-rose-400 dark:hover:bg-rose-900/60 transition"
+                                                                        title="Hapus Akun Admin"
+                                                                        aria-label={`Hapus Akun ${admin.name}`}
+                                                                    >
+                                                                        <Trash2 size={14} />
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+
+                                        {adminList.length === 0 && !loadingAdmins && (
+                                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center dark:border-slate-800 dark:bg-slate-900/50">
+                                                <Users size={32} className="mx-auto text-slate-400 mb-2" />
+                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                    Belum ada data admin tersimpan.
+                                                </p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                    Klik tombol &quot;Tambah Admin&quot; untuk mendaftarkan akun panitia baru.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* TAB 2: TAMBAH ADMIN BARU */}
+                            {adminTab === "create" && (
+                                <form onSubmit={handleCreateAdmin} className="space-y-4">
+                                    <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-900/40">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {/* Nama Lengkap */}
+                                            <div className="space-y-1.5">
+                                                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                                    Nama Lengkap Admin <span className="text-rose-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    value={adminFormName}
+                                                    onChange={(e) => setAdminFormName(e.target.value)}
+                                                    placeholder="Contoh: Drs. Ahmad Jaelani"
+                                                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-800 transition focus:border-violet-500 focus:outline-hidden dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-100"
+                                                />
+                                            </div>
+
+                                            {/* Email Dinas */}
+                                            <div className="space-y-1.5">
+                                                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                                    Email Akun Dinas <span className="text-rose-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="email"
+                                                    required
+                                                    value={adminFormEmail}
+                                                    onChange={(e) => setAdminFormEmail(e.target.value)}
+                                                    placeholder="Contoh: ahmad@smkbanimasum.sch.id"
+                                                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-800 transition focus:border-violet-500 focus:outline-hidden dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-100"
+                                                />
+                                            </div>
+
+                                            {/* Pilihan Hak Akses / Peran */}
+                                            <div className="sm:col-span-2 space-y-1.5">
+                                                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                                    Hak Akses & Peran Sistem <span className="text-rose-500">*</span>
+                                                </label>
+                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                                    {[
+                                                        {
+                                                            role: "Administrator",
+                                                            desc: "Akses verifikasi berkas PPDB, broadcast WA, dan cetak laporan",
+                                                        },
+                                                        {
+                                                            role: "Super Admin",
+                                                            desc: "Akses penuh sistem, manajemen admin, jadwal & konfigurasi",
+                                                        },
+                                                        {
+                                                            role: "Petugas Koperasi",
+                                                            desc: "Khusus kelola katalog menu, stok & transaksi E-Kantin",
+                                                        },
+                                                    ].map((item) => (
+                                                        <div
+                                                            key={item.role}
+                                                            onClick={() => setAdminFormRole(item.role as typeof adminFormRole)}
+                                                            className={`cursor-pointer rounded-xl border p-3 transition ${
+                                                                adminFormRole === item.role
+                                                                    ? "border-violet-600 bg-violet-50/80 dark:border-violet-500 dark:bg-violet-950/40 ring-1 ring-violet-500"
+                                                                    : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-[#0B1120] dark:hover:border-slate-600"
+                                                            }`}
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="font-extrabold text-xs text-slate-900 dark:text-white">
+                                                                    {item.role}
+                                                                </span>
+                                                                <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${
+                                                                    adminFormRole === item.role ? "border-violet-600 bg-violet-600 text-white" : "border-slate-300 dark:border-slate-600"
+                                                                }`}>
+                                                                    {adminFormRole === item.role && <Check size={10} strokeWidth={3} />}
+                                                                </div>
+                                                            </div>
+                                                            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
+                                                                {item.desc}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Password */}
+                                            <div className="space-y-1.5">
+                                                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                                    Password Akun (Min. 6 Karakter) <span className="text-rose-500">*</span>
+                                                </label>
+                                                <div className="relative">
+                                                    <input
+                                                        type={adminFormShowPassword ? "text" : "password"}
+                                                        required
+                                                        minLength={6}
+                                                        value={adminFormPassword}
+                                                        onChange={(e) => setAdminFormPassword(e.target.value)}
+                                                        placeholder="Kombinasi huruf & angka"
+                                                        className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-9 text-xs text-slate-800 transition focus:border-violet-500 focus:outline-hidden dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-100"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setAdminFormShowPassword(!adminFormShowPassword)}
+                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                                    >
+                                                        {adminFormShowPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Konfirmasi Password */}
+                                            <div className="space-y-1.5">
+                                                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                                    Ulangi Password <span className="text-rose-500">*</span>
+                                                </label>
+                                                <input
+                                                    type={adminFormShowPassword ? "text" : "password"}
+                                                    required
+                                                    minLength={6}
+                                                    value={adminFormConfirmPassword}
+                                                    onChange={(e) => setAdminFormConfirmPassword(e.target.value)}
+                                                    placeholder="Ketik ulang password"
+                                                    className={`w-full rounded-xl border bg-white px-3.5 py-2.5 text-xs text-slate-800 transition focus:outline-hidden dark:bg-[#0B1120] dark:text-slate-100 ${
+                                                        adminFormConfirmPassword && adminFormPassword !== adminFormConfirmPassword
+                                                            ? "border-rose-400 focus:border-rose-500"
+                                                            : "border-slate-200 focus:border-violet-500 dark:border-slate-700"
+                                                    }`}
+                                                />
+                                            </div>
+
+                                            {/* Nomor WhatsApp */}
+                                            <div className="sm:col-span-2 space-y-1.5">
+                                                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                                    Nomor WhatsApp (Opsional)
+                                                </label>
+                                                <input
+                                                    type="tel"
+                                                    value={adminFormPhone}
+                                                    onChange={(e) => setAdminFormPhone(e.target.value)}
+                                                    placeholder="Contoh: 081234567890"
+                                                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-800 transition focus:border-violet-500 focus:outline-hidden dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-100"
+                                                />
+                                                <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                                    Nomor telepon memudahkan koordinasi sesama panitia melalui pesan WhatsApp.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Error Alert */}
+                                    {adminFormError && (
+                                        <div className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-xs font-bold text-rose-700 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300">
+                                            {adminFormError}
+                                        </div>
+                                    )}
+
+                                    {/* Action Buttons */}
+                                    <div className="flex items-center justify-end gap-2.5 pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAdminTab("list")}
+                                            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition"
+                                        >
+                                            Batal
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={adminSubmitting}
+                                            className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-violet-700 disabled:opacity-50 transition active:scale-[0.98]"
+                                        >
+                                            {adminSubmitting ? (
+                                                <RefreshCw size={14} className="animate-spin" />
+                                            ) : (
+                                                <UserPlus size={14} />
+                                            )}
+                                            <span>{adminSubmitting ? "Memproses Pembuatan..." : "Simpan & Buat Akun"}</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* DIALOG KONFIRMASI HAPUS ADMIN */}
+            {adminToDelete && (
+                <div
+                    className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 p-4 backdrop-blur-xs"
+                    onClick={() => setAdminToDelete(null)}
+                >
+                    <div
+                        className="w-full max-w-sm rounded-[24px] border border-rose-200 bg-white p-5 text-slate-900 shadow-2xl dark:border-rose-800/60 dark:bg-[#0F172A] dark:text-white"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-950/70 dark:text-rose-400 mb-3">
+                            <Trash2 size={22} />
+                        </div>
+                        <h4 className="text-base font-black text-slate-900 dark:text-white">
+                            Hapus Akun Administrator?
+                        </h4>
+                        <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Apakah Anda yakin ingin menghapus akun <span className="font-bold text-slate-900 dark:text-white">{adminToDelete.name}</span> ({adminToDelete.email})? Akses ke portal admin PPDB & E-Kantin akan dicabut secara permanen.
+                        </p>
+
+                        <div className="mt-5 flex items-center justify-end gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setAdminToDelete(null)}
+                                disabled={adminDeleting}
+                                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmDeleteAdmin}
+                                disabled={adminDeleting}
+                                className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-rose-700 disabled:opacity-50 transition active:scale-[0.98]"
+                            >
+                                {adminDeleting ? <RefreshCw size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                                <span>{adminDeleting ? "Menghapus..." : "Ya, Hapus Akun"}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

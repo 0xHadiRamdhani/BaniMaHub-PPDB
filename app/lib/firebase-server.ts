@@ -29,7 +29,7 @@ async function accessToken() {
     const account = serviceAccount();
     const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url");
     const now = Math.floor(Date.now() / 1000);
-    const unsigned = `${encode({ alg: "RS256", typ: "JWT" })}.${encode({ iss: account.client_email, scope: "https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/devstorage.read_write https://www.googleapis.com/auth/firebase.messaging", aud: oauthTokenUrl, iat: now, exp: now + 3600 })}`;
+    const unsigned = `${encode({ alg: "RS256", typ: "JWT" })}.${encode({ iss: account.client_email, scope: "https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/devstorage.read_write https://www.googleapis.com/auth/firebase.messaging https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase https://www.googleapis.com/auth/cloud-platform", aud: oauthTokenUrl, iat: now, exp: now + 3600 })}`;
     const signer = createSign("RSA-SHA256");
     signer.update(unsigned);
     const assertion = `${unsigned}.${signer.sign(account.private_key).toString("base64url")}`;
@@ -520,4 +520,244 @@ export async function uploadMediaImage(file: File): Promise<string> {
 
     throw new Error(result.error?.message || "Gagal mengunggah foto ke penyimpanan gambar.");
 }
+
+// ==========================================
+// ADMIN USER MANAGEMENT (AUTH & FIRESTORE)
+// ==========================================
+
+export type AdminProfile = {
+    uid: string;
+    email: string;
+    name: string;
+    role: "Super Admin" | "Administrator" | "Petugas Koperasi" | string;
+    status: "Aktif" | "Nonaktif";
+    phone?: string;
+    created_at: string;
+    last_login_at?: string;
+    disabled?: boolean;
+};
+
+export async function listFirebaseAuthUsers() {
+    const token = await accessToken();
+    const response = await fetch(`https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:query`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+        cache: "no-store",
+    });
+    if (!response.ok) {
+        const detail = await response.text();
+        console.error("Failed to query Firebase Auth users:", response.status, detail);
+        throw new Error(`Failed to list Auth users (${response.status})`);
+    }
+    const data = await response.json() as {
+        userInfo?: Array<{
+            localId: string;
+            email?: string;
+            displayName?: string;
+            disabled?: boolean;
+            createdAt?: string;
+            lastLoginAt?: string;
+        }>;
+    };
+    return data.userInfo ?? [];
+}
+
+export async function createFirebaseAuthUser(params: {
+    email: string;
+    password: string;
+    displayName: string;
+}) {
+    const token = await accessToken();
+    const response = await fetch(`https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            email: params.email,
+            password: params.password,
+            displayName: params.displayName,
+            disabled: false,
+        }),
+        cache: "no-store",
+    });
+    const result = await response.json() as {
+        localId?: string;
+        email?: string;
+        displayName?: string;
+        error?: { message?: string };
+    };
+    if (!response.ok || !result.localId) {
+        const errMsg = result.error?.message || `Failed to create Firebase Auth user (${response.status})`;
+        throw new Error(errMsg);
+    }
+    return result;
+}
+
+export async function updateFirebaseAuthUser(
+    uid: string,
+    updates: {
+        displayName?: string;
+        password?: string;
+        disabled?: boolean;
+    }
+) {
+    const token = await accessToken();
+    const body: Record<string, unknown> = { localId: uid };
+    if (updates.displayName !== undefined) body.displayName = updates.displayName;
+    if (updates.password !== undefined && updates.password.trim().length >= 6) body.password = updates.password;
+    if (updates.disabled !== undefined) body.disableUser = updates.disabled;
+
+    const response = await fetch(`https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:update`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        cache: "no-store",
+    });
+    if (!response.ok) {
+        const detail = await response.text();
+        console.error("Failed to update Firebase Auth user:", response.status, detail);
+        throw new Error(`Failed to update Auth user (${response.status})`);
+    }
+    return await response.json();
+}
+
+export async function deleteFirebaseAuthUser(uid: string) {
+    const token = await accessToken();
+    const response = await fetch(`https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:delete`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ localId: uid }),
+        cache: "no-store",
+    });
+    if (!response.ok) {
+        const detail = await response.text();
+        console.error("Failed to delete Firebase Auth user:", response.status, detail);
+        throw new Error(`Failed to delete Auth user (${response.status})`);
+    }
+    return true;
+}
+
+export async function listFirestoreAdmins(): Promise<Record<string, Record<string, unknown>>> {
+    const res = await firebaseRequest<{ documents?: Array<{ name: string; fields?: Record<string, FirestoreValue> }> }>(
+        `${firestoreBase}/admins`
+    );
+    const map: Record<string, Record<string, unknown>> = {};
+    if (res && res.documents) {
+        for (const doc of res.documents) {
+            const decoded = decodeDocument(doc);
+            const uid = (decoded.uid as string) || doc.name.split("/").pop() || "";
+            if (uid) {
+                map[uid] = decoded;
+            }
+        }
+    }
+    return map;
+}
+
+export async function saveFirestoreAdmin(uid: string, data: Record<string, unknown>) {
+    const fields = Object.fromEntries(
+        Object.entries(data)
+            .filter(([, v]) => v !== undefined)
+            .map(([key, value]) => [key, encodeValue(value)])
+    );
+    return firebaseRequest(`${firestoreBase}/admins/${encodeURIComponent(uid)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ fields }),
+    });
+}
+
+export async function updateFirestoreAdmin(uid: string, data: Record<string, unknown>) {
+    const fields = Object.fromEntries(
+        Object.entries(data)
+            .filter(([, v]) => v !== undefined)
+            .map(([key, value]) => [key, encodeValue(value)])
+    );
+    const query = new URLSearchParams();
+    for (const key of Object.keys(fields)) query.append("updateMask.fieldPaths", key);
+    return firebaseRequest(`${firestoreBase}/admins/${encodeURIComponent(uid)}?${query}`, {
+        method: "PATCH",
+        body: JSON.stringify({ fields }),
+    });
+}
+
+export async function deleteFirestoreAdmin(uid: string) {
+    return firebaseRequest(`${firestoreBase}/admins/${encodeURIComponent(uid)}`, {
+        method: "DELETE",
+    });
+}
+
+export async function listAllAdmins(): Promise<AdminProfile[]> {
+    const [authUsers, firestoreAdmins] = await Promise.all([
+        listFirebaseAuthUsers().catch((err) => {
+            console.error("Error listing Auth users:", err);
+            return [];
+        }),
+        listFirestoreAdmins().catch((err) => {
+            console.error("Error listing Firestore admins:", err);
+            return {} as Record<string, Record<string, unknown>>;
+        }),
+    ]);
+
+    const adminMap = new Map<string, AdminProfile>();
+
+    // 1. Masukkan semua user dari Firebase Auth
+    for (const user of authUsers) {
+        const fsDoc = firestoreAdmins[user.localId] || {};
+        const isSuperAdminEmail = user.email === "smkbm@ppdb.admin" || user.email === "hadsxdev@icloud.com";
+        const role = (fsDoc.role as string) || (isSuperAdminEmail ? "Super Admin" : "Administrator");
+        const status = (fsDoc.status as "Aktif" | "Nonaktif") || (user.disabled ? "Nonaktif" : "Aktif");
+        const name = (fsDoc.name as string) || user.displayName || user.email?.split("@")[0] || "Admin";
+        const phone = (fsDoc.phone as string) || "";
+        const createdAt = (fsDoc.created_at as string) || (user.createdAt ? new Date(Number(user.createdAt)).toISOString() : new Date().toISOString());
+        const lastLoginAt = user.lastLoginAt ? new Date(Number(user.lastLoginAt)).toISOString() : undefined;
+
+        adminMap.set(user.localId, {
+            uid: user.localId,
+            email: user.email || "",
+            name,
+            role,
+            status,
+            phone,
+            created_at: createdAt,
+            last_login_at: lastLoginAt,
+            disabled: Boolean(user.disabled),
+        });
+    }
+
+    // 2. Jika ada di Firestore tapi belum ada di Auth map (misal Auth lookup tertinggal)
+    for (const [uid, doc] of Object.entries(firestoreAdmins)) {
+        if (!adminMap.has(uid)) {
+            adminMap.set(uid, {
+                uid,
+                email: (doc.email as string) || "",
+                name: (doc.name as string) || "Admin",
+                role: (doc.role as string) || "Administrator",
+                status: (doc.status as "Aktif" | "Nonaktif") || "Aktif",
+                phone: (doc.phone as string) || "",
+                created_at: (doc.created_at as string) || new Date().toISOString(),
+                disabled: doc.status === "Nonaktif",
+            });
+        }
+    }
+
+    return Array.from(adminMap.values()).sort((a, b) => {
+        // Super Admin first, then by created_at DESC
+        if (a.role === "Super Admin" && b.role !== "Super Admin") return -1;
+        if (b.role === "Super Admin" && a.role !== "Super Admin") return 1;
+        return (b.created_at || "").localeCompare(a.created_at || "");
+    });
+}
+
 
