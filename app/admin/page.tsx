@@ -1623,21 +1623,32 @@ export default function AdminPage() {
             {/* Top Stats & Greeting Command Center */}
             <section className="border-b border-slate-200/80 bg-white/70 px-3.5 pt-5 pb-6 backdrop-blur-xs dark:border-slate-800 dark:bg-[#0B1120]/80 sm:px-6">
                 <div className="mx-auto max-w-6xl space-y-4 sm:space-y-5">
-                    {/* Greeting & Live Status Row */}
-                    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                        <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-                                    {getGreeting()}, Administrator
-                                </h1>
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    Live Firestore
+                    {/* Greeting & Command Action Center */}
+                    <div className="space-y-3.5">
+                        {/* Header: Greeting & System Status */}
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2.5">
+                                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                                        {getGreeting()}, Administrator
+                                    </h1>
+                                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200/90 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                        Live Firestore
+                                    </span>
+                                </div>
+                                <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                                    Portal Administrasi & Verifikasi Berkas Calon Siswa Baru SMK Bani Masum
+                                </p>
+                            </div>
+
+                            {/* Academic Year Info Pill */}
+                            <div className="hidden sm:flex items-center gap-2 text-xs">
+                                <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-2xs backdrop-blur-xs dark:border-slate-700/70 dark:bg-slate-800/70 dark:text-slate-300">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                    Tahun Ajaran 2026/2027
                                 </span>
                             </div>
-                            <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                                Portal Administrasi & Verifikasi Berkas Calon Siswa Baru SMK Bani Masum
-                            </p>
                         </div>
 
                         {/* Quick Command Action Shortcuts */}
@@ -1645,10 +1656,10 @@ export default function AdminPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowScheduleModal(true)}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-blue-300 hover:bg-slate-50 hover:text-blue-700 dark:border-slate-700/80 dark:bg-slate-800/90 dark:text-slate-200 dark:hover:border-sky-500/50 dark:hover:bg-slate-800 dark:hover:text-sky-300 active:scale-[0.98]"
                                 title="Kelola Jadwal Gelombang Seleksi"
                             >
-                                <Calendar size={13} className="text-blue-600 dark:text-sky-400" />
+                                <Calendar size={13.5} className="text-blue-600 dark:text-sky-400" />
                                 <span>Jadwal Gelombang</span>
                             </button>
                             <button
@@ -1657,28 +1668,28 @@ export default function AdminPage() {
                                     setShowcaseFeedback(null);
                                     setShowShowcaseModal(true);
                                 }}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-amber-300 hover:bg-slate-50 hover:text-amber-700 dark:border-slate-700/80 dark:bg-slate-800/90 dark:text-slate-200 dark:hover:border-amber-500/50 dark:hover:bg-slate-800 dark:hover:text-amber-300 active:scale-[0.98]"
                                 title="Kelola Foto Prestasi Siswa & Kegiatan Sekolah"
                             >
-                                <Sparkles size={13} className="text-amber-500 dark:text-amber-400" />
+                                <Sparkles size={13.5} className="text-amber-500 dark:text-amber-400" />
                                 <span>Prestasi & Kegiatan</span>
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setShowAnalyticsModal(true)}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-indigo-300 hover:bg-slate-50 hover:text-indigo-700 dark:border-slate-700/80 dark:bg-slate-800/90 dark:text-slate-200 dark:hover:border-indigo-500/50 dark:hover:bg-slate-800 dark:hover:text-indigo-300 active:scale-[0.98]"
                                 title="Lihat Statistik & Analisis Minat"
                             >
-                                <BarChart3 size={13} className="text-indigo-600 dark:text-indigo-400" />
+                                <BarChart3 size={13.5} className="text-indigo-600 dark:text-indigo-400" />
                                 <span>Analisis Minat</span>
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setShowReportModal(true)}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-emerald-300 hover:bg-slate-50 hover:text-emerald-700 dark:border-slate-700/80 dark:bg-slate-800/90 dark:text-slate-200 dark:hover:border-emerald-500/50 dark:hover:bg-slate-800 dark:hover:text-emerald-300 active:scale-[0.98]"
                                 title="Cetak Rekapitulasi Berkas / PDF"
                             >
-                                <Printer size={13} className="text-emerald-600 dark:text-emerald-400" />
+                                <Printer size={13.5} className="text-emerald-600 dark:text-emerald-400" />
                                 <span>Rekap Cetak</span>
                             </button>
                             <button
@@ -1688,13 +1699,13 @@ export default function AdminPage() {
                                     setAdminTab("list");
                                     setShowAdminModal(true);
                                 }}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-violet-300 hover:bg-slate-50 hover:text-violet-700 dark:border-slate-700/80 dark:bg-slate-800/90 dark:text-slate-200 dark:hover:border-violet-500/50 dark:hover:bg-slate-800 dark:hover:text-violet-300 active:scale-[0.98]"
                                 title="Kelola & Tambah Akun Administrator Sekolah"
                             >
-                                <ShieldCheck size={13} className="text-violet-600 dark:text-violet-400" />
+                                <ShieldCheck size={13.5} className="text-violet-600 dark:text-violet-400" />
                                 <span>Kelola Admin</span>
                                 {adminList.length > 0 && (
-                                    <span className="rounded-full bg-slate-100 px-1.5 py-0.2 text-[10px] font-extrabold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                                    <span className="rounded-full bg-violet-100 px-1.5 py-0.2 text-[10px] font-extrabold text-violet-700 dark:bg-violet-900/60 dark:text-violet-200">
                                         {adminList.length}
                                     </span>
                                 )}
@@ -1839,7 +1850,7 @@ export default function AdminPage() {
                                     {/* Quota Progress Bar */}
                                     <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                                         <div
-                                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                                            className="h-full rounded-full bg-linear-to-r from-emerald-500 to-teal-500 transition-all duration-500"
                                             style={{ width: `${quotaPercentage}%` }}
                                         />
                                     </div>
@@ -1910,7 +1921,7 @@ export default function AdminPage() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Cari nama, no. reg, NISN, atau catatan..."
                         aria-label="Cari pendaftar"
-                        className="block w-full rounded-[12px] border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-9 text-[13px] font-medium text-[#0F172A] placeholder:text-[#64748B] shadow-2xs focus:border-[#1D4ED8] focus:outline-none sm:py-3 sm:pl-11"
+                        className="block w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-9 text-[13px] font-medium text-[#0F172A] placeholder:text-[#64748B] shadow-2xs focus:border-[#1D4ED8] focus:outline-none sm:py-3 sm:pl-11"
                     />
                     {searchQuery && (
                         <button
@@ -1947,7 +1958,7 @@ export default function AdminPage() {
                         </span>
                     </button>
 
-                    <div className="h-4 w-[1px] shrink-0 bg-[#E2E8F0]" />
+                    <div className="h-4 w-px shrink-0 bg-[#E2E8F0]" />
 
                     {MAJOR_FILTERS.map((m) => {
                         const isSelected = selectedMajorFilter === m;
@@ -1968,7 +1979,7 @@ export default function AdminPage() {
                         );
                     })}
 
-                    <div className="h-4 w-[1px] shrink-0 bg-[#E2E8F0]" />
+                    <div className="h-4 w-px shrink-0 bg-[#E2E8F0]" />
 
                     {DOC_FILTERS.map((docFilter) => {
                         const isSelected = selectedDocFilter === docFilter;
@@ -2090,7 +2101,7 @@ export default function AdminPage() {
 
                 {/* Floating / Sticky Batch Action Bar when items are selected (Fixed above bottom nav on mobile) */}
                 {selectedNumbers.length > 0 && (
-                    <div className="fixed inset-x-3 bottom-[72px] z-40 flex flex-col gap-2 rounded-[18px] border border-[#38BDF8]/40 bg-[#0F172A]/95 p-3 text-white shadow-2xl backdrop-blur-md sm:static sm:inset-auto sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4">
+                    <div className="fixed inset-x-3 bottom-18 z-40 flex flex-col gap-2 rounded-[18px] border border-[#38BDF8]/40 bg-[#0F172A]/95 p-3 text-white shadow-2xl backdrop-blur-md sm:static sm:inset-auto sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4">
                         <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
                                 <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#2563EB] px-2 text-xs font-black text-white">
@@ -2310,7 +2321,7 @@ export default function AdminPage() {
                                                 </td>
                                                 <td className="px-3.5 py-3">
                                                     <span
-                                                        className={`inline-flex items-center gap-1 rounded-[8px] border px-2 py-0.5 text-[11px] font-bold ${
+                                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[11px] font-bold ${
                                                             isRpl
                                                                 ? "border-[#2563EB]/30 bg-[#EFF6FF] text-[#1D4ED8]"
                                                                 : "border-[#F97316]/30 bg-[#FFF7ED] text-[#EA580C]"
@@ -2328,7 +2339,7 @@ export default function AdminPage() {
                                                 </td>
                                                 <td className="px-3.5 py-3">
                                                     <span
-                                                        className={`inline-flex items-center gap-1 rounded-[8px] border px-2 py-0.5 text-[11px] font-bold ${
+                                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[11px] font-bold ${
                                                             isDocsPending
                                                                 ? "border-[#F59E0B]/40 bg-[#FFFBEB] text-[#D97706]"
                                                                 : "border-[#10B981]/40 bg-[#F0FDF4] text-[#15803D]"
@@ -2544,7 +2555,7 @@ export default function AdminPage() {
                                     {/* Middle Badges: Major & Document Status */}
                                     <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                                         <span
-                                            className={`inline-flex items-center gap-1 rounded-[8px] border px-2 py-0.5 text-[11px] font-bold ${
+                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[11px] font-bold ${
                                                 isRpl
                                                     ? "border-[#2563EB]/30 bg-[#EFF6FF] text-[#1D4ED8]"
                                                     : "border-[#F97316]/30 bg-[#FFF7ED] text-[#EA580C]"
@@ -2555,7 +2566,7 @@ export default function AdminPage() {
                                         </span>
 
                                         <span
-                                            className={`inline-flex items-center gap-1 rounded-[8px] border px-2 py-0.5 text-[11px] font-bold ${
+                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[11px] font-bold ${
                                                 isDocsPending
                                                     ? "border-[#F59E0B]/40 bg-[#FFFBEB] text-[#D97706]"
                                                     : "border-[#10B981]/40 bg-[#F0FDF4] text-[#15803D]"
@@ -2571,7 +2582,7 @@ export default function AdminPage() {
                                             </span>
                                         </span>
 
-                                        <span className="rounded-[8px] bg-[#F8FAFC] px-2 py-0.5 text-[11px] font-semibold text-[#64748B]">
+                                        <span className="rounded-lg bg-[#F8FAFC] px-2 py-0.5 text-[11px] font-semibold text-[#64748B]">
                                             NISN: {reg.nisn}
                                         </span>
                                     </div>
@@ -2634,7 +2645,7 @@ export default function AdminPage() {
                     onClick={() => setSelectedRegistration(null)}
                 >
                     <div
-                        className="max-h-[93dvh] w-full max-w-2xl overflow-y-auto rounded-t-[26px] border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] shadow-2xl sm:max-h-[92dvh] sm:rounded-[24px]"
+                        className="max-h-[93dvh] w-full max-w-2xl overflow-y-auto rounded-t-[26px] border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] shadow-2xl sm:max-h-[92dvh] sm:rounded-3xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Flutter DetailScreen AppBar */}
@@ -2689,7 +2700,7 @@ export default function AdminPage() {
 
                         {/* Student Profile Header Card (#0F172A with rounded bottom 28px) */}
                         <div className="rounded-b-[28px] bg-[#0F172A] px-4 pt-3 pb-6 text-center text-white sm:px-5 sm:pb-7">
-                            <div className="mx-auto flex h-[70px] w-[70px] items-center justify-center overflow-hidden rounded-full border-[2.5px] border-[#38BDF8] bg-[#2563EB]/20 shadow-md sm:h-[76px] sm:w-[76px]">
+                            <div className="mx-auto flex h-17.5 w-17.5 items-center justify-center overflow-hidden rounded-full border-[2.5px] border-[#38BDF8] bg-[#2563EB]/20 shadow-md sm:h-19 sm:w-19">
                                 {selectedRegistration.photo_url?.startsWith("http") ? (
                                     <img
                                         src={selectedRegistration.photo_url}
@@ -2711,7 +2722,7 @@ export default function AdminPage() {
                             <h3 className="mt-2.5 text-base font-extrabold text-white sm:mt-3 sm:text-lg">
                                 {selectedRegistration.name}
                             </h3>
-                            <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-[8px] bg-white/10 px-3 py-1">
+                            <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1">
                                 <span className="text-xs font-bold tracking-[0.5px] text-[#38BDF8]">
                                     {selectedRegistration.registration_number}
                                 </span>
@@ -2752,7 +2763,7 @@ export default function AdminPage() {
                         {/* Content Sections */}
                         <div className="space-y-3 p-3.5 pb-8 sm:p-5">
                             {/* Action Card for Changing Status */}
-                            <div className="rounded-[16px] border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
+                            <div className="rounded-2xl border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
                                 <div className="flex items-center gap-2">
                                     <SlidersHorizontal size={17} className="text-[#1D4ED8]" />
                                     <h4 className="text-sm font-extrabold text-[#0F172A]">
@@ -2778,7 +2789,7 @@ export default function AdminPage() {
                                                         selectedRegistration.name
                                                     )
                                                 }
-                                                className="flex items-center gap-2.5 rounded-[12px] p-2.5 text-left transition-all disabled:opacity-50"
+                                                className="flex items-center gap-2.5 rounded-xl p-2.5 text-left transition-all disabled:opacity-50"
                                                 style={{
                                                     backgroundColor: isCurrent ? opt.bg : "#F8FAFC",
                                                     border: `1.5px solid ${
@@ -2815,7 +2826,7 @@ export default function AdminPage() {
                             {isEditingProfile ? (
                                 <form
                                     onSubmit={saveProfileEdits}
-                                    className="rounded-[16px] border-2 border-[#2563EB]/40 bg-white p-3.5 shadow-sm sm:p-4"
+                                    className="rounded-2xl border-2 border-[#2563EB]/40 bg-white p-3.5 shadow-sm sm:p-4"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
@@ -2977,7 +2988,7 @@ export default function AdminPage() {
                             ) : (
                                 <>
                                     {/* Catatan Verifikasi Panitia Card */}
-                                    <div className="rounded-[16px] border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
+                                    <div className="rounded-2xl border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <StickyNote
@@ -3008,7 +3019,7 @@ export default function AdminPage() {
                                     </div>
 
                                     {/* Section 1: Data Calon Siswa */}
-                                    <div className="rounded-[16px] border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
+                                    <div className="rounded-2xl border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <User size={17} className="text-[#1D4ED8]" />
@@ -3043,7 +3054,7 @@ export default function AdminPage() {
                                                     <dt className="shrink-0 font-semibold text-[#64748B] sm:w-36">
                                                         {label}
                                                     </dt>
-                                                    <dd className="break-words font-bold text-[#0F172A]">
+                                                    <dd className="wrap-break-word font-bold text-[#0F172A]">
                                                         {val}
                                                     </dd>
                                                 </div>
@@ -3052,7 +3063,7 @@ export default function AdminPage() {
                                     </div>
 
                                     {/* Section 2: Kontak & Orang Tua */}
-                                    <div className="rounded-[16px] border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
+                                    <div className="rounded-2xl border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                             <div className="flex items-center gap-2">
                                                 <Phone size={17} className="text-[#1D4ED8]" />
@@ -3108,7 +3119,7 @@ export default function AdminPage() {
                                                     <dt className="shrink-0 font-semibold text-[#64748B] sm:w-36">
                                                         {label}
                                                     </dt>
-                                                    <dd className="break-words font-bold text-[#0F172A]">
+                                                    <dd className="wrap-break-word font-bold text-[#0F172A]">
                                                         {val || "-"}
                                                     </dd>
                                                 </div>
@@ -3119,7 +3130,7 @@ export default function AdminPage() {
                             )}
 
                             {/* Section 3: Lampiran Berkas Dokumen (with Interactive Lightbox Zoom) */}
-                            <div className="rounded-[16px] border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
+                            <div className="rounded-2xl border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
                                 <div className="flex flex-wrap items-center justify-between gap-1">
                                     <div className="flex items-center gap-2">
                                         <FileCheck2 size={17} className="text-[#1D4ED8]" />
@@ -3231,7 +3242,7 @@ export default function AdminPage() {
                             </div>
 
                             {/* Section 4: Informasi Pendaftaran */}
-                            <div className="rounded-[16px] border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
+                            <div className="rounded-2xl border border-[#E2E8F0] bg-white p-3.5 sm:p-4">
                                 <div className="flex items-center gap-2">
                                     <Info size={17} className="text-[#1D4ED8]" />
                                     <h4 className="text-sm font-extrabold text-[#0F172A]">
@@ -3264,13 +3275,13 @@ export default function AdminPage() {
                                 <button
                                     type="button"
                                     onClick={() => setConfirmDelete(true)}
-                                    className="flex h-[48px] w-full items-center justify-center gap-2 rounded-[14px] border border-[#FCA5A5] bg-[#FEF2F2] text-sm font-bold text-[#DC2626] transition-colors hover:bg-red-100"
+                                    className="flex h-12 w-full items-center justify-center gap-2 rounded-[14px] border border-[#FCA5A5] bg-[#FEF2F2] text-sm font-bold text-[#DC2626] transition-colors hover:bg-red-100"
                                 >
                                     <Trash2 size={18} />
                                     <span>Hapus Data Pendaftar Ini</span>
                                 </button>
                             ) : (
-                                <div className="rounded-[16px] border border-[#FCA5A5] bg-[#FEF2F2] p-4">
+                                <div className="rounded-2xl border border-[#FCA5A5] bg-[#FEF2F2] p-4">
                                     <div className="flex items-center gap-2 text-[#DC2626]">
                                         <Trash2 size={20} />
                                         <h4 className="text-sm font-extrabold">
@@ -3325,7 +3336,7 @@ export default function AdminPage() {
                     onClick={() => setQuickStatusTarget(null)}
                 >
                     <div
-                        className="w-full max-w-md rounded-[24px] bg-white p-5 text-[#0F172A] shadow-2xl"
+                        className="w-full max-w-md rounded-3xl bg-white p-5 text-[#0F172A] shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E2E8F0]" />
@@ -3370,7 +3381,7 @@ export default function AdminPage() {
                                                 quickStatusTarget.name
                                             )
                                         }
-                                        className="flex w-full items-center gap-3 rounded-[12px] px-3.5 py-3 text-left transition-all disabled:opacity-50"
+                                        className="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left transition-all disabled:opacity-50"
                                         style={{
                                             backgroundColor: isSelected ? item.bg : "#FFFFFF",
                                             border: `${isSelected ? "1.5px" : "1px"} solid ${
@@ -3412,7 +3423,7 @@ export default function AdminPage() {
                     onClick={() => setQuickContactTarget(null)}
                 >
                     <div
-                        className="w-full max-w-md rounded-[24px] bg-white p-5 text-[#0F172A] shadow-2xl"
+                        className="w-full max-w-md rounded-3xl bg-white p-5 text-[#0F172A] shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E2E8F0]" />
@@ -3508,7 +3519,7 @@ export default function AdminPage() {
                     onClick={() => setShowSortModal(false)}
                 >
                     <div
-                        className="w-full max-w-md rounded-[24px] bg-white p-5 text-[#0F172A] shadow-2xl"
+                        className="w-full max-w-md rounded-3xl bg-white p-5 text-[#0F172A] shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E2E8F0]" />
@@ -3549,7 +3560,7 @@ export default function AdminPage() {
                                             setSortBy(val);
                                             setShowSortModal(false);
                                         }}
-                                        className={`flex w-full items-center justify-between rounded-[12px] border px-3.5 py-2.5 text-left ${
+                                        className={`flex w-full items-center justify-between rounded-xl border px-3.5 py-2.5 text-left ${
                                             isSelected
                                                 ? "border-[#2563EB] bg-[#EFF6FF]"
                                                 : "border-transparent hover:bg-slate-50"
@@ -3589,7 +3600,7 @@ export default function AdminPage() {
                     onClick={() => setShowBroadcastModal(false)}
                 >
                     <div
-                        className="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-[24px] bg-white p-5 text-[#0F172A] shadow-2xl sm:rounded-[24px]"
+                        className="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 text-[#0F172A] shadow-2xl sm:rounded-3xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E2E8F0] sm:hidden" />
@@ -3637,7 +3648,7 @@ export default function AdminPage() {
                             })}
                         </div>
 
-                        <div className="mt-3.5 rounded-[16px] border border-[#22C55E]/30 bg-[#F0FDF4] p-4 shadow-xs">
+                        <div className="mt-3.5 rounded-2xl border border-[#22C55E]/30 bg-[#F0FDF4] p-4 shadow-xs">
                             <div className="mb-2.5 flex items-center justify-between border-b border-[#22C55E]/20 pb-2">
                                 <div className="flex items-center gap-1.5">
                                     <MessageCircle size={15} className="text-[#16A34A]" />
@@ -3698,20 +3709,20 @@ export default function AdminPage() {
                     onClick={() => setShowAnalyticsModal(false)}
                 >
                     <div
-                        className="w-full max-w-md rounded-t-[24px] bg-white p-5 text-[#0F172A] shadow-2xl sm:rounded-[24px]"
+                        className="w-full max-w-md rounded-t-3xl bg-white p-5 text-[#0F172A] shadow-2xl sm:rounded-3xl dark:border dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E2E8F0] sm:hidden" />
+                        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E2E8F0] dark:bg-slate-700 sm:hidden" />
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EFF6FF] text-[#1D4ED8]">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EFF6FF] text-[#1D4ED8] dark:bg-blue-950/70 dark:text-sky-400">
                                     <BarChart3 size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-extrabold text-[#0F172A]">
+                                    <h3 className="text-base font-extrabold text-[#0F172A] dark:text-white">
                                         Analisis Detail PPDB
                                     </h3>
-                                    <p className="text-xs text-[#64748B]">
+                                    <p className="text-xs text-[#64748B] dark:text-slate-400">
                                         Ringkasan statistik penerimaan siswa baru
                                     </p>
                                 </div>
@@ -3719,73 +3730,73 @@ export default function AdminPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowAnalyticsModal(false)}
-                                className="rounded-lg p-1 text-[#64748B] hover:bg-slate-100"
+                                className="rounded-lg p-1 text-[#64748B] hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                             >
                                 <X size={18} />
                             </button>
                         </div>
 
                         <div className="mt-4 space-y-3">
-                            <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+                            <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 dark:border-slate-800 dark:bg-slate-950/50">
                                 <div className="flex items-center justify-between text-xs font-bold">
-                                    <span>Pencapaian Target Kuota</span>
-                                    <span className="text-[#15803D]">
+                                    <span className="text-slate-700 dark:text-slate-200">Pencapaian Target Kuota</span>
+                                    <span className="text-[#15803D] dark:text-emerald-400">
                                         {approvedCount} / {TARGET_QUOTA} ({quotaPercentage}%)
                                     </span>
                                 </div>
-                                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#E2E8F0]">
+                                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#E2E8F0] dark:bg-slate-800">
                                     <div
-                                        className="h-full rounded-full bg-[#15803D]"
+                                        className="h-full rounded-full bg-[#15803D] dark:bg-emerald-500"
                                         style={{ width: `${quotaPercentage}%` }}
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2.5 text-xs">
-                                <div className="rounded-2xl border border-[#2563EB]/25 bg-[#EFF6FF] p-3.5">
-                                    <div className="font-extrabold text-[#1D4ED8]">💻 Jurusan RPL</div>
-                                    <div className="mt-1 text-xl font-black text-[#0F172A]">
+                                <div className="rounded-2xl border border-[#2563EB]/25 bg-[#EFF6FF] p-3.5 dark:border-blue-500/30 dark:bg-blue-950/40">
+                                    <div className="font-extrabold text-[#1D4ED8] dark:text-sky-400">💻 Jurusan RPL</div>
+                                    <div className="mt-1 text-xl font-black text-[#0F172A] dark:text-white">
                                         {rplTotal} Siswa
                                     </div>
-                                    <div className="mt-0.5 text-[11px] font-semibold text-[#15803D]">
+                                    <div className="mt-0.5 text-[11px] font-semibold text-[#15803D] dark:text-emerald-400">
                                         {rplApproved} Lulus Verifikasi
                                     </div>
                                 </div>
-                                <div className="rounded-2xl border border-[#F97316]/25 bg-[#FFF7ED] p-3.5">
-                                    <div className="font-extrabold text-[#EA580C]">
+                                <div className="rounded-2xl border border-[#F97316]/25 bg-[#FFF7ED] p-3.5 dark:border-orange-500/30 dark:bg-orange-950/40">
+                                    <div className="font-extrabold text-[#EA580C] dark:text-orange-400">
                                         🏍️ Jurusan TBSM
                                     </div>
-                                    <div className="mt-1 text-xl font-black text-[#0F172A]">
+                                    <div className="mt-1 text-xl font-black text-[#0F172A] dark:text-white">
                                         {tbsmTotal} Siswa
                                     </div>
-                                    <div className="mt-0.5 text-[11px] font-semibold text-[#15803D]">
+                                    <div className="mt-0.5 text-[11px] font-semibold text-[#15803D] dark:text-emerald-400">
                                         {tbsmApproved} Lulus Verifikasi
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-[#E2E8F0] p-3.5 text-xs space-y-2">
+                            <div className="rounded-2xl border border-[#E2E8F0] p-3.5 text-xs space-y-2 dark:border-slate-800 dark:bg-slate-950/40">
                                 <div className="flex justify-between">
-                                    <span className="font-semibold text-[#64748B]">
+                                    <span className="font-semibold text-[#64748B] dark:text-slate-400">
                                         Menunggu Verifikasi
                                     </span>
-                                    <span className="font-extrabold text-[#D97706]">
+                                    <span className="font-extrabold text-[#D97706] dark:text-amber-400">
                                         {pendingCount} Pendaftar
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="font-semibold text-[#64748B]">
+                                    <span className="font-semibold text-[#64748B] dark:text-slate-400">
                                         Berkas Bermasalah / Revisi
                                     </span>
-                                    <span className="font-extrabold text-[#DC2626]">
+                                    <span className="font-extrabold text-[#DC2626] dark:text-rose-400">
                                         {problematicCount} Pendaftar
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="font-semibold text-[#64748B]">
+                                    <span className="font-semibold text-[#64748B] dark:text-slate-400">
                                         Belum Unggah Berkas Lengkap
                                     </span>
-                                    <span className="font-extrabold text-[#EA580C]">
+                                    <span className="font-extrabold text-[#EA580C] dark:text-orange-400">
                                         {pendingDocsCount} Pendaftar
                                     </span>
                                 </div>
@@ -3807,7 +3818,7 @@ export default function AdminPage() {
                     }}
                 >
                     <div
-                        className="flex max-h-[92dvh] w-full max-w-2xl flex-col rounded-t-[24px] bg-white text-[#0F172A] shadow-2xl sm:rounded-[24px]"
+                        className="flex max-h-[92dvh] w-full max-w-2xl flex-col rounded-t-3xl bg-white text-[#0F172A] shadow-2xl sm:rounded-3xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Mobile grab handle */}
@@ -3962,7 +3973,7 @@ export default function AdminPage() {
                         </div>
 
                         {/* Modal Footer (Fixed) */}
-                        <div className="flex items-center justify-end gap-2.5 border-t border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3.5 rounded-b-[24px]">
+                        <div className="flex items-center justify-end gap-2.5 border-t border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3.5 rounded-b-3xl">
                             <button
                                 type="button"
                                 onClick={() => {
@@ -4157,7 +4168,7 @@ export default function AdminPage() {
                                             className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xs transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90"
                                         >
                                             {/* Image Preview with Overlay Badge */}
-                                            <div className="relative aspect-[4/3] w-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                            <div className="relative aspect-4/3 w-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                                                 <Image
                                                     src={item.imageUrl}
                                                     alt={item.title}
@@ -4456,7 +4467,7 @@ export default function AdminPage() {
                                                 Hapus Foto
                                             </button>
                                         </div>
-                                        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800">
+                                        <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800">
                                             <Image
                                                 src={formShowcaseImageUrl}
                                                 alt="Pratinjau Foto"
@@ -4545,7 +4556,7 @@ export default function AdminPage() {
                     onClick={() => setAddDialogOpen(false)}
                 >
                     <div
-                        className="max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-[24px] bg-white text-[#0F172A] shadow-2xl sm:rounded-[24px]"
+                        className="max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-3xl bg-white text-[#0F172A] shadow-2xl sm:rounded-3xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between rounded-b-[20px] bg-[#0F172A] px-5 py-4 text-white">
@@ -4748,7 +4759,7 @@ export default function AdminPage() {
                ===================================================================== */}
             {lightboxDoc && (
                 <div
-                    className="fixed inset-0 z-[60] flex flex-col bg-[#0F172A]/95 p-3 backdrop-blur-sm sm:p-5"
+                    className="fixed inset-0 z-60 flex flex-col bg-[#0F172A]/95 p-3 backdrop-blur-sm sm:p-5"
                     onClick={() => setLightboxDoc(null)}
                 >
                     <div
@@ -4856,7 +4867,7 @@ export default function AdminPage() {
                     onClick={() => setShowReportModal(false)}
                 >
                     <div
-                        className="max-h-[92dvh] w-full max-w-4xl overflow-y-auto rounded-t-[24px] bg-white p-4 text-[#0F172A] shadow-2xl sm:rounded-[24px] sm:p-7"
+                        className="max-h-[92dvh] w-full max-w-4xl overflow-y-auto rounded-t-3xl bg-white p-4 text-[#0F172A] shadow-2xl sm:rounded-3xl sm:p-7"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E2E8F0] sm:hidden" />
@@ -5014,7 +5025,7 @@ export default function AdminPage() {
                     onClick={() => setShowActivityModal(false)}
                 >
                     <div
-                        className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-[24px] bg-white p-5 text-[#0F172A] shadow-2xl sm:rounded-[24px]"
+                        className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 text-[#0F172A] shadow-2xl sm:rounded-3xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E2E8F0] sm:hidden" />
@@ -5102,7 +5113,7 @@ export default function AdminPage() {
                     onClick={() => setShowAdminModal(false)}
                 >
                     <div
-                        className="relative flex flex-col w-full max-w-3xl max-h-[92vh] rounded-[24px] border border-slate-200 bg-white text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-[#0F172A] dark:text-white overflow-hidden"
+                        className="relative flex flex-col w-full max-w-3xl max-h-[92vh] rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-[#0F172A] dark:text-white overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal Header */}
@@ -5619,7 +5630,7 @@ export default function AdminPage() {
                     onClick={() => setAdminToDelete(null)}
                 >
                     <div
-                        className="w-full max-w-sm rounded-[24px] border border-rose-200 bg-white p-5 text-slate-900 shadow-2xl dark:border-rose-800/60 dark:bg-[#0F172A] dark:text-white"
+                        className="w-full max-w-sm rounded-3xl border border-rose-200 bg-white p-5 text-slate-900 shadow-2xl dark:border-rose-800/60 dark:bg-[#0F172A] dark:text-white"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-950/70 dark:text-rose-400 mb-3">

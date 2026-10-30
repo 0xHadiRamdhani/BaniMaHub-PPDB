@@ -197,12 +197,32 @@ html[data-theme="dark"] .admin-portal .bg-\[\#FEF3C7\] {
 html[data-theme="dark"] .admin-portal .bg-\[\#F3E8FF\] {
   background-color: #3b0764 !important;
 }
+html[data-theme="dark"] .admin-portal .bg-\[\#FFF7ED\] {
+  background-color: #431407 !important;
+}
+html[data-theme="dark"] .admin-portal .bg-\[\#FFFBEB\] {
+  background-color: #451a03 !important;
+}
+html[data-theme="dark"] .admin-portal .bg-\[\#FFF1F2\] {
+  background-color: #4c0519 !important;
+}
+html[data-theme="dark"] .admin-portal .bg-\[\#DCFCE7\] {
+  background-color: #052e16 !important;
+}
 html[data-theme="dark"] .admin-portal .border-\[\#E2E8F0\],
 html[data-theme="dark"] .admin-portal .border-\[\#F1F5F9\] {
   border-color: #1e293b !important;
 }
 html[data-theme="dark"] .admin-portal .border-\[\#22C55E\]\/30 {
   border-color: rgba(34, 197, 94, 0.35) !important;
+}
+html[data-theme="dark"] .admin-portal .border-\[\#F97316\]\/25,
+html[data-theme="dark"] .admin-portal .border-\[\#F97316\]\/30 {
+  border-color: rgba(249, 115, 22, 0.35) !important;
+}
+html[data-theme="dark"] .admin-portal .border-\[\#F59E0B\]\/30,
+html[data-theme="dark"] .admin-portal .border-\[\#F59E0B\]\/40 {
+  border-color: rgba(245, 158, 11, 0.35) !important;
 }
 html[data-theme="dark"] .admin-portal .text-\[\#0F172A\] {
   color: #f8fafc !important;
@@ -221,6 +241,12 @@ html[data-theme="dark"] .admin-portal .text-\[\#DC2626\] {
 }
 html[data-theme="dark"] .admin-portal .text-\[\#D97706\] {
   color: #fbbf24 !important;
+}
+html[data-theme="dark"] .admin-portal .text-\[\#EA580C\] {
+  color: #fb923c !important;
+}
+html[data-theme="dark"] .admin-portal .text-\[\#9F1239\] {
+  color: #fda4af !important;
 }
 html[data-theme="dark"] .admin-portal .text-\[\#9333EA\] {
   color: #c084fc !important;

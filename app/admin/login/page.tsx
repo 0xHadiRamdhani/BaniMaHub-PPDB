@@ -50,8 +50,8 @@ export default function AdminLoginPage() {
     return (
         <main className="min-h-screen bg-paper-soft text-ink">
             {/* Top School Header Section (Hitam & Biru - Flutter LoginScreen) */}
-            <div className="w-full rounded-b-[32px] bg-gradient-to-b from-[#0F172A] to-[#1E3A8A] px-6 pt-16 pb-12 text-center shadow-md sm:pt-20 sm:pb-14">
-                <div className="mx-auto flex h-[76px] w-[76px] items-center justify-center overflow-hidden rounded-full border-2 border-[#38BDF8] bg-white p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.15)]">
+            <div className="w-full rounded-b-4xl bg-linear-to-b from-[#0F172A] to-[#1E3A8A] px-6 pt-16 pb-12 text-center shadow-md sm:pt-20 sm:pb-14">
+                <div className="mx-auto flex h-19 w-19 items-center justify-center overflow-hidden rounded-full border-2 border-[#38BDF8] bg-white p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.15)]">
                     <Image
                         src="/logo.png"
                         alt="Logo SMK Bani Masum"
@@ -72,8 +72,8 @@ export default function AdminLoginPage() {
 
             {/* Card Form Section (Flutter LoginScreen) */}
             <section className="mx-auto max-w-md px-6 py-6 sm:py-8">
-                <div className="rounded-[24px] border border-neutral-300 bg-paper p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] sm:p-7">
-                    <h2 className="text-[20px] font-extrabold tracking-[-0.5px] text-ink">
+                <div className="rounded-3xl border border-neutral-300 bg-paper p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] sm:p-7">
+                    <h2 className="text-xl font-extrabold tracking-[-0.5px] text-ink">
                         Masuk Akun
                     </h2>
                     <p className="mt-1 text-[13px] text-muted-soft">
@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
                                     type="email"
                                     autoComplete="email"
                                     placeholder="admin@banimasum.sch.id"
-                                    className="block w-full rounded-[12px] border border-neutral-300 bg-paper-soft py-3.5 pl-11 pr-4 text-sm text-ink placeholder:text-muted-soft focus:border-[#1D4ED8] focus:outline-none"
+                                    className="block w-full rounded-xl border border-neutral-300 bg-paper-soft py-3.5 pl-11 pr-4 text-sm text-ink placeholder:text-muted-soft focus:border-[#1D4ED8] focus:outline-none"
                                 />
                             </div>
                         </div>
@@ -126,7 +126,7 @@ export default function AdminLoginPage() {
                                     type={obscurePassword ? "password" : "text"}
                                     autoComplete="current-password"
                                     placeholder="••••••••"
-                                    className="block w-full rounded-[12px] border border-neutral-300 bg-paper-soft py-3.5 pl-11 pr-11 text-sm text-ink placeholder:text-muted-soft focus:border-[#1D4ED8] focus:outline-none"
+                                    className="block w-full rounded-xl border border-neutral-300 bg-paper-soft py-3.5 pl-11 pr-11 text-sm text-ink placeholder:text-muted-soft focus:border-[#1D4ED8] focus:outline-none"
                                 />
                                 <button
                                     type="button"
@@ -154,7 +154,7 @@ export default function AdminLoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex h-[52px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#2563EB] px-5 text-[15px] font-bold tracking-[0.3px] text-white transition-colors hover:bg-[#1D4ED8] disabled:opacity-60"
+                                className="flex h-13 w-full items-center justify-center gap-2 rounded-[14px] bg-[#2563EB] px-5 text-[15px] font-bold tracking-[0.3px] text-white transition-colors hover:bg-[#1D4ED8] disabled:opacity-60"
                                 style={{ color: "#ffffff" }}
                             >
                                 {loading ? (
